@@ -81,7 +81,7 @@ body {
 
 .ttexp-position-absolute {
   position: absolute;
-  z-index: 1000; }
+  z-index: 2000; }
   .ttexp-position-absolute.top-left {
     top: 0px;
     left: 0px; }
@@ -186,11 +186,11 @@ html, body {
   margin-left: 25%; }
 
 .page-index #main-content {
-  margin: 60px 0 0 5px;
-  height: 530px; }
+  margin: 60px 0 0 5px; }
   .page-index #main-content .panel-body {
-    padding-left: 0;
-    padding-right: 0; }
+    padding: 10px;
+    text-align: justify;
+    text-justify: inter-word; }
 
 /* http://willschenk.com/bootstrap-advanced-grid-tricks/ */
 .page-scenarios .container-fluid,
@@ -242,20 +242,31 @@ html, body {
     left: 0;
     width: 100%;
     height: 100%;
+    overflow-y: auto;
     background-color: #6F7072;
-    z-index: 10000;
+    z-index: 1500;
     -webkit-transform-style: preserve-3d;
     -moz-transform-style: preserve-3d;
     transform-style: preserve-3d; }
-    .page-play #overlay #overlay-button {
+    .page-play #overlay #overlay-content {
       position: relative;
       top: 50%;
       -webkit-transform: translateY(-50%);
       -ms-transform: translateY(-50%);
       transform: translateY(-50%);
-      text-align: center; }
-      .page-play #overlay #overlay-button a {
-        font-size: 2em; }
+      padding: 10% 20%; }
+      .page-play #overlay #overlay-content #overlay-description {
+        color: #fff;
+        text-align: justify;
+        text-justify: inter-word;
+        font-size: 125%; }
+      .page-play #overlay #overlay-content #overlay-button {
+        text-align: center;
+        margin: 40px 0 20px 0; }
+        .page-play #overlay #overlay-content #overlay-button a {
+          padding-left: 40px;
+          padding-right: 40px;
+          font-size: 200%; }
   .page-play #text-container {
     overflow: hidden;
     width: 100%;

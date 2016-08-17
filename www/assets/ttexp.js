@@ -195,6 +195,17 @@ define('ttexp/helpers/add', ['exports', 'ember-math-helpers/helpers/add'], funct
     }
   });
 });
+define('ttexp/helpers/breaklines', ['exports', 'ember'], function (exports, _ember) {
+  exports.breaklines = breaklines;
+
+  function breaklines(text /*, hash*/) {
+    text = _ember['default'].Handlebars.Utils.escapeExpression(text);
+    text = text.replace(/(\r\n|\n|\r)/, '<br>');
+    return _ember['default'].String.htmlSafe(text);
+  }
+
+  exports['default'] = _ember['default'].Helper.helper(breaklines);
+});
 define('ttexp/helpers/ceil', ['exports', 'ember-math-helpers/helpers/ceil'], function (exports, _emberMathHelpersHelpersCeil) {
   Object.defineProperty(exports, 'default', {
     enumerable: true,
@@ -650,6 +661,7 @@ define('ttexp/models/scenario', ['exports', 'ember-data'], function (exports, _e
   exports['default'] = _emberData['default'].Model.extend({
     code: _emberData['default'].attr('string'),
     name: _emberData['default'].attr('string'),
+    description: _emberData['default'].attr('string'),
     attempts: _emberData['default'].attr('number'),
 
     playthroughs: _emberData['default'].hasMany('playthrough'),
@@ -1546,7 +1558,7 @@ define("ttexp/templates/index", ["exports"], function (exports) {
             "column": 0
           },
           "end": {
-            "line": 34,
+            "line": 36,
             "column": 10
           }
         },
@@ -1646,26 +1658,20 @@ define("ttexp/templates/index", ["exports"], function (exports) {
         dom.setAttribute(el6, "class", "panel-body");
         var el7 = dom.createTextNode("\n						");
         dom.appendChild(el6, el7);
-        var el7 = dom.createElement("br");
-        dom.appendChild(el6, el7);
-        var el7 = dom.createElement("br");
-        dom.appendChild(el6, el7);
-        var el7 = dom.createTextNode("\n						");
-        dom.appendChild(el6, el7);
-        var el7 = dom.createElement("br");
-        dom.appendChild(el6, el7);
-        var el7 = dom.createElement("br");
+        var el7 = dom.createElement("p");
+        var el8 = dom.createTextNode("Benvenuto in un innovativo metodo di allenamento che ti permette di misurare, testare e sviluppare le tue \n						capacità.");
+        dom.appendChild(el7, el8);
         dom.appendChild(el6, el7);
         var el7 = dom.createTextNode("\n						");
         dom.appendChild(el6, el7);
-        var el7 = dom.createElement("br");
-        dom.appendChild(el6, el7);
-        var el7 = dom.createElement("br");
+        var el7 = dom.createElement("p");
+        var el8 = dom.createTextNode("Entra nelle situazioni di vendita e comportati come se fossi davvero sul campo: clicca la risposta che ritieni \n						migliore e scopri le reazioni dei tuoi clienti. Dedica ogni giorni pochi minuti all’allenamento: migliorerai i \n						risultati e sbloccherai nuove situazioni.");
+        dom.appendChild(el7, el8);
         dom.appendChild(el6, el7);
         var el7 = dom.createTextNode("\n						");
         dom.appendChild(el6, el7);
-        var el7 = dom.createElement("center");
-        var el8 = dom.createTextNode("Benvenuto in TTExp");
+        var el7 = dom.createElement("p");
+        var el8 = dom.createTextNode("Buon divertimento!");
         dom.appendChild(el7, el8);
         dom.appendChild(el6, el7);
         var el7 = dom.createTextNode("\n					");
@@ -1707,7 +1713,7 @@ define("ttexp/templates/index", ["exports"], function (exports) {
         dom.insertBoundary(fragment, null);
         return morphs;
       },
-      statements: [["inline", "partial", ["layout/menu"], [], ["loc", [null, [8, 4], [8, 29]]]], ["content", "outlet", ["loc", [null, [34, 0], [34, 10]]]]],
+      statements: [["inline", "partial", ["layout/menu"], [], ["loc", [null, [8, 4], [8, 29]]]], ["content", "outlet", ["loc", [null, [36, 0], [36, 10]]]]],
       locals: [],
       templates: []
     };
@@ -2239,11 +2245,11 @@ define("ttexp/templates/play", ["exports"], function (exports) {
             "loc": {
               "source": null,
               "start": {
-                "line": 25,
+                "line": 31,
                 "column": 32
               },
               "end": {
-                "line": 25,
+                "line": 31,
                 "column": 116
               }
             },
@@ -2274,11 +2280,11 @@ define("ttexp/templates/play", ["exports"], function (exports) {
           "loc": {
             "source": null,
             "start": {
-              "line": 24,
+              "line": 30,
               "column": 3
             },
             "end": {
-              "line": 26,
+              "line": 32,
               "column": 3
             }
           },
@@ -2306,7 +2312,7 @@ define("ttexp/templates/play", ["exports"], function (exports) {
           morphs[0] = dom.createMorphAt(dom.childAt(fragment, [1]), 0, 0);
           return morphs;
         },
-        statements: [["block", "link-to", ["scores", ["get", "model.scenario.playState.playthrough", ["loc", [null, [25, 52], [25, 88]]]]], [], 0, null, ["loc", [null, [25, 32], [25, 128]]]]],
+        statements: [["block", "link-to", ["scores", ["get", "model.scenario.playState.playthrough", ["loc", [null, [31, 52], [31, 88]]]]], [], 0, null, ["loc", [null, [31, 32], [31, 128]]]]],
         locals: [],
         templates: [child0]
       };
@@ -2320,11 +2326,11 @@ define("ttexp/templates/play", ["exports"], function (exports) {
             "loc": {
               "source": null,
               "start": {
-                "line": 27,
+                "line": 33,
                 "column": 4
               },
               "end": {
-                "line": 33,
+                "line": 39,
                 "column": 4
               }
             },
@@ -2371,7 +2377,7 @@ define("ttexp/templates/play", ["exports"], function (exports) {
             morphs[2] = dom.createMorphAt(element3, 0, 0);
             return morphs;
           },
-          statements: [["attribute", "data-item-id", ["get", "item.id", ["loc", [null, [28, 48], [28, 55]]]]], ["element", "action", ["clickItem", ["get", "item", ["loc", [null, [30, 30], [30, 34]]]]], [], ["loc", [null, [30, 9], [30, 36]]]], ["content", "item.text", ["loc", [null, [30, 37], [30, 50]]]]],
+          statements: [["attribute", "data-item-id", ["get", "item.id", ["loc", [null, [34, 48], [34, 55]]]]], ["element", "action", ["clickItem", ["get", "item", ["loc", [null, [36, 30], [36, 34]]]]], [], ["loc", [null, [36, 9], [36, 36]]]], ["content", "item.text", ["loc", [null, [36, 37], [36, 50]]]]],
           locals: ["item"],
           templates: []
         };
@@ -2383,11 +2389,11 @@ define("ttexp/templates/play", ["exports"], function (exports) {
           "loc": {
             "source": null,
             "start": {
-              "line": 26,
+              "line": 32,
               "column": 3
             },
             "end": {
-              "line": 34,
+              "line": 40,
               "column": 3
             }
           },
@@ -2410,7 +2416,7 @@ define("ttexp/templates/play", ["exports"], function (exports) {
           dom.insertBoundary(fragment, null);
           return morphs;
         },
-        statements: [["block", "each", [["get", "model.scenario.playState.video.items", ["loc", [null, [27, 12], [27, 48]]]]], [], 0, null, ["loc", [null, [27, 4], [33, 13]]]]],
+        statements: [["block", "each", [["get", "model.scenario.playState.video.items", ["loc", [null, [33, 12], [33, 48]]]]], [], 0, null, ["loc", [null, [33, 4], [39, 13]]]]],
         locals: [],
         templates: [child0]
       };
@@ -2424,11 +2430,11 @@ define("ttexp/templates/play", ["exports"], function (exports) {
             "loc": {
               "source": null,
               "start": {
-                "line": 54,
+                "line": 60,
                 "column": 3
               },
               "end": {
-                "line": 56,
+                "line": 62,
                 "column": 3
               }
             },
@@ -2453,7 +2459,7 @@ define("ttexp/templates/play", ["exports"], function (exports) {
             morphs[0] = dom.createMorphAt(fragment, 1, 1, contextualElement);
             return morphs;
           },
-          statements: [["content", "model.scenario.playState.prevVideo.uniqueCode", ["loc", [null, [55, 11], [55, 60]]]]],
+          statements: [["content", "model.scenario.playState.prevVideo.uniqueCode", ["loc", [null, [61, 11], [61, 60]]]]],
           locals: [],
           templates: []
         };
@@ -2468,11 +2474,11 @@ define("ttexp/templates/play", ["exports"], function (exports) {
                 "loc": {
                   "source": null,
                   "start": {
-                    "line": 62,
+                    "line": 68,
                     "column": 5
                   },
                   "end": {
-                    "line": 64,
+                    "line": 70,
                     "column": 5
                   }
                 },
@@ -2523,7 +2529,7 @@ define("ttexp/templates/play", ["exports"], function (exports) {
                 morphs[5] = dom.createMorphAt(fragment, 9, 9, contextualElement);
                 return morphs;
               },
-              statements: [["attribute", "title", ["concat", [["get", "score.variableName", ["loc", [null, [63, 21], [63, 39]]]]]]], ["content", "score.variableCode", ["loc", [null, [63, 43], [63, 65]]]], ["inline", "div", [["subexpr", "round", [["subexpr", "mult", [["subexpr", "div", [["get", "score.value", ["loc", [null, [63, 98], [63, 109]]]], ["get", "model.scenario.playState.stepsCount", ["loc", [null, [63, 110], [63, 145]]]]], [], ["loc", [null, [63, 93], [63, 146]]]], 100], [], ["loc", [null, [63, 87], [63, 151]]]]], [], ["loc", [null, [63, 80], [63, 152]]]], 100], [], ["loc", [null, [63, 74], [63, 158]]]], ["content", "score.value", ["loc", [null, [63, 166], [63, 181]]]], ["content", "score.minValue", ["loc", [null, [63, 188], [63, 206]]]], ["content", "score.maxValue", ["loc", [null, [63, 213], [63, 231]]]]],
+              statements: [["attribute", "title", ["concat", [["get", "score.variableName", ["loc", [null, [69, 21], [69, 39]]]]]]], ["content", "score.variableCode", ["loc", [null, [69, 43], [69, 65]]]], ["inline", "div", [["subexpr", "round", [["subexpr", "mult", [["subexpr", "div", [["get", "score.value", ["loc", [null, [69, 98], [69, 109]]]], ["get", "model.scenario.playState.stepsCount", ["loc", [null, [69, 110], [69, 145]]]]], [], ["loc", [null, [69, 93], [69, 146]]]], 100], [], ["loc", [null, [69, 87], [69, 151]]]]], [], ["loc", [null, [69, 80], [69, 152]]]], 100], [], ["loc", [null, [69, 74], [69, 158]]]], ["content", "score.value", ["loc", [null, [69, 166], [69, 181]]]], ["content", "score.minValue", ["loc", [null, [69, 188], [69, 206]]]], ["content", "score.maxValue", ["loc", [null, [69, 213], [69, 231]]]]],
               locals: ["score"],
               templates: []
             };
@@ -2535,11 +2541,11 @@ define("ttexp/templates/play", ["exports"], function (exports) {
               "loc": {
                 "source": null,
                 "start": {
-                  "line": 61,
+                  "line": 67,
                   "column": 4
                 },
                 "end": {
-                  "line": 65,
+                  "line": 71,
                   "column": 4
                 }
               },
@@ -2562,7 +2568,7 @@ define("ttexp/templates/play", ["exports"], function (exports) {
               dom.insertBoundary(fragment, null);
               return morphs;
             },
-            statements: [["block", "each", [["get", "model.scenario.playState.playthrough.scores", ["loc", [null, [62, 13], [62, 56]]]]], [], 0, null, ["loc", [null, [62, 5], [64, 14]]]]],
+            statements: [["block", "each", [["get", "model.scenario.playState.playthrough.scores", ["loc", [null, [68, 13], [68, 56]]]]], [], 0, null, ["loc", [null, [68, 5], [70, 14]]]]],
             locals: [],
             templates: [child0]
           };
@@ -2574,11 +2580,11 @@ define("ttexp/templates/play", ["exports"], function (exports) {
             "loc": {
               "source": null,
               "start": {
-                "line": 58,
+                "line": 64,
                 "column": 3
               },
               "end": {
-                "line": 66,
+                "line": 72,
                 "column": 3
               }
             },
@@ -2613,7 +2619,7 @@ define("ttexp/templates/play", ["exports"], function (exports) {
             dom.insertBoundary(fragment, null);
             return morphs;
           },
-          statements: [["content", "model.scenario.playState.stepsCount", ["loc", [null, [60, 11], [60, 50]]]], ["block", "if", [["get", "model.scenario.playState.stepsCount", ["loc", [null, [61, 10], [61, 45]]]]], [], 0, null, ["loc", [null, [61, 4], [65, 11]]]]],
+          statements: [["content", "model.scenario.playState.stepsCount", ["loc", [null, [66, 11], [66, 50]]]], ["block", "if", [["get", "model.scenario.playState.stepsCount", ["loc", [null, [67, 10], [67, 45]]]]], [], 0, null, ["loc", [null, [67, 4], [71, 11]]]]],
           locals: [],
           templates: [child0]
         };
@@ -2625,11 +2631,11 @@ define("ttexp/templates/play", ["exports"], function (exports) {
           "loc": {
             "source": null,
             "start": {
-              "line": 51,
+              "line": 57,
               "column": 1
             },
             "end": {
-              "line": 68,
+              "line": 74,
               "column": 1
             }
           },
@@ -2672,7 +2678,7 @@ define("ttexp/templates/play", ["exports"], function (exports) {
           morphs[2] = dom.createMorphAt(element1, 5, 5);
           return morphs;
         },
-        statements: [["content", "model.scenario.playState.video.uniqueCode", ["loc", [null, [53, 10], [53, 55]]]], ["block", "if", [["get", "model.scenario.playState.prevVideo", ["loc", [null, [54, 9], [54, 43]]]]], [], 0, null, ["loc", [null, [54, 3], [56, 10]]]], ["block", "if", [false], [], 1, null, ["loc", [null, [58, 3], [66, 10]]]]],
+        statements: [["content", "model.scenario.playState.video.uniqueCode", ["loc", [null, [59, 10], [59, 55]]]], ["block", "if", [["get", "model.scenario.playState.prevVideo", ["loc", [null, [60, 9], [60, 43]]]]], [], 0, null, ["loc", [null, [60, 3], [62, 10]]]], ["block", "if", [false], [], 1, null, ["loc", [null, [64, 3], [72, 10]]]]],
         locals: [],
         templates: [child0, child1]
       };
@@ -2691,7 +2697,7 @@ define("ttexp/templates/play", ["exports"], function (exports) {
             "column": 0
           },
           "end": {
-            "line": 71,
+            "line": 77,
             "column": 0
           }
         },
@@ -2711,12 +2717,30 @@ define("ttexp/templates/play", ["exports"], function (exports) {
         var el3 = dom.createTextNode("\n		");
         dom.appendChild(el2, el3);
         var el3 = dom.createElement("div");
-        dom.setAttribute(el3, "id", "overlay-button");
+        dom.setAttribute(el3, "id", "overlay-content");
         var el4 = dom.createTextNode("\n			");
         dom.appendChild(el3, el4);
-        var el4 = dom.createElement("a");
-        dom.setAttribute(el4, "class", "btn btn-primary");
-        var el5 = dom.createTextNode("INIZIA SIMULAZIONE");
+        var el4 = dom.createElement("div");
+        dom.setAttribute(el4, "id", "overlay-description");
+        var el5 = dom.createTextNode("\n				");
+        dom.appendChild(el4, el5);
+        var el5 = dom.createComment("");
+        dom.appendChild(el4, el5);
+        var el5 = dom.createTextNode("\n			");
+        dom.appendChild(el4, el5);
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n			");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createElement("div");
+        dom.setAttribute(el4, "id", "overlay-button");
+        var el5 = dom.createTextNode("\n				");
+        dom.appendChild(el4, el5);
+        var el5 = dom.createElement("a");
+        dom.setAttribute(el5, "class", "btn btn-primary");
+        var el6 = dom.createTextNode("INIZIA");
+        dom.appendChild(el5, el6);
+        dom.appendChild(el4, el5);
+        var el5 = dom.createTextNode("\n			");
         dom.appendChild(el4, el5);
         dom.appendChild(el3, el4);
         var el4 = dom.createTextNode("\n		");
@@ -2744,7 +2768,7 @@ define("ttexp/templates/play", ["exports"], function (exports) {
         dom.appendChild(el1, el2);
         var el2 = dom.createElement("div");
         dom.setAttribute(el2, "id", "text-container");
-        dom.setAttribute(el2, "class", "fullscreenXXX subtitles hidden");
+        dom.setAttribute(el2, "class", "fullscreenXXX subtitles hiddenXXX");
         var el3 = dom.createTextNode("\n		");
         dom.appendChild(el2, el3);
         var el3 = dom.createElement("div");
@@ -2753,7 +2777,9 @@ define("ttexp/templates/play", ["exports"], function (exports) {
         dom.appendChild(el3, el4);
         var el4 = dom.createElement("div");
         dom.setAttribute(el4, "id", "text-baloon");
-        var el5 = dom.createTextNode("\n				");
+        var el5 = dom.createTextNode("\n");
+        dom.appendChild(el4, el5);
+        var el5 = dom.createTextNode("				Video: ");
         dom.appendChild(el4, el5);
         var el5 = dom.createComment("");
         dom.appendChild(el4, el5);
@@ -2846,18 +2872,20 @@ define("ttexp/templates/play", ["exports"], function (exports) {
       },
       buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
         var element4 = dom.childAt(fragment, [0]);
-        var element5 = dom.childAt(element4, [1, 1, 1]);
-        var element6 = dom.childAt(element4, [9]);
-        var morphs = new Array(6);
-        morphs[0] = dom.createElementMorph(element5);
-        morphs[1] = dom.createMorphAt(dom.childAt(element4, [5, 1, 1]), 1, 1);
-        morphs[2] = dom.createMorphAt(dom.childAt(element4, [7, 5]), 1, 1);
-        morphs[3] = dom.createElementMorph(element6);
-        morphs[4] = dom.createMorphAt(element4, 15, 15);
-        morphs[5] = dom.createMorphAt(fragment, 2, 2, contextualElement);
+        var element5 = dom.childAt(element4, [1, 1]);
+        var element6 = dom.childAt(element5, [3, 1]);
+        var element7 = dom.childAt(element4, [9]);
+        var morphs = new Array(7);
+        morphs[0] = dom.createMorphAt(dom.childAt(element5, [1]), 1, 1);
+        morphs[1] = dom.createElementMorph(element6);
+        morphs[2] = dom.createMorphAt(dom.childAt(element4, [5, 1, 1]), 2, 2);
+        morphs[3] = dom.createMorphAt(dom.childAt(element4, [7, 5]), 1, 1);
+        morphs[4] = dom.createElementMorph(element7);
+        morphs[5] = dom.createMorphAt(element4, 15, 15);
+        morphs[6] = dom.createMorphAt(fragment, 2, 2, contextualElement);
         return morphs;
       },
-      statements: [["element", "action", ["startVideo"], [], ["loc", [null, [4, 6], [4, 29]]]], ["content", "model.scenario.playState.video.transcript", ["loc", [null, [15, 4], [15, 49]]]], ["block", "if", [["get", "model.scenario.playState.gameCompleted", ["loc", [null, [24, 9], [24, 47]]]]], [], 0, 1, ["loc", [null, [24, 3], [34, 10]]]], ["element", "action", ["exit"], [], ["loc", [null, [44, 86], [44, 103]]]], ["block", "if", [true], [], 2, null, ["loc", [null, [51, 1], [68, 8]]]], ["content", "outlet", ["loc", [null, [70, 0], [70, 10]]]]],
+      statements: [["inline", "breaklines", [["get", "model.scenario.description", ["loc", [null, [5, 17], [5, 43]]]]], [], ["loc", [null, [5, 4], [5, 45]]]], ["element", "action", ["startVideo"], [], ["loc", [null, [8, 7], [8, 30]]]], ["content", "model.scenario.playState.video.uniqueCode", ["loc", [null, [21, 11], [21, 56]]]], ["block", "if", [["get", "model.scenario.playState.gameCompleted", ["loc", [null, [30, 9], [30, 47]]]]], [], 0, 1, ["loc", [null, [30, 3], [40, 10]]]], ["element", "action", ["exit"], [], ["loc", [null, [50, 86], [50, 103]]]], ["block", "if", [false], [], 2, null, ["loc", [null, [57, 1], [74, 8]]]], ["content", "outlet", ["loc", [null, [76, 0], [76, 10]]]]],
       locals: [],
       templates: [child0, child1, child2]
     };
@@ -3222,7 +3250,7 @@ define("ttexp/templates/scenarios", ["exports"], function (exports) {
         var el11 = dom.createTextNode("\n										");
         dom.appendChild(el10, el11);
         var el11 = dom.createElement("th");
-        var el12 = dom.createTextNode("Media");
+        var el12 = dom.createTextNode("Valutazione");
         dom.appendChild(el11, el12);
         dom.appendChild(el10, el11);
         var el11 = dom.createTextNode("\n										");
@@ -3956,7 +3984,7 @@ catch(err) {
 /* jshint ignore:start */
 
 if (!runningTests) {
-  require("ttexp/app")["default"].create({"serverApiUrl":"http://demo.ttexp.net/api","LOG_ACTIVE_GENERATION":false,"LOG_VIEW_LOOKUPS":false,"name":"ttexp","version":"0.1.0+4191cec4"});
+  require("ttexp/app")["default"].create({"serverApiUrl":"http://demo.ttexp.net/api","LOG_ACTIVE_GENERATION":false,"LOG_VIEW_LOOKUPS":false,"name":"ttexp","version":"0.1.0+8e58d1e5"});
 }
 
 /* jshint ignore:end */

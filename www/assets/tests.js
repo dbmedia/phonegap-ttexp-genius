@@ -106,6 +106,15 @@ define('ttexp/tests/controllers/scores.jshint', ['exports'], function (exports) 
     assert.ok(true, 'controllers/scores.js should pass jshint.');
   });
 });
+define('ttexp/tests/helpers/breaklines.jshint', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('JSHint | helpers/breaklines.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'helpers/breaklines.js should pass jshint.');
+  });
+});
 define('ttexp/tests/helpers/ember-simple-auth', ['exports', 'ember-simple-auth/authenticators/test'], function (exports, _emberSimpleAuthAuthenticatorsTest) {
   exports.authenticateSession = authenticateSession;
   exports.currentSession = currentSession;
@@ -429,6 +438,25 @@ define('ttexp/tests/unit/controllers/scenario-test.jshint', ['exports'], functio
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
     assert.ok(true, 'unit/controllers/scenario-test.js should pass jshint.');
+  });
+});
+define('ttexp/tests/unit/helpers/breaklines-test', ['exports', 'ttexp/helpers/breaklines', 'qunit'], function (exports, _ttexpHelpersBreaklines, _qunit) {
+
+  (0, _qunit.module)('Unit | Helper | breaklines');
+
+  // Replace this with your real tests.
+  (0, _qunit.test)('it works', function (assert) {
+    var result = (0, _ttexpHelpersBreaklines.breaklines)([42]);
+    assert.ok(result);
+  });
+});
+define('ttexp/tests/unit/helpers/breaklines-test.jshint', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('JSHint | unit/helpers/breaklines-test.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'unit/helpers/breaklines-test.js should pass jshint.');
   });
 });
 define('ttexp/tests/unit/initializers/cordova-test', ['exports', 'ember', 'ttexp/initializers/cordova', 'qunit'], function (exports, _ember, _ttexpInitializersCordova, _qunit) {
