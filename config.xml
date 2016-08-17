@@ -29,32 +29,40 @@
     <preference name="orientation" value="landscape" />
     
     <icon src="icon.png" gap:role="default" />
-    
-    <!-- iPhone 6 / 6+ -->
-	<icon src="icon-60@3x.png" platform="ios" width="180" height="180" />
-
-	<!-- iPhone / iPod Touch  -->
-	<icon src="icon-60.png" platform="ios" width="60" height="60" />
-	<icon src="icon-60@2x.png" platform="ios" width="120" height="120" />
-
-	<!-- iPad -->
-	<icon src="icon-76.png" platform="ios" width="76" height="76" />
-	<icon src="icon-76@2x.png" platform="ios" width="152" height="152" />
-
-	<!-- Settings Icon -->
-	<icon src="icon-small.png" platform="ios" width="29" height="29" />
-	<icon src="icon-small@2x.png" platform="ios" width="58" height="58" />
-
-	<!-- Spotlight Icon -->
-	<icon src="icon-40.png" platform="ios" width="40" height="40" />
-	<icon src="icon-40@2x.png" platform="ios" width="80" height="80" />
-    
-    <platform name="android">
-        <allow-intent href="market:*" />
-    </platform>
+	
     <platform name="ios">
         <allow-intent href="itms:*" />
         <allow-intent href="itms-apps:*" />
+		
+		<!-- iPhone 6 / 6+ -->
+		<icon src="icon-60@3x.png" width="180" height="180" />
+
+		<!-- iPhone / iPod Touch  -->
+		<icon src="icon-60.png" width="60" height="60" />
+		<icon src="icon-60@2x.png" width="120" height="120" />
+
+		<!-- iPad -->
+		<icon src="icon-76.png" width="76" height="76" />
+		<icon src="icon-76@2x.png" width="152" height="152" />
+
+		<!-- Settings Icon -->
+		<icon src="icon-small.png" width="29" height="29" />
+		<icon src="icon-small@2x.png" width="58" height="58" />
+
+		<!-- Spotlight Icon -->
+		<icon src="icon-40.png" width="40" height="40" />
+		<icon src="icon-40@2x.png" width="80" height="80" />
+    </platform>
+    
+    <platform name="android">
+        <allow-intent href="market:*" />
+		
+		<icon src="ldpi.png" platform="android" qualifier="ldpi" />
+		<icon src="mdpi.png" platform="android" qualifier="mdpi" />
+		<icon src="hdpi.png" platform="android" qualifier="hdpi" />
+		<icon src="xhdpi.png" platform="android" qualifier="xhdpi" />
+		<icon src="xxhdpi.png" platform="android" qualifier="xxhdpi" />
+		<icon src="fr-xxhdpi.png" platform="android" qualifier="fr-xxhdpi" />
     </platform>
     
 	<plugin name="cordova-plugin-whitelist" spec="1.2.2" />
