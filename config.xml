@@ -9,6 +9,7 @@
     <description>
         Agents Training
     </description>
+
     <author email="dbmedia.marketing@gmail.com" href="http://www.dbmediaweb.net/">
         DBMedia
     </author>
@@ -24,6 +25,7 @@
     <allow-intent href="mailto:*" />
     <allow-intent href="geo:*" />
     
+	<preference name="prerendered-icon" value="true"/> 
     <preference name="DisallowOverscroll" value="true" />
     <preference name="fullscreen" value="true" />
     <preference name="orientation" value="landscape" />
