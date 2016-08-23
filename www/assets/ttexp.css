@@ -135,8 +135,16 @@ html, body {
     border-radius: 0;
     border-width: 1px 0;
     text-align: center; }
+  .page-application #main-menu #app-version {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    padding: 5px 10px;
+    color: #fff;
+    font-size: 75%; }
 
 .page-application #logo-app {
+  text-align: center;
   margin-top: 10px; }
 
 .page-application #customer-logo {
@@ -384,6 +392,8 @@ html, body {
           top: calc(50% - 0.5em);
           color: #ffffff;
           display: none; }
+        .page-play #side-chat #chat-options li.loading a {
+          opacity: 1; }
         .page-play #side-chat #chat-options li.loading .loading-icon {
           display: inline-block; }
   .page-play #side-chat.minimized {
@@ -3032,10 +3042,10 @@ select[multiple].input-lg {
   background-image: none;
   border: 1px solid transparent;
   white-space: nowrap;
-  padding: 8px 12px;
-  font-size: 14px;
-  line-height: 1.42857143;
-  border-radius: 4px;
+  padding: 0;
+  font-size: inherit;
+  line-height: inherit;
+  border-radius: 0;
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
@@ -9195,16 +9205,26 @@ h6,
 
 .btn,
 a,
-a:visited {
+a:visited,
+a:hover {
   text-decoration: none;
   color: #ffffff; }
   .btn:focus, .btn:hover,
   a:focus,
   a:hover,
   a:visited:focus,
-  a:visited:hover {
+  a:visited:hover,
+  a:hover:focus,
+  a:hover:hover {
     color: #ffffff; }
-  .btn:active:not(.disabled),
-  a:active:not(.disabled),
-  a:visited:active:not(.disabled) {
+  .btn[href]:active:not(.disabled),
+  a[href]:active:not(.disabled),
+  a:visited[href]:active:not(.disabled),
+  a:hover[href]:active:not(.disabled) {
     text-shadow: 0px 0px 4px #c21b17; }
+  .btn.disabled,
+  a.disabled,
+  a:visited.disabled,
+  a:hover.disabled {
+    text-decoration: none;
+    opacity: 0.65; }
