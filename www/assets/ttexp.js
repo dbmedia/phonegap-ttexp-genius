@@ -896,11 +896,9 @@ define("ttexp/routes/play", ["exports", "ember", "ember-simple-auth/mixins/authe
           this.send('clickItem', false);
         }
       },
-      error: function error(reason) {
+      error: function error(reason, transition) {
         console.log(reason);
         alert(reason);
-
-        // Can transition to another route here, e.g. this.transitionTo('index');
 
         return reason;
       }
@@ -967,6 +965,12 @@ define('ttexp/routes/scenarios', ['exports', 'ember', 'ember-simple-auth/mixins/
           });
         }
         */
+      },
+      error: function error(reason, transition) {
+        console.log(reason);
+        alert(reason);
+
+        return reason;
       }
     }
   });
@@ -1639,7 +1643,7 @@ define("ttexp/templates/index", ["exports"], function (exports) {
         var el7 = dom.createTextNode("\n						");
         dom.appendChild(el6, el7);
         var el7 = dom.createElement("p");
-        var el8 = dom.createTextNode("Entra nelle situazioni di vendita e comportati come se fossi davvero sul campo: clicca la risposta che ritieni \n						migliore e scopri le reazioni dei tuoi clienti. Dedica ogni giorni pochi minuti all’allenamento: migliorerai i \n						risultati e sbloccherai nuove situazioni.");
+        var el8 = dom.createTextNode("Entra nelle situazioni di vendita e comportati come se fossi davvero sul campo: clicca la risposta che ritieni \n						migliore e scopri le reazioni dei tuoi clienti. Dedica ogni giorno pochi minuti all’allenamento: migliorerai i \n						risultati e sbloccherai nuove situazioni.");
         dom.appendChild(el7, el8);
         dom.appendChild(el6, el7);
         var el7 = dom.createTextNode("\n						");
@@ -2840,7 +2844,7 @@ define("ttexp/templates/play", ["exports"], function (exports) {
         dom.setAttribute(el2, "id", "button-close");
         dom.setAttribute(el2, "class", "btn btn-link ttexp-btn ttexp-position-absolute top-left");
         var el3 = dom.createElement("span");
-        dom.setAttribute(el3, "class", "glyphicon glyphicon-remove-circle");
+        dom.setAttribute(el3, "class", "glyphicon glyphicon-home");
         dom.appendChild(el2, el3);
         dom.appendChild(el1, el2);
         var el2 = dom.createTextNode("\n	");
@@ -4510,7 +4514,7 @@ catch(err) {
 /* jshint ignore:start */
 
 if (!runningTests) {
-  require("ttexp/app")["default"].create({"serverApiUrl":"http://demo.ttexp.net/api","LOG_ACTIVE_GENERATION":false,"LOG_VIEW_LOOKUPS":false,"name":"ttexp","version":"1.0.2+1c242ee5"});
+  require("ttexp/app")["default"].create({"serverApiUrl":"http://ttexp-server.localhost/api","LOG_ACTIVE_GENERATION":true,"LOG_VIEW_LOOKUPS":true,"name":"ttexp","version":"1.0.2+5ce131b8"});
 }
 
 /* jshint ignore:end */

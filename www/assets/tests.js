@@ -344,7 +344,7 @@ define('ttexp/tests/routes/play.jshint', ['exports'], function (exports) {
   QUnit.module('JSHint | routes/play.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(true, 'routes/play.js should pass jshint.');
+    assert.ok(false, 'routes/play.js should pass jshint.\nroutes/play.js: line 82, col 19, \'transition\' is defined but never used.\n\n1 error');
   });
 });
 define('ttexp/tests/routes/scenarios.jshint', ['exports'], function (exports) {
@@ -353,7 +353,7 @@ define('ttexp/tests/routes/scenarios.jshint', ['exports'], function (exports) {
   QUnit.module('JSHint | routes/scenarios.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(false, 'routes/scenarios.js should pass jshint.\nroutes/scenarios.js: line 20, col 13, \'fileTransfer\' is defined but never used.\nroutes/scenarios.js: line 23, col 13, \'fileFullpath\' is defined but never used.\nroutes/scenarios.js: line 20, col 32, \'FileTransfer\' is not defined.\nroutes/scenarios.js: line 75, col 28, \'FileTransfer\' is not defined.\nroutes/scenarios.js: line 86, col 15, \'readBinaryFile\' is not defined.\nroutes/scenarios.js: line 90, col 15, \'displayImageByFileURL\' is not defined.\n\n6 errors');
+    assert.ok(false, 'routes/scenarios.js should pass jshint.\nroutes/scenarios.js: line 20, col 13, \'fileTransfer\' is defined but never used.\nroutes/scenarios.js: line 23, col 13, \'fileFullpath\' is defined but never used.\nroutes/scenarios.js: line 70, col 19, \'transition\' is defined but never used.\nroutes/scenarios.js: line 20, col 32, \'FileTransfer\' is not defined.\nroutes/scenarios.js: line 81, col 28, \'FileTransfer\' is not defined.\nroutes/scenarios.js: line 92, col 15, \'readBinaryFile\' is not defined.\nroutes/scenarios.js: line 96, col 15, \'displayImageByFileURL\' is not defined.\n\n7 errors');
   });
 });
 define('ttexp/tests/routes/scores.jshint', ['exports'], function (exports) {
