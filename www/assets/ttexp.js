@@ -2011,7 +2011,7 @@ define("ttexp/templates/layout/menu", ["exports"], function (exports) {
         var el3 = dom.createTextNode("\n		");
         dom.appendChild(el2, el3);
         var el3 = dom.createElement("strong");
-        var el4 = dom.createTextNode("\n");
+        var el4 = dom.createTextNode("xx\n");
         dom.appendChild(el3, el4);
         var el4 = dom.createComment("");
         dom.appendChild(el3, el4);
