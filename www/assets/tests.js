@@ -263,7 +263,7 @@ define('ttexp/tests/models/score.jshint', ['exports'], function (exports) {
   QUnit.module('JSHint | models/score.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(true, 'models/score.js should pass jshint.');
+    assert.ok(false, 'models/score.js should pass jshint.\nmodels/score.js: line 2, col 8, \'Ember\' is defined but never used.\n\n1 error');
   });
 });
 define('ttexp/tests/models/tank.jshint', ['exports'], function (exports) {
@@ -365,13 +365,22 @@ define('ttexp/tests/routes/scores.jshint', ['exports'], function (exports) {
     assert.ok(true, 'routes/scores.js should pass jshint.');
   });
 });
+define('ttexp/tests/services/current-user.jshint', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('JSHint | services/current-user.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'services/current-user.js should pass jshint.');
+  });
+});
 define('ttexp/tests/services/session.jshint', ['exports'], function (exports) {
   'use strict';
 
   QUnit.module('JSHint | services/session.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(true, 'services/session.js should pass jshint.');
+    assert.ok(false, 'services/session.js should pass jshint.\nservices/session.js: line 2, col 8, \'DS\' is defined but never used.\n\n1 error');
   });
 });
 define('ttexp/tests/test-helper', ['exports', 'ttexp/tests/helpers/resolver', 'ember-qunit'], function (exports, _ttexpTestsHelpersResolver, _emberQunit) {

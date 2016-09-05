@@ -76,7 +76,8 @@ define('ttexp/components/fa-stack', ['exports', 'ember-font-awesome/components/f
 });
 define('ttexp/controllers/action', ['exports', 'ember'], function (exports, _ember) {
   exports['default'] = _ember['default'].Controller.extend({
-    session: _ember['default'].inject.service('session')
+    session: _ember['default'].inject.service('session'),
+    currentUser: _ember['default'].inject.service('current-user')
   });
 });
 define('ttexp/controllers/array', ['exports', 'ember'], function (exports, _ember) {
@@ -84,12 +85,14 @@ define('ttexp/controllers/array', ['exports', 'ember'], function (exports, _embe
 });
 define('ttexp/controllers/help', ['exports', 'ember'], function (exports, _ember) {
   exports['default'] = _ember['default'].Controller.extend({
-    session: _ember['default'].inject.service('session')
+    session: _ember['default'].inject.service('session'),
+    currentUser: _ember['default'].inject.service('current-user')
   });
 });
 define('ttexp/controllers/index', ['exports', 'ember'], function (exports, _ember) {
   exports['default'] = _ember['default'].Controller.extend({
     session: _ember['default'].inject.service('session'),
+    currentUser: _ember['default'].inject.service('current-user'),
     actions: {
       closeApp: function closeApp() {
         if (confirm("Vuoi davvero uscire dall'applicazione?")) {
@@ -146,12 +149,15 @@ define('ttexp/controllers/page-not-found', ['exports', 'ember'], function (expor
 });
 define('ttexp/controllers/play', ['exports', 'ember'], function (exports, _ember) {
   exports['default'] = _ember['default'].Controller.extend({
-    session: _ember['default'].inject.service('session')
+    session: _ember['default'].inject.service('session'),
+    currentUser: _ember['default'].inject.service('current-user')
   });
 });
 define('ttexp/controllers/scenarios', ['exports', 'ember'], function (exports, _ember) {
   exports['default'] = _ember['default'].Controller.extend({
     session: _ember['default'].inject.service('session'),
+    currentUser: _ember['default'].inject.service('current-user'),
+
     actions: {
       closeApp: function closeApp() {
         if (confirm("Vuoi davvero uscire dall'applicazione?")) {
@@ -166,7 +172,8 @@ define('ttexp/controllers/scenarios', ['exports', 'ember'], function (exports, _
 });
 define('ttexp/controllers/scores', ['exports', 'ember'], function (exports, _ember) {
   exports['default'] = _ember['default'].Controller.extend({
-    session: _ember['default'].inject.service('session')
+    session: _ember['default'].inject.service('session'),
+    currentUser: _ember['default'].inject.service('current-user')
   });
 });
 define('ttexp/helpers/add', ['exports', 'ember-math-helpers/helpers/add'], function (exports, _emberMathHelpersHelpersAdd) {
@@ -654,6 +661,7 @@ define('ttexp/models/playthrough', ['exports', 'ember-data'], function (exports,
     scores: _emberData['default'].hasMany('score'),
 
     success: _emberData['default'].attr('boolean'),
+    hint: _emberData['default'].attr('string'),
     startedAt: _emberData['default'].attr('date'),
     completedAt: _emberData['default'].attr('date')
   });
@@ -676,64 +684,15 @@ define('ttexp/models/score', ['exports', 'ember-data', 'ember'], function (expor
     playthrough: _emberData['default'].belongsTo('playthrough'),
 
     value: _emberData['default'].attr('number'),
+    percent: _emberData['default'].attr('number'),
+    vote: _emberData['default'].attr('string'),
+    voteClass: _emberData['default'].attr('string'),
     minValue: _emberData['default'].attr('number'),
     maxValue: _emberData['default'].attr('number'),
     variableId: _emberData['default'].attr('string'),
     variableCode: _emberData['default'].attr('string'),
-    variableName: _emberData['default'].attr('string'),
+    variableName: _emberData['default'].attr('string')
 
-    percent: _ember['default'].computed('value', 'minValue', 'maxValue', function () {
-      var value = this.get('value');
-      var minValue = this.get('minValue');
-      var maxValue = this.get('maxValue');
-
-      // TODO: Usare l'attributo calcolato "percent" di laravel
-      var absValue = value - minValue;
-      var maxAbsValue = maxValue - minValue;
-      if (maxAbsValue > 0) {
-        var percent = Math.round(absValue / maxAbsValue * 100);
-        if (percent > 100) {
-          percent = 100;
-        } else if (percent < 0) {
-          percent = 0;
-        }
-        return percent;
-      } else {
-        return null;
-      }
-    }),
-    vote: _ember['default'].computed('value', function () {
-      var value = this.get('value');
-      if (value == null) {
-        return 'non pervenuto';
-      } else if (value <= -6) {
-        return 'critico';
-      } else if (value <= -1) {
-        return 'debole';
-      } else if (value <= 2) {
-        return 'medio';
-      } else if (value <= 7) {
-        return 'buono';
-      } else {
-        return 'eccellente';
-      }
-    }),
-    voteClass: _ember['default'].computed('value', function () {
-      var value = this.get('value');
-      if (value == null) {
-        return 'vote-unknown';
-      } else if (value <= -6) {
-        return 'vote-1';
-      } else if (value <= -1) {
-        return 'vote-2';
-      } else if (value <= 2) {
-        return 'vote-3';
-      } else if (value <= 7) {
-        return 'vote-4';
-      } else {
-        return 'vote-5';
-      }
-    })
   });
 });
 define('ttexp/models/tank', ['exports', 'ember-data'], function (exports, _emberData) {
@@ -804,7 +763,29 @@ define('ttexp/router', ['exports', 'ember', 'ttexp/config/environment'], functio
 	});
 });
 define('ttexp/routes/application', ['exports', 'ember', 'ember-simple-auth/mixins/application-route-mixin'], function (exports, _ember, _emberSimpleAuthMixinsApplicationRouteMixin) {
-  exports['default'] = _ember['default'].Route.extend(_emberSimpleAuthMixinsApplicationRouteMixin['default']);
+  var service = _ember['default'].inject.service;
+  exports['default'] = _ember['default'].Route.extend(_emberSimpleAuthMixinsApplicationRouteMixin['default'], {
+    currentUser: service(),
+
+    beforeModel: function beforeModel() {
+      //http://hussfelt.net/2015/08/06/how-to-stop-using-deferreadiness-and-advancereadiness-in-ember/
+      //return Ember.RSVP.all([this.get('sessionService').setup(), this.get('cordovaService').setup()]);
+      return _ember['default'].RSVP.all([this._loadCurrentUser()]);
+    },
+
+    sessionAuthenticated: function sessionAuthenticated() {
+      var _this = this;
+
+      this._super.apply(this, arguments);
+      this._loadCurrentUser()['catch'](function () {
+        return _this.get('session').invalidate();
+      });
+    },
+
+    _loadCurrentUser: function _loadCurrentUser() {
+      return this.get('currentUser').load();
+    }
+  });
 });
 define("ttexp/routes/help", ["exports", "ember"], function (exports, _ember) {
   exports["default"] = _ember["default"].Route.extend({});
@@ -1031,20 +1012,43 @@ define('ttexp/services/ajax', ['exports', 'ember-ajax/services/ajax'], function 
     }
   });
 });
+define('ttexp/services/current-user', ['exports', 'ember'], function (exports, _ember) {
+  var service = _ember['default'].inject.service;
+  var RSVP = _ember['default'].RSVP;
+  exports['default'] = _ember['default'].Service.extend({
+    store: service(),
+    session: service('session'),
+
+    load: function load() {
+      var _this = this;
+
+      return new RSVP.Promise(function (resolve, reject) {
+        if (_this.get('session.isAuthenticated')) {
+          return _this.get('store').findRecord('user', 'me').then(function (user) {
+            _this.set('user', user);
+            resolve();
+          }, reject);
+        } else {
+          resolve();
+        }
+      });
+    }
+  });
+});
+//https://github.com/simplabs/ember-simple-auth/blob/master/guides/managing-current-user.md
 define('ttexp/services/session', ['exports', 'ember', 'ember-data', 'ember-simple-auth/services/session'], function (exports, _ember, _emberData, _emberSimpleAuthServicesSession) {
   exports['default'] = _emberSimpleAuthServicesSession['default'].extend({
 
-    store: _ember['default'].inject.service(),
-
-    currentUser: _ember['default'].computed('isAuthenticated', function () {
-      if (this.get('isAuthenticated')) {
-        var promise = this.get('store').queryRecord('user', {});
-        return _emberData['default'].PromiseObject.create({ promise: promise });
-      }
-    })
+    store: _ember['default'].inject.service()
 
   });
 });
+//  currentUser: Ember.computed('isAuthenticated', function() {
+//    if (this.get('isAuthenticated')) {
+//      const promise = this.get('store').findRecord('user', 'me');
+//      return DS.PromiseObject.create({ promise: promise });
+//    }
+//  })
 define('ttexp/session-stores/application', ['exports', 'ember-simple-auth/session-stores/adaptive'], function (exports, _emberSimpleAuthSessionStoresAdaptive) {
   exports['default'] = _emberSimpleAuthSessionStoresAdaptive['default'].extend();
 });
@@ -1707,11 +1711,89 @@ define("ttexp/templates/layout/menu", ["exports"], function (exports) {
           "loc": {
             "source": null,
             "start": {
-              "line": 5,
+              "line": 4,
+              "column": 3
+            },
+            "end": {
+              "line": 6,
+              "column": 3
+            }
+          },
+          "moduleName": "ttexp/templates/layout/menu.hbs"
+        },
+        isEmpty: false,
+        arity: 0,
+        cachedFragment: null,
+        hasRendered: false,
+        buildFragment: function buildFragment(dom) {
+          var el0 = dom.createDocumentFragment();
+          var el1 = dom.createTextNode("				");
+          dom.appendChild(el0, el1);
+          var el1 = dom.createComment("");
+          dom.appendChild(el0, el1);
+          var el1 = dom.createTextNode("\n");
+          dom.appendChild(el0, el1);
+          return el0;
+        },
+        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+          var morphs = new Array(1);
+          morphs[0] = dom.createMorphAt(fragment, 1, 1, contextualElement);
+          return morphs;
+        },
+        statements: [["content", "currentUser.user.fullName", ["loc", [null, [5, 4], [5, 33]]]]],
+        locals: [],
+        templates: []
+      };
+    })();
+    var child1 = (function () {
+      return {
+        meta: {
+          "fragmentReason": false,
+          "revision": "Ember@2.6.1",
+          "loc": {
+            "source": null,
+            "start": {
+              "line": 6,
+              "column": 3
+            },
+            "end": {
+              "line": 8,
+              "column": 3
+            }
+          },
+          "moduleName": "ttexp/templates/layout/menu.hbs"
+        },
+        isEmpty: false,
+        arity: 0,
+        cachedFragment: null,
+        hasRendered: false,
+        buildFragment: function buildFragment(dom) {
+          var el0 = dom.createDocumentFragment();
+          var el1 = dom.createTextNode("				 \n");
+          dom.appendChild(el0, el1);
+          return el0;
+        },
+        buildRenderNodes: function buildRenderNodes() {
+          return [];
+        },
+        statements: [],
+        locals: [],
+        templates: []
+      };
+    })();
+    var child2 = (function () {
+      return {
+        meta: {
+          "fragmentReason": false,
+          "revision": "Ember@2.6.1",
+          "loc": {
+            "source": null,
+            "start": {
+              "line": 13,
               "column": 1
             },
             "end": {
-              "line": 5,
+              "line": 13,
               "column": 73
             }
           },
@@ -1735,7 +1817,7 @@ define("ttexp/templates/layout/menu", ["exports"], function (exports) {
         templates: []
       };
     })();
-    var child1 = (function () {
+    var child3 = (function () {
       return {
         meta: {
           "fragmentReason": false,
@@ -1743,11 +1825,11 @@ define("ttexp/templates/layout/menu", ["exports"], function (exports) {
           "loc": {
             "source": null,
             "start": {
-              "line": 6,
+              "line": 14,
               "column": 1
             },
             "end": {
-              "line": 6,
+              "line": 14,
               "column": 88
             }
           },
@@ -1771,7 +1853,7 @@ define("ttexp/templates/layout/menu", ["exports"], function (exports) {
         templates: []
       };
     })();
-    var child2 = (function () {
+    var child4 = (function () {
       return {
         meta: {
           "fragmentReason": false,
@@ -1779,11 +1861,11 @@ define("ttexp/templates/layout/menu", ["exports"], function (exports) {
           "loc": {
             "source": null,
             "start": {
-              "line": 12,
+              "line": 20,
               "column": 1
             },
             "end": {
-              "line": 14,
+              "line": 22,
               "column": 1
             }
           },
@@ -1812,12 +1894,12 @@ define("ttexp/templates/layout/menu", ["exports"], function (exports) {
           morphs[0] = dom.createElementMorph(element0);
           return morphs;
         },
-        statements: [["element", "action", ["invalidateSession"], [], ["loc", [null, [13, 29], [13, 59]]]]],
+        statements: [["element", "action", ["invalidateSession"], [], ["loc", [null, [21, 29], [21, 59]]]]],
         locals: [],
         templates: []
       };
     })();
-    var child3 = (function () {
+    var child5 = (function () {
       var child0 = (function () {
         return {
           meta: {
@@ -1826,11 +1908,11 @@ define("ttexp/templates/layout/menu", ["exports"], function (exports) {
             "loc": {
               "source": null,
               "start": {
-                "line": 15,
+                "line": 23,
                 "column": 2
               },
               "end": {
-                "line": 15,
+                "line": 23,
                 "column": 51
               }
             },
@@ -1861,11 +1943,11 @@ define("ttexp/templates/layout/menu", ["exports"], function (exports) {
           "loc": {
             "source": null,
             "start": {
-              "line": 14,
+              "line": 22,
               "column": 1
             },
             "end": {
-              "line": 16,
+              "line": 24,
               "column": 1
             }
           },
@@ -1890,7 +1972,7 @@ define("ttexp/templates/layout/menu", ["exports"], function (exports) {
           morphs[0] = dom.createMorphAt(fragment, 1, 1, contextualElement);
           return morphs;
         },
-        statements: [["block", "link-to", ["login"], ["class", "list-group-item"], 0, null, ["loc", [null, [15, 2], [15, 63]]]]],
+        statements: [["block", "link-to", ["login"], ["class", "list-group-item"], 0, null, ["loc", [null, [23, 2], [23, 63]]]]],
         locals: [],
         templates: [child0]
       };
@@ -1909,7 +1991,7 @@ define("ttexp/templates/layout/menu", ["exports"], function (exports) {
             "column": 0
           },
           "end": {
-            "line": 18,
+            "line": 26,
             "column": 6
           }
         },
@@ -1926,9 +2008,17 @@ define("ttexp/templates/layout/menu", ["exports"], function (exports) {
         var el2 = dom.createTextNode("\n	");
         dom.appendChild(el1, el2);
         var el2 = dom.createElement("span");
+        var el3 = dom.createTextNode("\n		");
+        dom.appendChild(el2, el3);
         var el3 = dom.createElement("strong");
-        var el4 = dom.createTextNode("Benvenuto in GENius");
+        var el4 = dom.createTextNode("\n");
         dom.appendChild(el3, el4);
+        var el4 = dom.createComment("");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("		");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode("\n	");
         dom.appendChild(el2, el3);
         dom.appendChild(el1, el2);
         var el2 = dom.createTextNode("\n");
@@ -1999,17 +2089,18 @@ define("ttexp/templates/layout/menu", ["exports"], function (exports) {
       buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
         var element1 = dom.childAt(fragment, [2]);
         var element2 = dom.childAt(element1, [11]);
-        var morphs = new Array(5);
-        morphs[0] = dom.createMorphAt(element1, 1, 1);
-        morphs[1] = dom.createMorphAt(element1, 3, 3);
-        morphs[2] = dom.createElementMorph(element2);
-        morphs[3] = dom.createMorphAt(element1, 13, 13);
-        morphs[4] = dom.createMorphAt(dom.childAt(element1, [15]), 1, 1);
+        var morphs = new Array(6);
+        morphs[0] = dom.createMorphAt(dom.childAt(fragment, [0, 1, 1]), 1, 1);
+        morphs[1] = dom.createMorphAt(element1, 1, 1);
+        morphs[2] = dom.createMorphAt(element1, 3, 3);
+        morphs[3] = dom.createElementMorph(element2);
+        morphs[4] = dom.createMorphAt(element1, 13, 13);
+        morphs[5] = dom.createMorphAt(dom.childAt(element1, [15]), 1, 1);
         return morphs;
       },
-      statements: [["block", "link-to", ["index"], ["class", "list-group-item", "data-page-route", "index"], 0, null, ["loc", [null, [5, 1], [5, 85]]]], ["block", "link-to", ["scenarios"], ["class", "list-group-item", "data-page-route", "scenarios"], 1, null, ["loc", [null, [6, 1], [6, 100]]]], ["element", "action", ["closeApp"], [], ["loc", [null, [10, 47], [10, 68]]]], ["block", "if", [["get", "session.isAuthenticated", ["loc", [null, [12, 7], [12, 30]]]]], [], 2, 3, ["loc", [null, [12, 1], [16, 8]]]], ["content", "app-version", ["loc", [null, [17, 26], [17, 41]]]]],
+      statements: [["block", "if", [["get", "currentUser.user", ["loc", [null, [4, 9], [4, 25]]]]], [], 0, 1, ["loc", [null, [4, 3], [8, 10]]]], ["block", "link-to", ["index"], ["class", "list-group-item", "data-page-route", "index"], 2, null, ["loc", [null, [13, 1], [13, 85]]]], ["block", "link-to", ["scenarios"], ["class", "list-group-item", "data-page-route", "scenarios"], 3, null, ["loc", [null, [14, 1], [14, 100]]]], ["element", "action", ["closeApp"], [], ["loc", [null, [18, 47], [18, 68]]]], ["block", "if", [["get", "session.isAuthenticated", ["loc", [null, [20, 7], [20, 30]]]]], [], 4, 5, ["loc", [null, [20, 1], [24, 8]]]], ["content", "app-version", ["loc", [null, [25, 26], [25, 41]]]]],
       locals: [],
-      templates: [child0, child1, child2, child3]
+      templates: [child0, child1, child2, child3, child4, child5]
     };
   })());
 });
@@ -3872,7 +3963,7 @@ define("ttexp/templates/scores", ["exports"], function (exports) {
             },
             "end": {
               "line": 2,
-              "column": 161
+              "column": 152
             }
           },
           "moduleName": "ttexp/templates/scores.hbs"
@@ -3884,7 +3975,7 @@ define("ttexp/templates/scores", ["exports"], function (exports) {
         buildFragment: function buildFragment(dom) {
           var el0 = dom.createDocumentFragment();
           var el1 = dom.createElement("span");
-          dom.setAttribute(el1, "class", "glyphicon glyphicon-remove-circle");
+          dom.setAttribute(el1, "class", "glyphicon glyphicon-home");
           dom.appendChild(el0, el1);
           return el0;
         },
@@ -4030,11 +4121,11 @@ define("ttexp/templates/scores", ["exports"], function (exports) {
           "loc": {
             "source": null,
             "start": {
-              "line": 21,
+              "line": 19,
               "column": 6
             },
             "end": {
-              "line": 23,
+              "line": 21,
               "column": 6
             }
           },
@@ -4066,11 +4157,11 @@ define("ttexp/templates/scores", ["exports"], function (exports) {
           "loc": {
             "source": null,
             "start": {
-              "line": 23,
+              "line": 21,
               "column": 6
             },
             "end": {
-              "line": 25,
+              "line": 23,
               "column": 6
             }
           },
@@ -4103,11 +4194,11 @@ define("ttexp/templates/scores", ["exports"], function (exports) {
             "loc": {
               "source": null,
               "start": {
-                "line": 42,
+                "line": 46,
                 "column": 11
               },
               "end": {
-                "line": 46,
+                "line": 50,
                 "column": 11
               }
             },
@@ -4141,7 +4232,7 @@ define("ttexp/templates/scores", ["exports"], function (exports) {
             morphs[0] = dom.createMorphAt(dom.childAt(fragment, [1, 1]), 0, 0);
             return morphs;
           },
-          statements: [["content", "score.variableName", ["loc", [null, [44, 37], [44, 59]]]]],
+          statements: [["content", "score.variableName", ["loc", [null, [48, 37], [48, 59]]]]],
           locals: [],
           templates: []
         };
@@ -4153,11 +4244,11 @@ define("ttexp/templates/scores", ["exports"], function (exports) {
           "loc": {
             "source": null,
             "start": {
-              "line": 41,
+              "line": 45,
               "column": 10
             },
             "end": {
-              "line": 47,
+              "line": 51,
               "column": 10
             }
           },
@@ -4180,7 +4271,7 @@ define("ttexp/templates/scores", ["exports"], function (exports) {
           dom.insertBoundary(fragment, null);
           return morphs;
         },
-        statements: [["block", "if", [["get", "score.variableId", ["loc", [null, [42, 17], [42, 33]]]]], [], 0, null, ["loc", [null, [42, 11], [46, 18]]]]],
+        statements: [["block", "if", [["get", "score.variableId", ["loc", [null, [46, 17], [46, 33]]]]], [], 0, null, ["loc", [null, [46, 11], [50, 18]]]]],
         locals: ["score"],
         templates: [child0]
       };
@@ -4194,11 +4285,11 @@ define("ttexp/templates/scores", ["exports"], function (exports) {
             "loc": {
               "source": null,
               "start": {
-                "line": 53,
+                "line": 57,
                 "column": 11
               },
               "end": {
-                "line": 57,
+                "line": 61,
                 "column": 11
               }
             },
@@ -4233,7 +4324,7 @@ define("ttexp/templates/scores", ["exports"], function (exports) {
             morphs[1] = dom.createMorphAt(element0, 0, 0);
             return morphs;
           },
-          statements: [["attribute", "class", ["concat", ["score-vote ", ["get", "score.voteClass", ["loc", [null, [55, 38], [55, 53]]]]]]], ["content", "score.vote", ["loc", [null, [55, 57], [55, 71]]]]],
+          statements: [["attribute", "class", ["concat", ["score-vote ", ["get", "score.voteClass", ["loc", [null, [59, 38], [59, 53]]]]]]], ["content", "score.vote", ["loc", [null, [59, 57], [59, 71]]]]],
           locals: [],
           templates: []
         };
@@ -4245,11 +4336,11 @@ define("ttexp/templates/scores", ["exports"], function (exports) {
           "loc": {
             "source": null,
             "start": {
-              "line": 52,
+              "line": 56,
               "column": 10
             },
             "end": {
-              "line": 58,
+              "line": 62,
               "column": 10
             }
           },
@@ -4272,7 +4363,7 @@ define("ttexp/templates/scores", ["exports"], function (exports) {
           dom.insertBoundary(fragment, null);
           return morphs;
         },
-        statements: [["block", "if", [["get", "score.variableId", ["loc", [null, [53, 17], [53, 33]]]]], [], 0, null, ["loc", [null, [53, 11], [57, 18]]]]],
+        statements: [["block", "if", [["get", "score.variableId", ["loc", [null, [57, 17], [57, 33]]]]], [], 0, null, ["loc", [null, [57, 11], [61, 18]]]]],
         locals: ["score"],
         templates: [child0]
       };
@@ -4291,7 +4382,7 @@ define("ttexp/templates/scores", ["exports"], function (exports) {
             "column": 0
           },
           "end": {
-            "line": 73,
+            "line": 77,
             "column": 10
           }
         },
@@ -4341,6 +4432,21 @@ define("ttexp/templates/scores", ["exports"], function (exports) {
         var el7 = dom.createTextNode("					");
         dom.appendChild(el6, el7);
         dom.appendChild(el5, el6);
+        var el6 = dom.createTextNode("\n					");
+        dom.appendChild(el5, el6);
+        var el6 = dom.createElement("div");
+        dom.setAttribute(el6, "id", "objective-container");
+        var el7 = dom.createTextNode("\n						Obiettivo");
+        dom.appendChild(el6, el7);
+        var el7 = dom.createElement("br");
+        dom.appendChild(el6, el7);
+        var el7 = dom.createTextNode("\n");
+        dom.appendChild(el6, el7);
+        var el7 = dom.createComment("");
+        dom.appendChild(el6, el7);
+        var el7 = dom.createTextNode("					");
+        dom.appendChild(el6, el7);
+        dom.appendChild(el5, el6);
         var el6 = dom.createTextNode("\n				");
         dom.appendChild(el5, el6);
         dom.appendChild(el4, el5);
@@ -4351,16 +4457,19 @@ define("ttexp/templates/scores", ["exports"], function (exports) {
         var el6 = dom.createTextNode("\n					");
         dom.appendChild(el5, el6);
         var el6 = dom.createElement("div");
-        dom.setAttribute(el6, "id", "objectives-container");
-        var el7 = dom.createTextNode("\n						Obiettivo");
+        dom.setAttribute(el6, "id", "hint-container");
+        var el7 = dom.createTextNode("\n						Suggerimento");
         dom.appendChild(el6, el7);
         var el7 = dom.createElement("br");
         dom.appendChild(el6, el7);
-        var el7 = dom.createTextNode("\n");
+        var el7 = dom.createTextNode("\n						");
         dom.appendChild(el6, el7);
-        var el7 = dom.createComment("");
+        var el7 = dom.createElement("div");
+        dom.setAttribute(el7, "id", "hint-text");
+        var el8 = dom.createComment("");
+        dom.appendChild(el7, el8);
         dom.appendChild(el6, el7);
-        var el7 = dom.createTextNode("					");
+        var el7 = dom.createTextNode("\n					");
         dom.appendChild(el6, el7);
         dom.appendChild(el5, el6);
         var el6 = dom.createTextNode("\n				");
@@ -4465,18 +4574,20 @@ define("ttexp/templates/scores", ["exports"], function (exports) {
       buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
         var element2 = dom.childAt(fragment, [4, 1, 1]);
         var element3 = dom.childAt(element2, [1]);
-        var element4 = dom.childAt(element2, [3, 1, 1, 1, 1]);
-        var morphs = new Array(6);
+        var element4 = dom.childAt(element3, [1]);
+        var element5 = dom.childAt(element2, [3, 1, 1, 1, 1]);
+        var morphs = new Array(7);
         morphs[0] = dom.createMorphAt(fragment, 2, 2, contextualElement);
-        morphs[1] = dom.createMorphAt(dom.childAt(element3, [1, 1]), 1, 1);
-        morphs[2] = dom.createMorphAt(dom.childAt(element3, [3, 1]), 3, 3);
-        morphs[3] = dom.createMorphAt(dom.childAt(element4, [1, 1]), 1, 1);
-        morphs[4] = dom.createMorphAt(dom.childAt(element4, [3, 1]), 1, 1);
-        morphs[5] = dom.createMorphAt(fragment, 8, 8, contextualElement);
+        morphs[1] = dom.createMorphAt(dom.childAt(element4, [1]), 1, 1);
+        morphs[2] = dom.createMorphAt(dom.childAt(element4, [3]), 3, 3);
+        morphs[3] = dom.createMorphAt(dom.childAt(element3, [3, 1, 3]), 0, 0);
+        morphs[4] = dom.createMorphAt(dom.childAt(element5, [1, 1]), 1, 1);
+        morphs[5] = dom.createMorphAt(dom.childAt(element5, [3, 1]), 1, 1);
+        morphs[6] = dom.createMorphAt(fragment, 8, 8, contextualElement);
         dom.insertBoundary(fragment, null);
         return morphs;
       },
-      statements: [["block", "link-to", ["scenarios"], ["id", "button-close", "class", "btn btn-link ttexp-btn ttexp-position-absolute top-left"], 0, null, ["loc", [null, [2, 0], [2, 173]]]], ["block", "each", [["get", "model.playthrough.scores", ["loc", [null, [10, 14], [10, 38]]]]], [], 1, null, ["loc", [null, [10, 6], [15, 15]]]], ["block", "if", [["get", "model.playthrough.success", ["loc", [null, [21, 12], [21, 37]]]]], [], 2, 3, ["loc", [null, [21, 6], [25, 13]]]], ["block", "each", [["get", "model.playthrough.scores", ["loc", [null, [41, 18], [41, 42]]]]], [], 4, null, ["loc", [null, [41, 10], [47, 19]]]], ["block", "each", [["get", "model.playthrough.scores", ["loc", [null, [52, 18], [52, 42]]]]], [], 5, null, ["loc", [null, [52, 10], [58, 19]]]], ["content", "outlet", ["loc", [null, [73, 0], [73, 10]]]]],
+      statements: [["block", "link-to", ["scenarios"], ["id", "button-close", "class", "btn btn-link ttexp-btn ttexp-position-absolute top-left"], 0, null, ["loc", [null, [2, 0], [2, 164]]]], ["block", "each", [["get", "model.playthrough.scores", ["loc", [null, [10, 14], [10, 38]]]]], [], 1, null, ["loc", [null, [10, 6], [15, 15]]]], ["block", "if", [["get", "model.playthrough.success", ["loc", [null, [19, 12], [19, 37]]]]], [], 2, 3, ["loc", [null, [19, 6], [23, 13]]]], ["content", "model.playthrough.hint", ["loc", [null, [29, 26], [29, 52]]]], ["block", "each", [["get", "model.playthrough.scores", ["loc", [null, [45, 18], [45, 42]]]]], [], 4, null, ["loc", [null, [45, 10], [51, 19]]]], ["block", "each", [["get", "model.playthrough.scores", ["loc", [null, [56, 18], [56, 42]]]]], [], 5, null, ["loc", [null, [56, 10], [62, 19]]]], ["content", "outlet", ["loc", [null, [77, 0], [77, 10]]]]],
       locals: [],
       templates: [child0, child1, child2, child3, child4, child5]
     };
@@ -4514,7 +4625,7 @@ catch(err) {
 /* jshint ignore:start */
 
 if (!runningTests) {
-  require("ttexp/app")["default"].create({"serverApiUrl":"http://demo.ttexp.net/api","LOG_ACTIVE_GENERATION":false,"LOG_VIEW_LOOKUPS":false,"name":"ttexp","version":"1.0.3+261dd699"});
+  require("ttexp/app")["default"].create({"serverApiUrl":"http://demo.ttexp.net/api","LOG_ACTIVE_GENERATION":false,"LOG_VIEW_LOOKUPS":false,"name":"ttexp","version":"1.0.4+0ba74bcd"});
 }
 
 /* jshint ignore:end */

@@ -438,24 +438,36 @@ html, body {
         padding-left: 0;
         padding-right: 0; }
       .page-scores #scores-container #main-content #general-score-container,
-      .page-scores #scores-container #main-content #objectives-container {
+      .page-scores #scores-container #main-content #objective-container,
+      .page-scores #scores-container #main-content #hint-container {
         margin: 20px 40px;
-        height: 180px;
         padding: 20px;
+        font-size: 200%;
         background-color: #C21B17;
         color: #ffffff; }
-      .page-scores #scores-container #main-content #general-score-container {
+      .page-scores #scores-container #main-content #general-score-container,
+      .page-scores #scores-container #main-content #objective-container {
+        height: 160px;
         margin-right: 10px;
-        font-size: 2.4em;
         text-align: center;
         vertical-align: middle; }
-      .page-scores #scores-container #main-content #objectives-container {
+      .page-scores #scores-container #main-content #hint-container {
+        height: 340px;
         margin-left: 10px;
-        font-size: 2.4em;
-        text-align: center;
-        vertical-align: middle; }
+        text-align: center; }
+        .page-scores #scores-container #main-content #hint-container #hint-text {
+          height: 220px;
+          margin-top: 20px;
+          padding-left: 10px;
+          padding-right: 10px;
+          overflow-y: auto;
+          text-align: left;
+          font-size: 60%;
+          text-align: justify;
+          text-justify: inter-word; }
       .page-scores #scores-container #main-content #variables-score-container {
         margin: 20px 40px;
+        font-size: 100%;
         background-color: #C21B17;
         color: #ffffff; }
         .page-scores #scores-container #main-content #variables-score-container table {
