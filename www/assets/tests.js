@@ -344,7 +344,7 @@ define('ttexp/tests/routes/play.jshint', ['exports'], function (exports) {
   QUnit.module('JSHint | routes/play.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(false, 'routes/play.js should pass jshint.\nroutes/play.js: line 82, col 19, \'transition\' is defined but never used.\n\n1 error');
+    assert.ok(false, 'routes/play.js should pass jshint.\nroutes/play.js: line 83, col 19, \'transition\' is defined but never used.\n\n1 error');
   });
 });
 define('ttexp/tests/routes/scenarios.jshint', ['exports'], function (exports) {

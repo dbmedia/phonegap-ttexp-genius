@@ -818,6 +818,7 @@ define("ttexp/routes/play", ["exports", "ember", "ember-simple-auth/mixins/authe
     //      var video = playState.get('video');
     //    }
     //  },
+
     actions: {
       clickItem: function clickItem(item) {
         var self = this;
