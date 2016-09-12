@@ -942,23 +942,20 @@ define('ttexp/routes/scenarios', ['exports', 'ember', 'ember-simple-auth/mixins/
               console.log("Downloading " + fileFullPath);
             });
 
-            //          var fileTransfer = new FileTransfer();
+            var fileTransfer = new FileTransfer();
+            window.requestFileSystem(window.TEMPORARY, 5 * 1024 * 1024, function (fs) {
+              console.log(fs);
+              console.log('file system open: ' + fs.name);
 
-            //          window.requestFileSystem(window.TEMPORARY, 5 * 1024 * 1024, function (fs) {
-            //            console.log(fs);
-            //            console.log('file system open: ' + fs.name);
-            //       
-            //            // Make sure you add the domain name to the Content-Security-Policy <meta> element.
-            //            var url = 'http://cordova.apache.org/static/img/cordova_bot.png';
-            //            // Parameters passed to getFile create a new file or return the file if it already exists.
-            //            fs.root.getFile('downloaded-image.png', { create: true, exclusive: false }, function (fileEntry) {
-            //              console.log("File Entry:");
-            //              console.log(fileEntry);
-            //              download(fileEntry, url, false);
-            //       
-            //            }, function () {});
-            //         
-            //          }, function () {});
+              // Make sure you add the domain name to the Content-Security-Policy <meta> element.
+              var url = 'http://cordova.apache.org/static/img/cordova_bot.png';
+              // Parameters passed to getFile create a new file or return the file if it already exists.
+              fs.root.getFile('downloaded-image.png', { create: true, exclusive: false }, function (fileEntry) {
+                console.log("File Entry:");
+                console.log(fileEntry);
+                _download(fileEntry, url, false);
+              }, function () {});
+            }, function () {});
 
             return true;
           });
@@ -996,7 +993,7 @@ define('ttexp/routes/scenarios', ['exports', 'ember', 'ember-simple-auth/mixins/
     }
   });
 
-  function download(fileEntry, uri, readBinaryData) {
+  function _download(fileEntry, uri, readBinaryData) {
 
     var fileTransfer = new FileTransfer();
     var fileURL = fileEntry.toURL();
@@ -3811,6 +3808,8 @@ define("ttexp/templates/scenarios", ["exports"], function (exports) {
           dom.setAttribute(el3, "class", "btn-link");
           var el4 = dom.createElement("i");
           dom.setAttribute(el4, "class", "fa fa-download");
+          dom.appendChild(el3, el4);
+          var el4 = dom.createTextNode("X");
           dom.appendChild(el3, el4);
           dom.appendChild(el2, el3);
           var el3 = dom.createTextNode("\n								  			");

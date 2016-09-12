@@ -371,7 +371,7 @@ define('ttexp/tests/routes/scenarios.jshint', ['exports'], function (exports) {
   QUnit.module('JSHint | routes/scenarios.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(false, 'routes/scenarios.js should pass jshint.\nroutes/scenarios.js: line 86, col 19, \'transition\' is defined but never used.\nroutes/scenarios.js: line 97, col 28, \'FileTransfer\' is not defined.\nroutes/scenarios.js: line 108, col 15, \'readBinaryFile\' is not defined.\nroutes/scenarios.js: line 131, col 5, \'$\' is not defined.\nroutes/scenarios.js: line 95, col 10, \'download\' is defined but never used.\n\n5 errors');
+    assert.ok(false, 'routes/scenarios.js should pass jshint.\nroutes/scenarios.js: line 35, col 15, \'fileTransfer\' is defined but never used.\nroutes/scenarios.js: line 84, col 19, \'transition\' is defined but never used.\nroutes/scenarios.js: line 35, col 34, \'FileTransfer\' is not defined.\nroutes/scenarios.js: line 95, col 28, \'FileTransfer\' is not defined.\nroutes/scenarios.js: line 106, col 15, \'readBinaryFile\' is not defined.\nroutes/scenarios.js: line 129, col 5, \'$\' is not defined.\n\n6 errors');
   });
 });
 define('ttexp/tests/routes/scores.jshint', ['exports'], function (exports) {
