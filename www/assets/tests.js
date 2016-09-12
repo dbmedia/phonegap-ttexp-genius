@@ -230,6 +230,24 @@ define('ttexp/tests/models/item.jshint', ['exports'], function (exports) {
     assert.ok(true, 'models/item.js should pass jshint.');
   });
 });
+define('ttexp/tests/models/manifesto.jshint', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('JSHint | models/manifesto.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(false, 'models/manifesto.js should pass jshint.\nmodels/manifesto.js: line 1, col 8, \'Ember\' is defined but never used.\n\n1 error');
+  });
+});
+define('ttexp/tests/models/media-file.jshint', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('JSHint | models/media-file.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(false, 'models/media-file.js should pass jshint.\nmodels/media-file.js: line 1, col 8, \'Ember\' is defined but never used.\n\n1 error');
+  });
+});
 define('ttexp/tests/models/play-state.jshint', ['exports'], function (exports) {
   'use strict';
 
@@ -353,7 +371,7 @@ define('ttexp/tests/routes/scenarios.jshint', ['exports'], function (exports) {
   QUnit.module('JSHint | routes/scenarios.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(false, 'routes/scenarios.js should pass jshint.\nroutes/scenarios.js: line 20, col 13, \'fileTransfer\' is defined but never used.\nroutes/scenarios.js: line 23, col 13, \'fileFullpath\' is defined but never used.\nroutes/scenarios.js: line 70, col 19, \'transition\' is defined but never used.\nroutes/scenarios.js: line 20, col 32, \'FileTransfer\' is not defined.\nroutes/scenarios.js: line 81, col 28, \'FileTransfer\' is not defined.\nroutes/scenarios.js: line 92, col 15, \'readBinaryFile\' is not defined.\nroutes/scenarios.js: line 96, col 15, \'displayImageByFileURL\' is not defined.\n\n7 errors');
+    assert.ok(false, 'routes/scenarios.js should pass jshint.\nroutes/scenarios.js: line 86, col 19, \'transition\' is defined but never used.\nroutes/scenarios.js: line 97, col 28, \'FileTransfer\' is not defined.\nroutes/scenarios.js: line 108, col 15, \'readBinaryFile\' is not defined.\nroutes/scenarios.js: line 131, col 5, \'$\' is not defined.\nroutes/scenarios.js: line 95, col 10, \'download\' is defined but never used.\n\n5 errors');
   });
 });
 define('ttexp/tests/routes/scores.jshint', ['exports'], function (exports) {
