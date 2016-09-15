@@ -362,7 +362,7 @@ define('ttexp/tests/routes/play.jshint', ['exports'], function (exports) {
   QUnit.module('JSHint | routes/play.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(false, 'routes/play.js should pass jshint.\nroutes/play.js: line 83, col 19, \'transition\' is defined but never used.\n\n1 error');
+    assert.ok(false, 'routes/play.js should pass jshint.\nroutes/play.js: line 84, col 13, \'url\' is already defined.\nroutes/play.js: line 86, col 13, \'url\' used out of scope.\nroutes/play.js: line 89, col 31, \'url\' used out of scope.\nroutes/play.js: line 109, col 19, \'transition\' is defined but never used.\n\n4 errors');
   });
 });
 define('ttexp/tests/routes/scenarios.jshint', ['exports'], function (exports) {
@@ -371,7 +371,7 @@ define('ttexp/tests/routes/scenarios.jshint', ['exports'], function (exports) {
   QUnit.module('JSHint | routes/scenarios.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(false, 'routes/scenarios.js should pass jshint.\nroutes/scenarios.js: line 35, col 15, \'fileTransfer\' is defined but never used.\nroutes/scenarios.js: line 84, col 19, \'transition\' is defined but never used.\nroutes/scenarios.js: line 35, col 34, \'FileTransfer\' is not defined.\nroutes/scenarios.js: line 95, col 28, \'FileTransfer\' is not defined.\nroutes/scenarios.js: line 106, col 15, \'readBinaryFile\' is not defined.\nroutes/scenarios.js: line 129, col 5, \'$\' is not defined.\n\n6 errors');
+    assert.ok(false, 'routes/scenarios.js should pass jshint.\nroutes/scenarios.js: line 113, col 19, \'transition\' is defined but never used.\nroutes/scenarios.js: line 42, col 38, \'FileTransfer\' is not defined.\nroutes/scenarios.js: line 128, col 28, \'FileTransfer\' is not defined.\nroutes/scenarios.js: line 68, col 38, \'LocalFileSystem\' is not defined.\nroutes/scenarios.js: line 145, col 15, \'$\' is not defined.\nroutes/scenarios.js: line 172, col 13, \'displayImage\' is not defined.\nroutes/scenarios.js: line 177, col 8, \'onErrorReadFile\' is not defined.\nroutes/scenarios.js: line 192, col 8, \'onErrorReadFile\' is not defined.\nroutes/scenarios.js: line 180, col 10, \'readFile\' is defined but never used.\n\n9 errors');
   });
 });
 define('ttexp/tests/routes/scores.jshint', ['exports'], function (exports) {

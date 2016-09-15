@@ -359,7 +359,21 @@ html, body {
     max-width: 35%;
     background-color: rgba(111, 112, 114, 0.7);
     padding: 0;
-    padding-top: 96px; }
+    padding-top: 96px;
+    /* 	    -webkit-transition: all 0.5s ease, visibility 0s ease 0.5s; */
+    /* 	    -moz-transition: all 0.5s ease, visibility 0s ease 0.5s; */
+    /* 	    -o-transition: all 0.5s ease, visibility 0s ease 0.5s; */
+    /* 	    transition: all 0.5s ease, visibility 0s ease 0.5s; */
+    -webkit-transition: all 0.5s ease 0s;
+    -moz-transition: all 0.5s ease 0s;
+    -o-transition: all 0.5s ease 0s;
+    transition: all 0.5s ease 0s; }
+    .page-play #side-chat #chat-options,
+    .page-play #side-chat #button-audio {
+      -webkit-transition: all 0s ease 0.5s;
+      -moz-transition: all 0s ease 0.5s;
+      -o-transition: all 0s ease 0.5s;
+      transition: all 0s ease 0.5s; }
     .page-play #side-chat #chat-options {
       margin: 0;
       padding: 0;
@@ -401,7 +415,11 @@ html, body {
     width: 64px; }
     .page-play #side-chat.minimized #chat-options,
     .page-play #side-chat.minimized #button-audio {
-      display: none; }
+      visibility: hidden;
+      -webkit-transition: all 0s ease 0s;
+      -moz-transition: all 0s ease 0s;
+      -o-transition: all 0s ease 0s;
+      transition: all 0s ease 0s; }
     .page-play #side-chat.minimized #button-chat {
       left: 16px; }
   .page-play #button-close {

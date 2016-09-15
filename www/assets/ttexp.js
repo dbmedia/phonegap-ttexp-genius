@@ -147,7 +147,15 @@ define('ttexp/controllers/page-not-found', ['exports', 'ember'], function (expor
 define('ttexp/controllers/play', ['exports', 'ember'], function (exports, _ember) {
   exports['default'] = _ember['default'].Controller.extend({
     session: _ember['default'].inject.service('session'),
-    currentUser: _ember['default'].inject.service('current-user')
+    currentUser: _ember['default'].inject.service('current-user'),
+
+    actions: {
+      // TODO: i controller sono deprecati, usare piuttosto un plugin come questo: https://github.com/IvyApp/ivy-videojs
+      videoEnded: function videoEnded() {
+        console.log("videoEnded()");
+        _ember['default'].$("#side-chat").removeClass("minimized");
+      }
+    }
   });
 });
 define('ttexp/controllers/scenarios', ['exports', 'ember'], function (exports, _ember) {
@@ -688,7 +696,8 @@ define('ttexp/models/scenario', ['exports', 'ember-data'], function (exports, _e
     attempts: _emberData['default'].attr('number'),
     rating: _emberData['default'].attr('number'),
     version: _emberData['default'].attr('number'),
-    filesUrl: _emberData['default'].attr('string'),
+    filesHost: _emberData['default'].attr('string'),
+    filesDir: _emberData['default'].attr('string'),
     enabled: _emberData['default'].attr('boolean', { defaultValue: true }),
     requiredPlays: _emberData['default'].attr('number'),
     showHints: _emberData['default'].attr('boolean', { defaultValue: true }),
@@ -745,8 +754,8 @@ define('ttexp/models/video', ['exports', 'ember', 'ember-data'], function (expor
     mediaFile: _emberData['default'].belongsTo('mediaFile'),
 
     fullPath: _ember['default'].computed('uniqueCode', 'scenarioCode', function () {
-      //    return 'assets/media/video/'+this.get('scenarioCode').toLowerCase()+'/'+this.get('uniqueCode')+'.mp4';
-      return this.get('scenarioCode').toLowerCase() + '/' + this.get('uniqueCode') + '.mp4';
+      //    return 'assets/media/video/480/'+this.get('scenarioCode').toLowerCase()+'/'+this.get('uniqueCode')+'.mp4';
+      return "480/" + this.get('scenarioCode').toLowerCase() + '/' + this.get('uniqueCode') + '.mp4';
     })
   });
 });
@@ -866,6 +875,7 @@ define("ttexp/routes/play", ["exports", "ember", "ember-simple-auth/mixins/authe
                 if (item) {
                   model.scenario.reload().then(function () {
                     self.set("actionLoading", false);
+                    _ember["default"].$("#side-chat").addClass("minimized");
                     self.send('startVideo');
                   });
                 } else {
@@ -886,8 +896,23 @@ define("ttexp/routes/play", ["exports", "ember", "ember-simple-auth/mixins/authe
       // https://www.icanlocalize.com/site/2010/03/using-amazon-s3-to-host-streaming-videos/
       // http://www.inwebson.com/html5/custom-html5-video-controls-with-jquery/ (BUFFERING)
       startVideo: function startVideo() {
-        var url = this.currentModel.scenario.get('playState').get('video').get('fullPath');
-        url = "http://d1ceamasw3ytjh.cloudfront.net/480/" + url;
+        var subPath = this.currentModel.scenario.get('playState').get('video').get('fullPath');
+        console.log(subPath);
+        if (window.cordova && true) {
+          var url = "cdvfile://localhost/persistent/" + subPath;
+
+          // TODO: aggiungere controllo per vedere se il file esiste
+          /*
+          resolveLocalFileSystemURL(url, function(entry) {
+            var nativePath = entry.toURL();
+            console.log('Native URI: ' + nativePath);
+            document.getElementById('video').src = nativePath;
+          });
+          */
+        } else {
+            var url = "http://d1ceamasw3ytjh.cloudfront.net/" + subPath;
+          }
+        console.log(url);
         var videoPlayer = _ember["default"].$("#video-player");
         videoPlayer.hide();
         videoPlayer.attr("src", url);
@@ -895,6 +920,15 @@ define("ttexp/routes/play", ["exports", "ember", "ember-simple-auth/mixins/authe
         _ember["default"].$("#overlay").hide();
         videoPlayer.show();
         videoPlayer.get(0).play();
+      },
+      toggleSideChat: function toggleSideChat() {
+        _ember["default"].$("#side-chat").toggleClass("minimized");
+      },
+      showSideChat: function showSideChat() {
+        _ember["default"].$("#side-chat").removeClass("minimized");
+      },
+      hideSideChat: function hideSideChat() {
+        _ember["default"].$("#side-chat").addClass("minimized");
       },
       exit: function exit() {
         if (confirm("Vuoi uscire dalla sessione di gioco?")) {
@@ -925,37 +959,64 @@ define('ttexp/routes/scenarios', ['exports', 'ember', 'ember-simple-auth/mixins/
         if (scenario) {
           //https://github.com/apache/cordova-plugin-file-transfer/blob/1882bfbd2d150c6db501b2092374d644cb056505/doc/index.md
           //https://github.com/apache/cordova-plugin-file-transfer
+          //https://github.com/apache/cordova-plugin-file
           //http://docs.phonegap.com/en/1.8.0/cordova_file_file.md.html#FileTransfer
 
           this.get('store').findRecord('manifesto', scenario.id, { reload: true }).then(function (manifesto) {
             var scenario = manifesto.get('scenario');
             console.log("DOWNLOAD VIDEOS FOR SCENARIO: " + scenario.get('id'));
 
-            var uri = scenario.get('filesUrl');
+            //console.log("CHECK cordova.file");
+            //console.log(cordova.file);
+
+            var host = scenario.get('filesHost');
+            var localSource = "cdvfile://localhost/persistent";
+            var dir = scenario.get('filesDir');
             // var uri = encodeURI("http://d1ceamasw3ytjh.cloudfront.net/480/tel/");
             var mediaFiles = scenario.get('mediaFiles');
 
             mediaFiles.forEach(function (mediaFile) {
               var fileName = mediaFile.get('fileName'); //"TEL-I0-T0-A.mp4";
-              var fileFullPath = uri + fileName;
+              var fileRemotePath = host + dir + fileName;
+              var fileLocalPath = localSource + dir + fileName;
 
-              console.log("Downloading " + fileFullPath);
+              console.log("File to download: " + fileRemotePath + " to " + fileLocalPath);
+
+              if (window.cordova) {
+                var fileTransfer = new FileTransfer();
+                fileTransfer.download(fileRemotePath, fileLocalPath, function (entry) {
+                  console.log("download complete: " + entry.toURL());
+                }, function (error) {
+                  console.log("download error source " + error.source);
+                  console.log("download error target " + error.target);
+                  console.log("upload error code" + error.code);
+                }, null, // or, pass false
+                {
+                  //headers: {
+                  //    "Authorization": "Basic dGVzdHVzZXJuYW1lOnRlc3RwYXNzd29yZA=="
+                  //}
+                });
+              }
             });
 
-            var fileTransfer = new FileTransfer();
-            window.requestFileSystem(window.TEMPORARY, 5 * 1024 * 1024, function (fs) {
-              console.log(fs);
-              console.log('file system open: ' + fs.name);
+            if (window.cordova) {
+              // http://d1ceamasw3ytjh.cloudfront.net/480/tel/TEL-I0-T0-A.mp4
+              // cdvfile://localhost/persistent/480/tel/TEL-I0-T0-A.mp4
+              // window.TEMPORARY o LocalFileSystem.PERSISTENT
+              window.requestFileSystem(LocalFileSystem.PERSISTENT, 5 * 1024 * 1024, function (fs) {
+                console.log(fs);
+                console.log('file system open: ' + fs.name);
 
-              // Make sure you add the domain name to the Content-Security-Policy <meta> element.
-              var url = 'http://cordova.apache.org/static/img/cordova_bot.png';
-              // Parameters passed to getFile create a new file or return the file if it already exists.
-              fs.root.getFile('downloaded-image.png', { create: true, exclusive: false }, function (fileEntry) {
-                console.log("File Entry:");
-                console.log(fileEntry);
-                _download(fileEntry, url, false);
+                // Make sure you add the domain name to the Content-Security-Policy <meta> element.
+                var url = 'http://cordova.apache.org/static/img/cordova_bot.png';
+                // Parameters passed to getFile create a new file or return the file if it already exists.
+                fs.root.getFile('downloaded-image.png', { create: true, exclusive: false }, function (fileEntry) {
+                  console.log("File Entry:");
+                  console.log(fileEntry);
+                  downloadFile(fileEntry, url, false);
+                }, function () {});
               }, function () {});
-            }, function () {});
+            }
 
             return true;
           });
@@ -993,7 +1054,7 @@ define('ttexp/routes/scenarios', ['exports', 'ember', 'ember-simple-auth/mixins/
     }
   });
 
-  function _download(fileEntry, uri, readBinaryData) {
+  function downloadFile(fileEntry, uri, readBinaryData) {
 
     var fileTransfer = new FileTransfer();
     var fileURL = fileEntry.toURL();
@@ -1007,7 +1068,8 @@ define('ttexp/routes/scenarios', ['exports', 'ember', 'ember-simple-auth/mixins/
       } else {
         // Or just display it.
         //              displayImageByFileURL(entry);
-        displayFileByUrl(entry);
+        //              displayFileByUrl(entry);
+        $("#test-storage-file img").prop('src', entry.toURL());
       }
     }, function (error) {
       console.log("download error source " + error.source);
@@ -1021,9 +1083,45 @@ define('ttexp/routes/scenarios', ['exports', 'ember', 'ember-simple-auth/mixins/
     });
   }
 
-  function displayFileByUrl(fileEntry) {
-    $("#logo-app img").prop('src', fileEntry.toURL());
+  function readBinaryFile(fileEntry) {
+    fileEntry.file(function (file) {
+      var reader = new FileReader();
+
+      reader.onloadend = function () {
+
+        console.log("Successful file read: " + this.result);
+        // displayFileData(fileEntry.fullPath + ": " + this.result);
+
+        var blob = new Blob([new Uint8Array(this.result)], { type: "image/png" });
+        displayImage(blob);
+      };
+
+      reader.readAsArrayBuffer(file);
+    }, onErrorReadFile);
   }
+
+  function readFile(fileEntry) {
+
+    fileEntry.file(function (file) {
+      var reader = new FileReader();
+
+      reader.onloadend = function () {
+        console.log("Successful file read: " + this.result);
+        displayFileData(fileEntry.fullPath + ": " + this.result);
+      };
+
+      reader.readAsText(file);
+    }, onErrorReadFile);
+  }
+
+  function displayFileData(data) {
+    console.log("displayFileData()");
+    console.log(data);
+  }
+
+  //function displayFileByUrl(fileEntry) {
+  //    $("#test-storage-file img").prop('src',fileEntry.toURL());
+  //}
 });
 
 //import ENV from 'ttexp/config/environment';
@@ -2034,7 +2132,7 @@ define("ttexp/templates/layout/menu", ["exports"], function (exports) {
             "column": 0
           },
           "end": {
-            "line": 26,
+            "line": 29,
             "column": 6
           }
         },
@@ -2115,7 +2213,14 @@ define("ttexp/templates/layout/menu", ["exports"], function (exports) {
         dom.appendChild(el1, el2);
         var el2 = dom.createComment("");
         dom.appendChild(el1, el2);
-        var el2 = dom.createTextNode("	");
+        var el2 = dom.createTextNode("	\n	");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("div");
+        dom.setAttribute(el2, "id", "test-storage-file");
+        var el3 = dom.createElement("img");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n	\n	");
         dom.appendChild(el1, el2);
         var el2 = dom.createElement("span");
         dom.setAttribute(el2, "id", "app-version");
@@ -2138,10 +2243,10 @@ define("ttexp/templates/layout/menu", ["exports"], function (exports) {
         morphs[2] = dom.createMorphAt(element1, 3, 3);
         morphs[3] = dom.createElementMorph(element2);
         morphs[4] = dom.createMorphAt(element1, 13, 13);
-        morphs[5] = dom.createMorphAt(dom.childAt(element1, [15]), 1, 1);
+        morphs[5] = dom.createMorphAt(dom.childAt(element1, [17]), 1, 1);
         return morphs;
       },
-      statements: [["block", "if", [["get", "currentUser.user", ["loc", [null, [4, 9], [4, 25]]]]], [], 0, 1, ["loc", [null, [4, 3], [8, 10]]]], ["block", "link-to", ["index"], ["class", "list-group-item", "data-page-route", "index"], 2, null, ["loc", [null, [13, 1], [13, 85]]]], ["block", "link-to", ["scenarios"], ["class", "list-group-item", "data-page-route", "scenarios"], 3, null, ["loc", [null, [14, 1], [14, 100]]]], ["element", "action", ["closeApp"], [], ["loc", [null, [18, 47], [18, 68]]]], ["block", "if", [["get", "session.isAuthenticated", ["loc", [null, [20, 7], [20, 30]]]]], [], 4, 5, ["loc", [null, [20, 1], [24, 8]]]], ["content", "app-version", ["loc", [null, [25, 26], [25, 41]]]]],
+      statements: [["block", "if", [["get", "currentUser.user", ["loc", [null, [4, 9], [4, 25]]]]], [], 0, 1, ["loc", [null, [4, 3], [8, 10]]]], ["block", "link-to", ["index"], ["class", "list-group-item", "data-page-route", "index"], 2, null, ["loc", [null, [13, 1], [13, 85]]]], ["block", "link-to", ["scenarios"], ["class", "list-group-item", "data-page-route", "scenarios"], 3, null, ["loc", [null, [14, 1], [14, 100]]]], ["element", "action", ["closeApp"], [], ["loc", [null, [18, 47], [18, 68]]]], ["block", "if", [["get", "session.isAuthenticated", ["loc", [null, [20, 7], [20, 30]]]]], [], 4, 5, ["loc", [null, [20, 1], [24, 8]]]], ["content", "app-version", ["loc", [null, [28, 26], [28, 41]]]]],
       locals: [],
       templates: [child0, child1, child2, child3, child4, child5]
     };
@@ -2932,12 +3037,12 @@ define("ttexp/templates/play", ["exports"], function (exports) {
         dom.appendChild(el1, el2);
         var el2 = dom.createElement("div");
         dom.setAttribute(el2, "id", "side-chat");
-        dom.setAttribute(el2, "class", "minimizedXXX");
+        dom.setAttribute(el2, "class", "minimized");
         var el3 = dom.createTextNode("\n		");
         dom.appendChild(el2, el3);
         var el3 = dom.createElement("button");
         dom.setAttribute(el3, "id", "button-chat");
-        dom.setAttribute(el3, "class", "btn btn-link ttexp-btn ttexp-position-absolute top-left hidden");
+        dom.setAttribute(el3, "class", "btn btn-link ttexp-btn ttexp-position-absolute top-left");
         dom.setAttribute(el3, "role", "button");
         var el4 = dom.createElement("span");
         dom.setAttribute(el4, "class", "glyphicon glyphicon-comment");
@@ -2947,8 +3052,9 @@ define("ttexp/templates/play", ["exports"], function (exports) {
         dom.appendChild(el2, el3);
         var el3 = dom.createElement("button");
         dom.setAttribute(el3, "id", "button-audio");
-        dom.setAttribute(el3, "class", "btn btn-link ttexp-btn ttexp-position-absolute top-right hidden");
+        dom.setAttribute(el3, "class", "btn btn-link ttexp-btn ttexp-position-absolute top-right");
         dom.setAttribute(el3, "role", "button");
+        dom.setAttribute(el3, "style", "display:none;");
         var el4 = dom.createElement("span");
         dom.setAttribute(el4, "class", "glyphicon glyphicon-volume-up");
         dom.appendChild(el3, el4);
@@ -3010,18 +3116,24 @@ define("ttexp/templates/play", ["exports"], function (exports) {
         var element4 = dom.childAt(fragment, [0]);
         var element5 = dom.childAt(element4, [1, 1]);
         var element6 = dom.childAt(element5, [3, 1]);
-        var element7 = dom.childAt(element4, [9]);
-        var morphs = new Array(7);
+        var element7 = dom.childAt(element4, [3, 1]);
+        var element8 = dom.childAt(element4, [7]);
+        var element9 = dom.childAt(element8, [1]);
+        var element10 = dom.childAt(element4, [9]);
+        var morphs = new Array(10);
         morphs[0] = dom.createMorphAt(dom.childAt(element5, [1]), 1, 1);
         morphs[1] = dom.createElementMorph(element6);
-        morphs[2] = dom.createMorphAt(dom.childAt(element4, [5, 1, 1]), 2, 2);
-        morphs[3] = dom.createMorphAt(dom.childAt(element4, [7, 5]), 1, 1);
-        morphs[4] = dom.createElementMorph(element7);
-        morphs[5] = dom.createMorphAt(element4, 15, 15);
-        morphs[6] = dom.createMorphAt(fragment, 2, 2, contextualElement);
+        morphs[2] = dom.createAttrMorph(element7, 'onended');
+        morphs[3] = dom.createAttrMorph(element7, 'onerror');
+        morphs[4] = dom.createMorphAt(dom.childAt(element4, [5, 1, 1]), 2, 2);
+        morphs[5] = dom.createElementMorph(element9);
+        morphs[6] = dom.createMorphAt(dom.childAt(element8, [5]), 1, 1);
+        morphs[7] = dom.createElementMorph(element10);
+        morphs[8] = dom.createMorphAt(element4, 15, 15);
+        morphs[9] = dom.createMorphAt(fragment, 2, 2, contextualElement);
         return morphs;
       },
-      statements: [["inline", "breaklines", [["get", "model.scenario.description", ["loc", [null, [5, 17], [5, 43]]]]], [], ["loc", [null, [5, 4], [5, 45]]]], ["element", "action", ["startVideo"], [], ["loc", [null, [8, 7], [8, 30]]]], ["content", "model.scenario.playState.video.uniqueCode", ["loc", [null, [21, 11], [21, 56]]]], ["block", "if", [["get", "model.scenario.playState.gameCompleted", ["loc", [null, [30, 9], [30, 47]]]]], [], 0, 1, ["loc", [null, [30, 3], [39, 10]]]], ["element", "action", ["exit"], [], ["loc", [null, [49, 86], [49, 103]]]], ["block", "if", [false], [], 2, null, ["loc", [null, [56, 1], [73, 8]]]], ["content", "outlet", ["loc", [null, [75, 0], [75, 10]]]]],
+      statements: [["inline", "breaklines", [["get", "model.scenario.description", ["loc", [null, [5, 17], [5, 43]]]]], [], ["loc", [null, [5, 4], [5, 45]]]], ["element", "action", ["startVideo"], [], ["loc", [null, [8, 7], [8, 30]]]], ["attribute", "onended", ["subexpr", "action", ["videoEnded"], [], ["loc", [null, [13, 35], [13, 58]]]]], ["attribute", "onerror", ["subexpr", "action", ["videoEnded"], [], ["loc", [null, [13, 67], [13, 90]]]]], ["content", "model.scenario.playState.video.uniqueCode", ["loc", [null, [21, 11], [21, 56]]]], ["element", "action", ["toggleSideChat"], ["on", "click"], ["loc", [null, [26, 105], [26, 143]]]], ["block", "if", [["get", "model.scenario.playState.gameCompleted", ["loc", [null, [30, 9], [30, 47]]]]], [], 0, 1, ["loc", [null, [30, 3], [39, 10]]]], ["element", "action", ["exit"], [], ["loc", [null, [49, 86], [49, 103]]]], ["block", "if", [false], [], 2, null, ["loc", [null, [56, 1], [73, 8]]]], ["content", "outlet", ["loc", [null, [75, 0], [75, 10]]]]],
       locals: [],
       templates: [child0, child1, child2]
     };
@@ -4805,7 +4917,7 @@ catch(err) {
 /* jshint ignore:start */
 
 if (!runningTests) {
-  require("ttexp/app")["default"].create({"serverApiUrl":"http://demo.ttexp.net/api","LOG_ACTIVE_GENERATION":false,"LOG_VIEW_LOOKUPS":false,"name":"ttexp","version":"1.0.5+2afbf2c2"});
+  require("ttexp/app")["default"].create({"serverApiUrl":"http://ttexp-server.localhost/api","LOG_ACTIVE_GENERATION":true,"LOG_VIEW_LOOKUPS":true,"name":"ttexp","version":"1.0.4.2+d28facba"});
 }
 
 /* jshint ignore:end */
