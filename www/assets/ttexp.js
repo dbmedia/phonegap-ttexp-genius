@@ -904,7 +904,7 @@ define("ttexp/routes/play", ["exports", "ember", "ember-simple-auth/mixins/authe
       startVideo: function startVideo() {
         var subPath = this.currentModel.scenario.get('playState').get('video').get('fullPath');
         console.log(subPath);
-        if (window.cordova && true) {
+        if (window.cordova && false) {
           var url = "cdvfile://localhost/persistent/" + subPath;
 
           // TODO: aggiungere controllo per vedere se il file esiste
@@ -4951,7 +4951,7 @@ catch(err) {
 /* jshint ignore:start */
 
 if (!runningTests) {
-  require("ttexp/app")["default"].create({"serverApiUrl":"http://demo.ttexp.net/api","LOG_ACTIVE_GENERATION":false,"LOG_VIEW_LOOKUPS":false,"name":"ttexp","version":"1.0.5+99669c92"});
+  require("ttexp/app")["default"].create({"serverApiUrl":"http://demo.ttexp.net/api","LOG_ACTIVE_GENERATION":false,"LOG_VIEW_LOOKUPS":false,"name":"ttexp","version":"1.0.5.1+373c368e"});
 }
 
 /* jshint ignore:end */
