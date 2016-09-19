@@ -726,6 +726,12 @@ define('ttexp/models/score', ['exports', 'ember-data', 'ember'], function (expor
 
   });
 });
+define('ttexp/models/setting', ['exports', 'ember-data'], function (exports, _emberData) {
+  exports['default'] = _emberData['default'].Model.extend({
+    key: _emberData['default'].attr('string'),
+    value: _emberData['default'].attr('string')
+  });
+});
 define('ttexp/models/tank', ['exports', 'ember-data'], function (exports, _emberData) {
   exports['default'] = _emberData['default'].Model.extend({
     action: _emberData['default'].hasMany('action')
@@ -1696,7 +1702,7 @@ define("ttexp/templates/index", ["exports"], function (exports) {
             "column": 0
           },
           "end": {
-            "line": 33,
+            "line": 49,
             "column": 10
           }
         },
@@ -1779,25 +1785,53 @@ define("ttexp/templates/index", ["exports"], function (exports) {
         dom.appendChild(el5, el6);
         var el6 = dom.createElement("div");
         dom.setAttribute(el6, "class", "panel-body");
-        var el7 = dom.createTextNode("\n						");
+        var el7 = dom.createTextNode("\n						GENius ti permette di allenarti, imparare a seguire una trattativa e, soprattutto, di sbagliare senza che ci siano conseguenze negative.");
         dom.appendChild(el6, el7);
-        var el7 = dom.createElement("p");
-        var el8 = dom.createTextNode("Benvenuto in un innovativo metodo di allenamento che ti permette di misurare, testare e sviluppare le tue \n						capacità.");
-        dom.appendChild(el7, el8);
+        var el7 = dom.createElement("br");
         dom.appendChild(el6, el7);
         var el7 = dom.createTextNode("\n						");
         dom.appendChild(el6, el7);
-        var el7 = dom.createElement("p");
-        var el8 = dom.createTextNode("Entra nelle situazioni di vendita e comportati come se fossi davvero sul campo: clicca la risposta che ritieni \n						migliore e scopri le reazioni dei tuoi clienti. Dedica ogni giorno pochi minuti all’allenamento: migliorerai i \n						risultati e sbloccherai nuove situazioni.");
-        dom.appendChild(el7, el8);
+        var el7 = dom.createElement("br");
+        dom.appendChild(el6, el7);
+        var el7 = dom.createTextNode("\n						Il tuo percorso prevede di allenarti in tutte le fasi della trattativa.");
+        dom.appendChild(el6, el7);
+        var el7 = dom.createElement("br");
         dom.appendChild(el6, el7);
         var el7 = dom.createTextNode("\n						");
         dom.appendChild(el6, el7);
-        var el7 = dom.createElement("p");
-        var el8 = dom.createTextNode("Buon divertimento!");
-        dom.appendChild(el7, el8);
+        var el7 = dom.createElement("br");
         dom.appendChild(el6, el7);
-        var el7 = dom.createTextNode("\n					");
+        var el7 = dom.createTextNode("\n						Inizia completando le simulazioni richieste per ciascuna fase (8).");
+        dom.appendChild(el6, el7);
+        var el7 = dom.createElement("br");
+        dom.appendChild(el6, el7);
+        var el7 = dom.createTextNode("\n						Ricorda che il punteggio finale, che vedi riportato qui sopra a fianco di ciascuna fase, è la media DEGLI ULTIMI 3 TENTATIVI. Questo significa che le prime simulazioni che giocherai non conteranno per il tuo punteggio finale.");
+        dom.appendChild(el6, el7);
+        var el7 = dom.createElement("br");
+        dom.appendChild(el6, el7);
+        var el7 = dom.createTextNode("\n						");
+        dom.appendChild(el6, el7);
+        var el7 = dom.createElement("br");
+        dom.appendChild(el6, el7);
+        var el7 = dom.createTextNode("\n						Al termine dei tentativi richiesti per ciascuna fase, potrai decidere, con il tuo capo area, di continuare ad allenarti solo su una o più fasi specifiche.");
+        dom.appendChild(el6, el7);
+        var el7 = dom.createElement("br");
+        dom.appendChild(el6, el7);
+        var el7 = dom.createTextNode("\n						");
+        dom.appendChild(el6, el7);
+        var el7 = dom.createElement("br");
+        dom.appendChild(el6, el7);
+        var el7 = dom.createTextNode("\n						Le singole simulazioni possono avere durate diverse, ma non dovrebbero essere mai superiori ai 5 minuti.");
+        dom.appendChild(el6, el7);
+        var el7 = dom.createElement("br");
+        dom.appendChild(el6, el7);
+        var el7 = dom.createTextNode("\n						");
+        dom.appendChild(el6, el7);
+        var el7 = dom.createElement("br");
+        dom.appendChild(el6, el7);
+        var el7 = dom.createTextNode("\n						Buon divertimento!\n");
+        dom.appendChild(el6, el7);
+        var el7 = dom.createTextNode("					");
         dom.appendChild(el6, el7);
         dom.appendChild(el5, el6);
         var el6 = dom.createTextNode("\n				");
@@ -1836,7 +1870,7 @@ define("ttexp/templates/index", ["exports"], function (exports) {
         dom.insertBoundary(fragment, null);
         return morphs;
       },
-      statements: [["inline", "partial", ["layout/menu"], [], ["loc", [null, [5, 4], [5, 29]]]], ["content", "outlet", ["loc", [null, [33, 0], [33, 10]]]]],
+      statements: [["inline", "partial", ["layout/menu"], [], ["loc", [null, [5, 4], [5, 29]]]], ["content", "outlet", ["loc", [null, [49, 0], [49, 10]]]]],
       locals: [],
       templates: []
     };
@@ -2495,7 +2529,7 @@ define("ttexp/templates/play", ["exports"], function (exports) {
               },
               "end": {
                 "line": 31,
-                "column": 116
+                "column": 155
               }
             },
             "moduleName": "ttexp/templates/play.hbs"
@@ -2506,7 +2540,7 @@ define("ttexp/templates/play", ["exports"], function (exports) {
           hasRendered: false,
           buildFragment: function buildFragment(dom) {
             var el0 = dom.createDocumentFragment();
-            var el1 = dom.createTextNode("Scopri il tuo punteggio...");
+            var el1 = dom.createTextNode("La fase è terminata: verifica la qualità della tua performance...");
             dom.appendChild(el0, el1);
             return el0;
           },
@@ -2557,7 +2591,7 @@ define("ttexp/templates/play", ["exports"], function (exports) {
           morphs[0] = dom.createMorphAt(dom.childAt(fragment, [1]), 0, 0);
           return morphs;
         },
-        statements: [["block", "link-to", ["scores", ["get", "model.scenario.playState.playthrough", ["loc", [null, [31, 52], [31, 88]]]]], [], 0, null, ["loc", [null, [31, 32], [31, 128]]]]],
+        statements: [["block", "link-to", ["scores", ["get", "model.scenario.playState.playthrough", ["loc", [null, [31, 52], [31, 88]]]]], [], 0, null, ["loc", [null, [31, 32], [31, 167]]]]],
         locals: [],
         templates: [child0]
       };
@@ -3917,7 +3951,7 @@ define("ttexp/templates/scenarios", ["exports"], function (exports) {
           dom.appendChild(el2, el3);
           var el3 = dom.createElement("a");
           dom.setAttribute(el3, "href", "#");
-          dom.setAttribute(el3, "class", "btn-link");
+          dom.setAttribute(el3, "class", "btn-link hidden");
           var el4 = dom.createElement("i");
           dom.setAttribute(el4, "class", "fa fa-download");
           dom.appendChild(el3, el4);
@@ -4917,7 +4951,7 @@ catch(err) {
 /* jshint ignore:start */
 
 if (!runningTests) {
-  require("ttexp/app")["default"].create({"serverApiUrl":"http://demo.ttexp.net/api","LOG_ACTIVE_GENERATION":false,"LOG_VIEW_LOOKUPS":false,"name":"ttexp","version":"1.0.4.2+3f24dd37"});
+  require("ttexp/app")["default"].create({"serverApiUrl":"http://demo.ttexp.net/api","LOG_ACTIVE_GENERATION":false,"LOG_VIEW_LOOKUPS":false,"name":"ttexp","version":"1.0.5+99669c92"});
 }
 
 /* jshint ignore:end */

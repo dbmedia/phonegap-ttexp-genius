@@ -195,7 +195,7 @@ html, body {
   margin-left: 25%; }
 
 .page-index #main-content {
-  margin: 60px 0 0 5px; }
+  margin: 30px 0 0 5px; }
   .page-index #main-content .panel-body {
     padding: 10px;
     text-align: justify;
@@ -211,7 +211,7 @@ html, body {
   margin-left: 25%; }
 
 .page-scenarios #main-content {
-  margin: 60px 0 0 5px;
+  margin: 30px 0 0 5px;
   height: 530px; }
   .page-scenarios #main-content .panel-body {
     padding-left: 0;
