@@ -3,7 +3,7 @@
         xmlns:gap   = "http://phonegap.com/ns/1.0"
         id          = "net.dbmediaweb.ttexp"
         versionCode = "10"
-        version     = "1.0.1" >
+        version     = "1.0.6" >
     
     <name>TTExp</name>
     <description>
