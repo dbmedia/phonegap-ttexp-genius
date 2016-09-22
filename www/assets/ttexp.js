@@ -992,6 +992,13 @@ define('ttexp/routes/scenarios', ['exports', 'ember', 'ember-simple-auth/mixins/
                 var fileTransfer = new FileTransfer();
                 fileTransfer.download(fileRemotePath, fileLocalPath, function (entry) {
                   console.log("download complete: " + entry.toURL());
+                  console.log("internal url: " + entry.toInternalURL());
+
+                  resolveLocalFileSystemURL('cdvfile://localhost/temporary/path/to/file.mp4', function (entry) {
+                    var nativePath = entry.toURL();
+                    console.log('Native URI: ' + nativePath);
+                    document.getElementById('video').src = nativePath;
+                  });
                 }, function (error) {
                   console.log("download error source " + error.source);
                   console.log("download error target " + error.target);
@@ -3087,6 +3094,8 @@ define("ttexp/templates/play", ["exports"], function (exports) {
         dom.setAttribute(el2, "class", "btn btn-link ttexp-btn ttexp-position-absolute top-left");
         var el3 = dom.createElement("i");
         dom.setAttribute(el3, "class", "fa fa-home");
+        var el4 = dom.createTextNode("X");
+        dom.appendChild(el3, el4);
         dom.appendChild(el2, el3);
         dom.appendChild(el1, el2);
         var el2 = dom.createTextNode("\n	");
@@ -4947,7 +4956,7 @@ catch(err) {
 /* jshint ignore:start */
 
 if (!runningTests) {
-  require("ttexp/app")["default"].create({"serverApiUrl":"http://ttexp-server.localhost/api","LOG_ACTIVE_GENERATION":true,"LOG_VIEW_LOOKUPS":true,"name":"ttexp","version":"1.0.6.1+0e319a31"});
+  require("ttexp/app")["default"].create({"serverApiUrl":"http://demo.ttexp.net/api","LOG_ACTIVE_GENERATION":false,"LOG_VIEW_LOOKUPS":false,"name":"ttexp","version":"1.0.6.1+0e319a31"});
 }
 
 /* jshint ignore:end */
