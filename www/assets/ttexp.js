@@ -904,7 +904,7 @@ define("ttexp/routes/play", ["exports", "ember", "ember-simple-auth/mixins/authe
       startVideo: function startVideo() {
         var subPath = this.currentModel.scenario.get('playState').get('video').get('fullPath');
         console.log(subPath);
-        if (window.cordova && false) {
+        if (window.cordova && true) {
           var url = "cdvfile://localhost/persistent/" + subPath;
 
           // TODO: aggiungere controllo per vedere se il file esiste
@@ -3918,11 +3918,11 @@ define("ttexp/templates/scenarios", ["exports"], function (exports) {
           dom.appendChild(el2, el3);
           var el3 = dom.createElement("a");
           dom.setAttribute(el3, "href", "#");
-          dom.setAttribute(el3, "class", "btn-link hidden");
+          dom.setAttribute(el3, "class", "btn-link hiddenXXX");
           var el4 = dom.createElement("i");
           dom.setAttribute(el4, "class", "fa fa-download");
-          dom.appendChild(el3, el4);
-          var el4 = dom.createTextNode("X");
+          var el5 = dom.createTextNode("X");
+          dom.appendChild(el4, el5);
           dom.appendChild(el3, el4);
           dom.appendChild(el2, el3);
           var el3 = dom.createTextNode("\n								  			");
@@ -4100,7 +4100,7 @@ define("ttexp/templates/scenarios", ["exports"], function (exports) {
         var el7 = dom.createTextNode("\n						");
         dom.appendChild(el6, el7);
         var el7 = dom.createElement("div");
-        dom.setAttribute(el7, "class", "intro-text");
+        dom.setAttribute(el7, "class", "intro-text hidden-xs");
         var el8 = dom.createTextNode("\n							");
         dom.appendChild(el7, el8);
         var el8 = dom.createElement("p");
@@ -4148,7 +4148,7 @@ define("ttexp/templates/scenarios", ["exports"], function (exports) {
         var el11 = dom.createTextNode("\n										");
         dom.appendChild(el10, el11);
         var el11 = dom.createElement("th");
-        var el12 = dom.createTextNode("Simulazione");
+        var el12 = dom.createTextNode("Fasi");
         dom.appendChild(el11, el12);
         dom.appendChild(el10, el11);
         var el11 = dom.createTextNode("\n										");
@@ -4947,7 +4947,7 @@ catch(err) {
 /* jshint ignore:start */
 
 if (!runningTests) {
-  require("ttexp/app")["default"].create({"serverApiUrl":"http://demo.ttexp.net/api","LOG_ACTIVE_GENERATION":false,"LOG_VIEW_LOOKUPS":false,"name":"ttexp","version":"1.0.5.1+45ee8876"});
+  require("ttexp/app")["default"].create({"serverApiUrl":"http://ttexp-server.localhost/api","LOG_ACTIVE_GENERATION":true,"LOG_VIEW_LOOKUPS":true,"name":"ttexp","version":"1.0.6.1+0e319a31"});
 }
 
 /* jshint ignore:end */
