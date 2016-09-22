@@ -1027,6 +1027,10 @@ define('ttexp/routes/scenarios', ['exports', 'ember', 'ember-simple-auth/mixins/
                   console.log("File Entry:");
                   console.log(fileEntry);
                   downloadFile(fileEntry, url, false);
+
+                  if (fileEntry) {
+                    $("#test-storage-file img").prop('src', fileEntry.toURL());
+                  }
                 }, function () {});
               }, function () {});
             }
@@ -1073,8 +1077,9 @@ define('ttexp/routes/scenarios', ['exports', 'ember', 'ember-simple-auth/mixins/
     var fileURL = fileEntry.toURL();
 
     fileTransfer.download(uri, fileURL, function (entry) {
-      console.log("Successful download...");
+      console.log("Successful download with function...");
       console.log("download complete: " + entry.toURL());
+      console.log("internal url: " + entry.toInternalURL());
       if (readBinaryData) {
         // Read the file...
         readBinaryFile(entry);
@@ -1109,6 +1114,8 @@ define('ttexp/routes/scenarios', ['exports', 'ember', 'ember-simple-auth/mixins/
         displayImage(blob);
       };
 
+      console.log("File read with readBinaryFile:");
+      console.log(file);
       reader.readAsArrayBuffer(file);
     }, onErrorReadFile);
   }
@@ -1123,6 +1130,8 @@ define('ttexp/routes/scenarios', ['exports', 'ember', 'ember-simple-auth/mixins/
         displayFileData(fileEntry.fullPath + ": " + this.result);
       };
 
+      console.log("File read with fileEntry:");
+      console.log(file);
       reader.readAsText(file);
     }, onErrorReadFile);
   }
@@ -3930,7 +3939,7 @@ define("ttexp/templates/scenarios", ["exports"], function (exports) {
           dom.setAttribute(el3, "class", "btn-link hiddenXXX");
           var el4 = dom.createElement("i");
           dom.setAttribute(el4, "class", "fa fa-download");
-          var el5 = dom.createTextNode("X");
+          var el5 = dom.createTextNode("O");
           dom.appendChild(el4, el5);
           dom.appendChild(el3, el4);
           dom.appendChild(el2, el3);
