@@ -981,37 +981,19 @@ define('ttexp/routes/scenarios', ['exports', 'ember', 'ember-simple-auth/mixins/
             // var uri = encodeURI("http://d1ceamasw3ytjh.cloudfront.net/480/tel/");
             var mediaFiles = scenario.get('mediaFiles');
 
+            var downloadCounter = 0;
             mediaFiles.forEach(function (mediaFile) {
               var fileName = mediaFile.get('fileName'); //"TEL-I0-T0-A.mp4";
               var fileRemotePath = host + dir + fileName;
               var fileLocalPath = localSource + dir + fileName;
 
-              console.log("File to download: " + fileRemotePath + " to " + fileLocalPath);
-
-              if (window.cordova) {
-                var fileTransfer = new FileTransfer();
-                fileTransfer.download(fileRemotePath, fileLocalPath, function (entry) {
-                  console.log("download complete: " + entry.toURL());
-                  console.log("internal url: " + entry.toInternalURL());
-
-                  resolveLocalFileSystemURL('cdvfile://localhost/temporary/path/to/file.mp4', function (entry) {
-                    var nativePath = entry.toURL();
-                    console.log('Native URI: ' + nativePath);
-                    document.getElementById('video').src = nativePath;
-                  });
-                }, function (error) {
-                  console.log("download error source " + error.source);
-                  console.log("download error target " + error.target);
-                  console.log("upload error code" + error.code);
-                }, null, // or, pass false
-                {
-                  //headers: {
-                  //    "Authorization": "Basic dGVzdHVzZXJuYW1lOnRlc3RwYXNzd29yZA=="
-                  //}
-                });
-              }
+              confirmOrDownloadFile(fileRemotePath, fileLocalPath, function () {
+                downloadCounter++;
+                console.log("Files downloaded: " + downloadCounter);
+              });
             });
 
+            /*
             if (window.cordova) {
               // http://d1ceamasw3ytjh.cloudfront.net/480/tel/TEL-I0-T0-A.mp4
               // cdvfile://localhost/persistent/480/tel/TEL-I0-T0-A.mp4
@@ -1019,7 +1001,7 @@ define('ttexp/routes/scenarios', ['exports', 'ember', 'ember-simple-auth/mixins/
               window.requestFileSystem(LocalFileSystem.PERSISTENT, 5 * 1024 * 1024, function (fs) {
                 console.log(fs);
                 console.log('file system open: ' + fs.name);
-
+            
                 // Make sure you add the domain name to the Content-Security-Policy <meta> element.
                 var url = 'http://cordova.apache.org/static/img/cordova_bot.png';
                 // Parameters passed to getFile create a new file or return the file if it already exists.
@@ -1027,40 +1009,21 @@ define('ttexp/routes/scenarios', ['exports', 'ember', 'ember-simple-auth/mixins/
                   console.log("File Entry:");
                   console.log(fileEntry);
                   downloadFile(fileEntry, url, false);
-
+                  
                   if (fileEntry) {
-                    $("#test-storage-file img").prop('src', fileEntry.toURL());
+                    $("#test-storage-file img").prop('src',fileEntry.toURL());
+                    $("#test-storage-file img").prop('width','100px');
                   }
+            
                 }, function () {});
+              
               }, function () {});
             }
+            */
 
             return true;
           });
         }
-
-        /*
-        var model = this.currentModel;
-        var scenario = model.scenario;
-        var playState = scenario.get('playState');
-        if (playState) {
-          playState.get('playthrough').then(function (playthrough) {
-            if (playthrough) {
-              var action = self.store.createRecord('action', {
-                playthrough: playthrough,
-                item: item,
-              });
-              action.save().then(function() {
-                if (item) {
-                  self.refresh();
-                } else {
-                  self.transitionTo('scenarios');
-                }
-              });
-            }
-          });
-        }
-        */
       },
       error: function error(reason, transition) {
         console.log(reason);
@@ -1070,6 +1033,46 @@ define('ttexp/routes/scenarios', ['exports', 'ember', 'ember-simple-auth/mixins/
       }
     }
   });
+
+  function confirmOrDownloadFile(fileRemotePath, fileLocalPath, onSuccess, onError) {
+
+    console.log("confirmOrDownloadFile(): " + fileRemotePath + " to " + fileLocalPath);
+    if (window.cordova) {
+      /*
+      // TODO: Aggiungere controllo CRC per scaricare solo i file mancanti o modificati
+      window.resolveLocalFileSystemURL(fileLocalPath, function(fileEntry) {
+        // File already exists
+        console.log("resolveLocalFileSystemURL success");
+        console.log(fileEntry);
+        
+      }, function (error) {
+        // Download the file
+        console.log("resolveLocalFileSystemURL error");
+        console.log(error);
+        // Download File...
+      });
+      */
+
+      var fileTransfer = new FileTransfer();
+      fileTransfer.download(fileRemotePath, fileLocalPath, function (entry) {
+        // Success
+        console.log("download complete: " + entry.toURL());
+        console.log("internal url: " + entry.toInternalURL());
+        if (onSuccess) {
+          onSuccess();
+        }
+      }, function (error) {
+        // Error
+        console.log("download error source " + error.source);
+        console.log("download error target " + error.target);
+        console.log("upload error code" + error.code);
+        if (onSuccess) {
+          onError();
+        }
+      }, null, // or, pass false
+      {});
+    }
+  }
 
   function downloadFile(fileEntry, uri, readBinaryData) {
 
@@ -3939,7 +3942,7 @@ define("ttexp/templates/scenarios", ["exports"], function (exports) {
           dom.setAttribute(el3, "class", "btn-link hiddenXXX");
           var el4 = dom.createElement("i");
           dom.setAttribute(el4, "class", "fa fa-download");
-          var el5 = dom.createTextNode("O");
+          var el5 = dom.createTextNode("Q");
           dom.appendChild(el4, el5);
           dom.appendChild(el3, el4);
           dom.appendChild(el2, el3);
