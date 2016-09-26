@@ -1,4 +1,5 @@
 /* http://www.sitepoint.com/architecture-sass-project/ */
+/* https://github.com/MiracleBlue/ember-bootstrap-sass */
 @CHARSET "UTF-8";
 /* http://zerosixthree.se/vertical-align-anything-with-just-3-lines-of-css/ */
 /* @import "bootstrap-slate"; */
@@ -3143,7 +3144,7 @@ select[multiple].input-lg {
   background-image: none;
   border: 1px solid transparent;
   white-space: nowrap;
-  padding: 0;
+  /*   padding: 0; */
   font-size: inherit;
   line-height: inherit;
   border-radius: 0;
@@ -7546,7 +7547,7 @@ button.close {
   right: 0;
   bottom: 0;
   left: 0;
-  z-index: 1040;
+  z-index: 1050;
   -webkit-overflow-scrolling: touch;
   outline: 0; }
 
@@ -9329,3 +9330,17 @@ a:hover {
   a:hover.disabled {
     text-decoration: none;
     opacity: 0.65; }
+
+/* Align modals vertically */
+@media screen and (min-width: 768px) {
+  .modal {
+    text-align: center; }
+  .modal:before {
+    display: inline-block;
+    vertical-align: middle;
+    content: " ";
+    height: 100%; }
+  .modal-dialog {
+    display: inline-block;
+    text-align: left;
+    vertical-align: middle; } }
