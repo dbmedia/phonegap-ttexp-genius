@@ -9318,7 +9318,7 @@ catch(err) {
 /* jshint ignore:start */
 
 if (!runningTests) {
-  require("ttexp/app")["default"].create({"serverApiUrl":"http://ttexp-server.localhost/api","LOG_ACTIVE_GENERATION":true,"LOG_VIEW_LOOKUPS":true,"name":"ttexp","version":"1.0.6+b2178a74"});
+  require("ttexp/app")["default"].create({"serverApiUrl":"http://demo.ttexp.net/api","LOG_ACTIVE_GENERATION":false,"LOG_VIEW_LOOKUPS":false,"name":"ttexp","version":"1.0.6+b2178a74"});
 }
 
 /* jshint ignore:end */
