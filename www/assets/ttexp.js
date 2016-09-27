@@ -1254,19 +1254,20 @@ define("ttexp/routes/play", ["exports", "ember", "ember-simple-auth/mixins/authe
 
         if (window.cordova && true) {
           var url = "cdvfile://localhost/persistent/" + subPath;
+          console.log(url);
           resolveLocalFileSystemURL(url, function (entry) {
             videoPlayer.attr("src", entry.toURL());
-            console.log("Changed video url");
 
             _ember["default"].$("#overlay").hide();
             videoPlayer.show();
             videoPlayer.get(0).play();
+          }, function () {
+            videoPlayer.trigger('error');
           });
         } else {
           var url = "http://d1ceamasw3ytjh.cloudfront.net/" + subPath;
-          videoPlayer.attr("src", url);
-          console.log("Changed video url");
           console.log(url);
+          videoPlayer.attr("src", url);
 
           _ember["default"].$("#overlay").hide();
           videoPlayer.show();
