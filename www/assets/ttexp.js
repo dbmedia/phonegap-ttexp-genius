@@ -1248,6 +1248,8 @@ define("ttexp/routes/play", ["exports", "ember", "ember-simple-auth/mixins/authe
       // https://www.icanlocalize.com/site/2010/03/using-amazon-s3-to-host-streaming-videos/
       // http://www.inwebson.com/html5/custom-html5-video-controls-with-jquery/ (BUFFERING)
       startVideo: function startVideo() {
+        _ember["default"].$("#overlay").hide();
+
         var subPath = this.currentModel.scenario.get('playState').get('video').get('fullPath');
         var videoPlayer = _ember["default"].$("#video-player");
         videoPlayer.hide();
@@ -1256,22 +1258,23 @@ define("ttexp/routes/play", ["exports", "ember", "ember-simple-auth/mixins/authe
           var url = "cdvfile://localhost/persistent/" + subPath;
           console.log(url);
           resolveLocalFileSystemURL(url, function (entry) {
-            videoPlayer.attr("src", entry.toURL());
+            var localUrl = entry.toURL();
+            console.log("Converted local url: " + localUrl);
 
-            _ember["default"].$("#overlay").hide();
-            videoPlayer.show();
+            videoPlayer.attr("src", localUrl);
             videoPlayer.get(0).play();
+            videoPlayer.show();
           }, function () {
+            videoPlayer.attr("src", "");
             videoPlayer.trigger('error');
           });
         } else {
           var url = "http://d1ceamasw3ytjh.cloudfront.net/" + subPath;
           console.log(url);
-          videoPlayer.attr("src", url);
 
-          _ember["default"].$("#overlay").hide();
-          videoPlayer.show();
+          videoPlayer.attr("src", url);
           videoPlayer.get(0).play();
+          videoPlayer.show();
         }
       },
       toggleSideChat: function toggleSideChat() {
