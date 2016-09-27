@@ -1255,19 +1255,23 @@ define("ttexp/routes/play", ["exports", "ember", "ember-simple-auth/mixins/authe
         if (window.cordova && true) {
           var url = "cdvfile://localhost/persistent/" + subPath;
           resolveLocalFileSystemURL(url, function (entry) {
-            videoPlayer.attr("src", entry.toURL);
+            videoPlayer.attr("src", entry.toURL());
             console.log("Changed video url");
+
+            _ember["default"].$("#overlay").hide();
+            videoPlayer.show();
+            videoPlayer.get(0).play();
           });
         } else {
           var url = "http://d1ceamasw3ytjh.cloudfront.net/" + subPath;
           videoPlayer.attr("src", url);
           console.log("Changed video url");
-        }
-        console.log(url);
+          console.log(url);
 
-        _ember["default"].$("#overlay").hide();
-        videoPlayer.show();
-        videoPlayer.get(0).play();
+          _ember["default"].$("#overlay").hide();
+          videoPlayer.show();
+          videoPlayer.get(0).play();
+        }
       },
       toggleSideChat: function toggleSideChat() {
         _ember["default"].$("#side-chat").toggleClass("minimized");
