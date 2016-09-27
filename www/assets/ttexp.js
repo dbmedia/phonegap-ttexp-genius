@@ -1265,7 +1265,6 @@ define("ttexp/routes/play", ["exports", "ember", "ember-simple-auth/mixins/authe
             var url = "http://d1ceamasw3ytjh.cloudfront.net/" + subPath;
           }
         console.log(url);
-        alert(url);
         var videoPlayer = _ember["default"].$("#video-player");
         videoPlayer.hide();
         videoPlayer.attr("src", url);
@@ -1422,7 +1421,6 @@ define('ttexp/routes/scenarios', ['exports', 'ember', 'ember-simple-auth/mixins/
         // Success
         console.log("download complete: " + entry.toURL());
         console.log("internal url: " + entry.toInternalURL());
-        alert("Success=> internal url: " + entry.toInternalURL());
         if (onSuccess) {
           onSuccess();
         }
