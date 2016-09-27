@@ -14,9 +14,11 @@
     </author>
     <content src="index.html" />
     <access origin="*" />
+	<access origin="cdvfile://*" />
 	<allow-navigation href="http://*/*" />
 	<allow-navigation href="https://*/*" />
 	<allow-navigation href="data:*" />
+	<allow-navigation href="*://*/*"/>
     <allow-intent href="http://*/*" />
     <allow-intent href="https://*/*" />
     <allow-intent href="tel:*" />
@@ -28,6 +30,7 @@
     <preference name="fullscreen" value="true" />
     <preference name="orientation" value="landscape" />
 	<preference name="iosPersistentFileLocation" value="Library" />
+	<preference name="iosExtraFilesystems" value="library-nosync,cache,bundle,root" />
     
     <icon src="icon.png" gap:role="default" />
     
@@ -45,6 +48,7 @@
 	<!-- Settings Icon -->
 	<icon src="icon-small.png" platform="ios" width="29" height="29" />
 	<icon src="icon-small@2x.png" platform="ios" width="58" height="58" />
+	<icon src="icon167.png" platform="ios" width="167" height="167" />
 
 	<!-- Spotlight Icon -->
 	<icon src="icon-40.png" platform="ios" width="40" height="40" />

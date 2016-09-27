@@ -2,7 +2,7 @@
 <widget xmlns       = "http://www.w3.org/ns/widgets"
         xmlns:gap   = "http://phonegap.com/ns/1.0"
         id          = "it.gruppoina.agmonza.genius"
-        versionCode = "23"
+        versionCode = "24"
         version     = "1.0.6" >
     
     <name>GENius</name>
@@ -44,6 +44,7 @@
 	<!-- iPad -->
 	<icon src="icon-76.png" platform="ios" width="76" height="76" />
 	<icon src="icon-76@2x.png" platform="ios" width="152" height="152" />
+	<icon src="icon167.png" platform="ios" width="167" height="167" />
 
 	<!-- Settings Icon -->
 	<icon src="icon-small.png" platform="ios" width="29" height="29" />

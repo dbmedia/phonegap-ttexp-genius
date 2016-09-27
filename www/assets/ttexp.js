@@ -1266,16 +1266,16 @@ define("ttexp/routes/play", ["exports", "ember", "ember-simple-auth/mixins/authe
             videoPlayer.show();
           }, function () {
             videoPlayer.attr("src", "");
-            videoPlayer.trigger('error');
+            //          videoPlayer.trigger('error');
           });
         } else {
-          var url = "http://d1ceamasw3ytjh.cloudfront.net/" + subPath;
-          console.log(url);
+            var url = "http://d1ceamasw3ytjh.cloudfront.net/" + subPath;
+            console.log(url);
 
-          videoPlayer.attr("src", url);
-          videoPlayer.get(0).play();
-          videoPlayer.show();
-        }
+            videoPlayer.attr("src", url);
+            videoPlayer.get(0).play();
+            videoPlayer.show();
+          }
       },
       toggleSideChat: function toggleSideChat() {
         _ember["default"].$("#side-chat").toggleClass("minimized");
