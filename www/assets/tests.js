@@ -371,7 +371,7 @@ define('ttexp/tests/routes/play.jshint', ['exports'], function (exports) {
   QUnit.module('JSHint | routes/play.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(false, 'routes/play.js should pass jshint.\nroutes/play.js: line 84, col 13, \'url\' is already defined.\nroutes/play.js: line 86, col 13, \'url\' used out of scope.\nroutes/play.js: line 89, col 31, \'url\' used out of scope.\nroutes/play.js: line 109, col 19, \'transition\' is defined but never used.\n\n4 errors');
+    assert.ok(false, 'routes/play.js should pass jshint.\nroutes/play.js: line 84, col 13, \'url\' is already defined.\nroutes/play.js: line 86, col 13, \'url\' used out of scope.\nroutes/play.js: line 87, col 7, \'url\' used out of scope.\nroutes/play.js: line 90, col 31, \'url\' used out of scope.\nroutes/play.js: line 110, col 19, \'transition\' is defined but never used.\n\n5 errors');
   });
 });
 define('ttexp/tests/routes/scenarios.jshint', ['exports'], function (exports) {
@@ -380,7 +380,7 @@ define('ttexp/tests/routes/scenarios.jshint', ['exports'], function (exports) {
   QUnit.module('JSHint | routes/scenarios.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(false, 'routes/scenarios.js should pass jshint.\nroutes/scenarios.js: line 44, col 37, Expected \'!==\' and instead saw \'!=\'.\nroutes/scenarios.js: line 72, col 14, Missing semicolon.\nroutes/scenarios.js: line 100, col 19, \'transition\' is defined but never used.\nroutes/scenarios.js: line 51, col 15, \'$\' is not defined.\nroutes/scenarios.js: line 219, col 15, \'$\' is not defined.\nroutes/scenarios.js: line 128, col 28, \'FileTransfer\' is not defined.\nroutes/scenarios.js: line 201, col 28, \'FileTransfer\' is not defined.\nroutes/scenarios.js: line 246, col 13, \'displayImage\' is not defined.\nroutes/scenarios.js: line 253, col 8, \'onErrorReadFile\' is not defined.\nroutes/scenarios.js: line 270, col 8, \'onErrorReadFile\' is not defined.\nroutes/scenarios.js: line 199, col 10, \'downloadFile\' is defined but never used.\nroutes/scenarios.js: line 256, col 10, \'readFile\' is defined but never used.\n\n12 errors');
+    assert.ok(false, 'routes/scenarios.js should pass jshint.\nroutes/scenarios.js: line 44, col 37, Expected \'!==\' and instead saw \'!=\'.\nroutes/scenarios.js: line 72, col 14, Missing semicolon.\nroutes/scenarios.js: line 100, col 19, \'transition\' is defined but never used.\nroutes/scenarios.js: line 51, col 15, \'$\' is not defined.\nroutes/scenarios.js: line 220, col 15, \'$\' is not defined.\nroutes/scenarios.js: line 128, col 28, \'FileTransfer\' is not defined.\nroutes/scenarios.js: line 202, col 28, \'FileTransfer\' is not defined.\nroutes/scenarios.js: line 247, col 13, \'displayImage\' is not defined.\nroutes/scenarios.js: line 254, col 8, \'onErrorReadFile\' is not defined.\nroutes/scenarios.js: line 271, col 8, \'onErrorReadFile\' is not defined.\nroutes/scenarios.js: line 200, col 10, \'downloadFile\' is defined but never used.\nroutes/scenarios.js: line 257, col 10, \'readFile\' is defined but never used.\n\n12 errors');
   });
 });
 define('ttexp/tests/routes/scores.jshint', ['exports'], function (exports) {
