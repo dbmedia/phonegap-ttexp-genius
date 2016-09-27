@@ -1249,26 +1249,22 @@ define("ttexp/routes/play", ["exports", "ember", "ember-simple-auth/mixins/authe
       // http://www.inwebson.com/html5/custom-html5-video-controls-with-jquery/ (BUFFERING)
       startVideo: function startVideo() {
         var subPath = this.currentModel.scenario.get('playState').get('video').get('fullPath');
-        console.log(subPath);
-        if (window.cordova && true) {
-          var url = "cdvfile://localhost/persistent/" + subPath;
-
-          // TODO: aggiungere controllo per vedere se il file esiste
-          /*
-          resolveLocalFileSystemURL(url, function(entry) {
-            var nativePath = entry.toURL();
-            console.log('Native URI: ' + nativePath);
-            document.getElementById('video').src = nativePath;
-          });
-          */
-        } else {
-            var url = "http://d1ceamasw3ytjh.cloudfront.net/" + subPath;
-          }
-        console.log(url);
         var videoPlayer = _ember["default"].$("#video-player");
         videoPlayer.hide();
-        videoPlayer.attr("src", url);
-        //      videoPlayer.get(0).load();
+
+        if (window.cordova && true) {
+          var url = "cdvfile://localhost/persistent/" + subPath;
+          resolveLocalFileSystemURL(url, function (entry) {
+            videoPlayer.attr("src", entry.toURL);
+            console.log("Changed video url");
+          });
+        } else {
+          var url = "http://d1ceamasw3ytjh.cloudfront.net/" + subPath;
+          videoPlayer.attr("src", url);
+          console.log("Changed video url");
+        }
+        console.log(url);
+
         _ember["default"].$("#overlay").hide();
         videoPlayer.show();
         videoPlayer.get(0).play();
