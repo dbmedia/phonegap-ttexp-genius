@@ -272,7 +272,7 @@ define('ttexp/tests/models/scenario.jshint', ['exports'], function (exports) {
   QUnit.module('JSHint | models/scenario.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(true, 'models/scenario.js should pass jshint.');
+    assert.ok(false, 'models/scenario.js should pass jshint.\nmodels/scenario.js: line 48, col 29, Expected \'===\' and instead saw \'==\'.\nmodels/scenario.js: line 3, col 22, \'Ember\' is not defined.\nmodels/scenario.js: line 25, col 20, \'Ember\' is not defined.\nmodels/scenario.js: line 44, col 14, \'Ember\' is not defined.\nmodels/scenario.js: line 30, col 24, \'$\' is not defined.\n\n5 errors');
   });
 });
 define('ttexp/tests/models/score.jshint', ['exports'], function (exports) {
@@ -371,7 +371,7 @@ define('ttexp/tests/routes/play.jshint', ['exports'], function (exports) {
   QUnit.module('JSHint | routes/play.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(false, 'routes/play.js should pass jshint.\nroutes/play.js: line 90, col 13, \'url\' is already defined.\nroutes/play.js: line 112, col 19, \'transition\' is defined but never used.\nroutes/play.js: line 78, col 9, \'resolveLocalFileSystemURL\' is not defined.\n\n3 errors');
+    assert.ok(false, 'routes/play.js should pass jshint.\nroutes/play.js: line 80, col 13, \'url\' is already defined.\nroutes/play.js: line 102, col 19, \'transition\' is defined but never used.\nroutes/play.js: line 68, col 9, \'resolveLocalFileSystemURL\' is not defined.\n\n3 errors');
   });
 });
 define('ttexp/tests/routes/scenarios.jshint', ['exports'], function (exports) {
@@ -380,7 +380,7 @@ define('ttexp/tests/routes/scenarios.jshint', ['exports'], function (exports) {
   QUnit.module('JSHint | routes/scenarios.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(false, 'routes/scenarios.js should pass jshint.\nroutes/scenarios.js: line 44, col 37, Expected \'!==\' and instead saw \'!=\'.\nroutes/scenarios.js: line 72, col 14, Missing semicolon.\nroutes/scenarios.js: line 100, col 19, \'transition\' is defined but never used.\nroutes/scenarios.js: line 51, col 15, \'$\' is not defined.\nroutes/scenarios.js: line 219, col 15, \'$\' is not defined.\nroutes/scenarios.js: line 128, col 28, \'FileTransfer\' is not defined.\nroutes/scenarios.js: line 201, col 28, \'FileTransfer\' is not defined.\nroutes/scenarios.js: line 246, col 13, \'displayImage\' is not defined.\nroutes/scenarios.js: line 253, col 8, \'onErrorReadFile\' is not defined.\nroutes/scenarios.js: line 270, col 8, \'onErrorReadFile\' is not defined.\nroutes/scenarios.js: line 199, col 10, \'downloadFile\' is defined but never used.\nroutes/scenarios.js: line 256, col 10, \'readFile\' is defined but never used.\n\n12 errors');
+    assert.ok(false, 'routes/scenarios.js should pass jshint.\nroutes/scenarios.js: line 57, col 37, Expected \'!==\' and instead saw \'!=\'.\nroutes/scenarios.js: line 87, col 14, Missing semicolon.\nroutes/scenarios.js: line 97, col 19, \'transition\' is defined but never used.\nroutes/scenarios.js: line 64, col 15, \'$\' is not defined.\nroutes/scenarios.js: line 216, col 15, \'$\' is not defined.\nroutes/scenarios.js: line 125, col 28, \'FileTransfer\' is not defined.\nroutes/scenarios.js: line 198, col 28, \'FileTransfer\' is not defined.\nroutes/scenarios.js: line 243, col 13, \'displayImage\' is not defined.\nroutes/scenarios.js: line 250, col 8, \'onErrorReadFile\' is not defined.\nroutes/scenarios.js: line 267, col 8, \'onErrorReadFile\' is not defined.\nroutes/scenarios.js: line 196, col 10, \'downloadFile\' is defined but never used.\nroutes/scenarios.js: line 253, col 10, \'readFile\' is defined but never used.\n\n12 errors');
   });
 });
 define('ttexp/tests/routes/scores.jshint', ['exports'], function (exports) {
@@ -399,6 +399,15 @@ define('ttexp/tests/services/current-user.jshint', ['exports'], function (export
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
     assert.ok(true, 'services/current-user.js should pass jshint.');
+  });
+});
+define('ttexp/tests/services/file-system.jshint', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('JSHint | services/file-system.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(false, 'services/file-system.js should pass jshint.\nservices/file-system.js: line 21, col 34, \'LocalFileSystem\' is not defined.\n\n1 error');
   });
 });
 define('ttexp/tests/services/session.jshint', ['exports'], function (exports) {
@@ -714,6 +723,28 @@ define('ttexp/tests/unit/models/video-test.jshint', ['exports'], function (expor
     assert.ok(true, 'unit/models/video-test.js should pass jshint.');
   });
 });
+define('ttexp/tests/unit/services/file-system-test', ['exports', 'ember-qunit'], function (exports, _emberQunit) {
+
+  (0, _emberQunit.moduleFor)('service:file-system', 'Unit | Service | file system', {
+    // Specify the other units that are required for this test.
+    // needs: ['service:foo']
+  });
+
+  // Replace this with your real tests.
+  (0, _emberQunit.test)('it exists', function (assert) {
+    var service = this.subject();
+    assert.ok(service);
+  });
+});
+define('ttexp/tests/unit/services/file-system-test.jshint', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('JSHint | unit/services/file-system-test.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'unit/services/file-system-test.js should pass jshint.');
+  });
+});
 define('ttexp/tests/unit/services/session-test', ['exports', 'ember-qunit'], function (exports, _emberQunit) {
 
   (0, _emberQunit.moduleFor)('service:session', 'Unit | Service | session', {
@@ -734,6 +765,34 @@ define('ttexp/tests/unit/services/session-test.jshint', ['exports'], function (e
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
     assert.ok(true, 'unit/services/session-test.js should pass jshint.');
+  });
+});
+define('ttexp/tests/unit/utils/pg-file-system-test', ['exports', 'ttexp/utils/pg-file-system', 'qunit'], function (exports, _ttexpUtilsPgFileSystem, _qunit) {
+
+  (0, _qunit.module)('Unit | Utility | pg file system');
+
+  // Replace this with your real tests.
+  (0, _qunit.test)('it works', function (assert) {
+    var result = (0, _ttexpUtilsPgFileSystem['default'])();
+    assert.ok(result);
+  });
+});
+define('ttexp/tests/unit/utils/pg-file-system-test.jshint', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('JSHint | unit/utils/pg-file-system-test.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'unit/utils/pg-file-system-test.js should pass jshint.');
+  });
+});
+define('ttexp/tests/utils/pg-file-system.jshint', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('JSHint | utils/pg-file-system.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(false, 'utils/pg-file-system.js should pass jshint.\nutils/pg-file-system.js: line 30, col 28, Expected \'===\' and instead saw \'==\'.\nutils/pg-file-system.js: line 24, col 33, \'isAppend\' is defined but never used.\nutils/pg-file-system.js: line 83, col 13, \'blob\' is defined but never used.\nutils/pg-file-system.js: line 19, col 7, \'writeFile\' is not defined.\nutils/pg-file-system.js: line 52, col 7, \'writeFile\' is not defined.\nutils/pg-file-system.js: line 20, col 8, \'onErrorCreateFile\' is not defined.\nutils/pg-file-system.js: line 53, col 8, \'onErrorCreateFile\' is not defined.\nutils/pg-file-system.js: line 31, col 13, \'readBinaryFile\' is not defined.\nutils/pg-file-system.js: line 33, col 13, \'readFile\' is not defined.\nutils/pg-file-system.js: line 62, col 9, \'displayFileData\' is not defined.\nutils/pg-file-system.js: line 81, col 9, \'displayFileData\' is not defined.\nutils/pg-file-system.js: line 71, col 8, \'onErrorReadFile\' is not defined.\nutils/pg-file-system.js: line 89, col 8, \'onErrorReadFile\' is not defined.\nutils/pg-file-system.js: line 95, col 9, \'createFile\' is not defined.\nutils/pg-file-system.js: line 96, col 10, \'onErrorGetDir\' is not defined.\nutils/pg-file-system.js: line 97, col 8, \'onErrorGetDir\' is not defined.\nutils/pg-file-system.js: line 9, col 7, \'cordova\' is defined but never used.\n\n17 errors');
   });
 });
 /* jshint ignore:start */
