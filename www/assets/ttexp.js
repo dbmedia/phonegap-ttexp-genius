@@ -9376,7 +9376,10 @@ define("ttexp/utils/pg-file-system", ["exports", "ember"], function (exports, _e
     saveFile: function saveFile(dirEntry, fileData, fileName) {
       dirEntry.getFile(fileName, { create: true, exclusive: false }, function (fileEntry) {
         writeFile(fileEntry, fileData);
-      }, onErrorCreateFile);
+      }, function (e) {
+        console.log("Error saving file");
+        console.log(e);
+      });
     },
 
     readFile: function readFile(fileEntry) {
@@ -9393,7 +9396,10 @@ define("ttexp/utils/pg-file-system", ["exports", "ember"], function (exports, _e
         };
 
         reader.readAsText(file);
-      }, onErrorReadFile);
+      }, function (e) {
+        console.log("Error reading file");
+        console.log(e);
+      });
     },
 
     readBinaryFile: function readBinaryFile(fileEntry) {
@@ -9409,15 +9415,24 @@ define("ttexp/utils/pg-file-system", ["exports", "ember"], function (exports, _e
         };
 
         reader.readAsArrayBuffer(file);
-      }, onErrorReadFile);
+      }, function (e) {
+        console.log("Error reading file");
+        console.log(e);
+      });
     },
 
     createDirectory: function createDirectory(rootDirEntry) {
       rootDirEntry.getDirectory('NewDirInRoot', { create: true }, function (dirEntry) {
         dirEntry.getDirectory('images', { create: true }, function (subDirEntry) {
           createFile(subDirEntry, "fileInNewSubDir.txt");
-        }, onErrorGetDir);
-      }, onErrorGetDir);
+        }, function (e) {
+          console.log("Error creating directory");
+          console.log(e);
+        });
+      }, function (e) {
+        console.log("Error creating directory");
+        console.log(e);
+      });
     }
 
   });
