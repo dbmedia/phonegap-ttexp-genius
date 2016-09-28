@@ -272,7 +272,7 @@ define('ttexp/tests/models/scenario.jshint', ['exports'], function (exports) {
   QUnit.module('JSHint | models/scenario.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(false, 'models/scenario.js should pass jshint.\nmodels/scenario.js: line 35, col 55, Expected \'===\' and instead saw \'==\'.\nmodels/scenario.js: line 76, col 37, Expected \'===\' and instead saw \'==\'.\nmodels/scenario.js: line 3, col 22, \'Ember\' is not defined.\nmodels/scenario.js: line 25, col 20, \'Ember\' is not defined.\nmodels/scenario.js: line 66, col 14, \'Ember\' is not defined.\nmodels/scenario.js: line 29, col 16, \'Promise\' is not defined.\nmodels/scenario.js: line 69, col 16, \'Promise\' is not defined.\nmodels/scenario.js: line 37, col 28, \'$\' is not defined.\n\n8 errors');
+    assert.ok(false, 'models/scenario.js should pass jshint.\nmodels/scenario.js: line 5, col 19, \'service\' is defined but never used.\n\n1 error');
   });
 });
 define('ttexp/tests/models/score.jshint', ['exports'], function (exports) {
@@ -792,7 +792,7 @@ define('ttexp/tests/utils/pg-file-system.jshint', ['exports'], function (exports
   QUnit.module('JSHint | utils/pg-file-system.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(false, 'utils/pg-file-system.js should pass jshint.\nutils/pg-file-system.js: line 31, col 28, Expected \'===\' and instead saw \'==\'.\nutils/pg-file-system.js: line 24, col 33, \'isAppend\' is defined but never used.\nutils/pg-file-system.js: line 86, col 6, Expected \')\' and instead saw \';\'.\nutils/pg-file-system.js: line 86, col 7, Missing semicolon.\nutils/pg-file-system.js: line 99, col 13, \'blob\' is defined but never used.\nutils/pg-file-system.js: line 19, col 7, \'writeFile\' is not defined.\nutils/pg-file-system.js: line 53, col 7, \'writeFile\' is not defined.\nutils/pg-file-system.js: line 20, col 8, \'onErrorCreateFile\' is not defined.\nutils/pg-file-system.js: line 62, col 16, \'Promise\' is not defined.\nutils/pg-file-system.js: line 9, col 7, \'cordova\' is defined but never used.\n\n10 errors');
+    assert.ok(false, 'utils/pg-file-system.js should pass jshint.\nutils/pg-file-system.js: line 18, col 33, \'isAppend\' is defined but never used.\nutils/pg-file-system.js: line 93, col 13, \'blob\' is defined but never used.\nutils/pg-file-system.js: line 13, col 7, \'writeFile\' is not defined.\nutils/pg-file-system.js: line 47, col 7, \'writeFile\' is not defined.\nutils/pg-file-system.js: line 14, col 8, \'onErrorCreateFile\' is not defined.\nutils/pg-file-system.js: line 3, col 19, \'service\' is defined but never used.\n\n6 errors');
   });
 });
 /* jshint ignore:start */

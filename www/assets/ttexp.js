@@ -1035,9 +1035,10 @@ define('ttexp/models/playthrough', ['exports', 'ember-data'], function (exports,
     completedAt: _emberData['default'].attr('date')
   });
 });
-define('ttexp/models/scenario', ['exports', 'ember-data'], function (exports, _emberData) {
-  var _Ember = Ember;
-  var getOwner = _Ember.getOwner;
+define('ttexp/models/scenario', ['exports', 'ember', 'ember-data'], function (exports, _ember, _emberData) {
+  var getOwner = _ember['default'].getOwner;
+  var service = _ember['default'].inject.service;
+  var RSVP = _ember['default'].RSVP;
   exports['default'] = _emberData['default'].Model.extend({
     code: _emberData['default'].attr('string'),
     name: _emberData['default'].attr('string'),
@@ -1058,19 +1059,19 @@ define('ttexp/models/scenario', ['exports', 'ember-data'], function (exports, _e
     manifesto: _emberData['default'].belongsTo('manifesto'),
     mediaFiles: _emberData['default'].hasMany('mediaFile'),
 
-    downloadVersion: Ember.computed(function () {
+    downloadVersion: _ember['default'].computed(function () {
       console.log("Entered scenario.downloadVersion()");
       var self = this;
 
-      return new Promise(function (resolve, reject) {
+      return new RSVP.Promise(function (resolve, reject) {
         console.log("Download version promise");
         if (window.cordova || true) {
           var fileSystemService = getOwner(self).lookup('controller:scenarios').get('fileSystem');
           var pgFileSystemUtil = fileSystemService.get('pgFileSystemUtil');
           if (fileSystemService.settingsFile) {
-            if (typeof fileSystemService.settingsFile == "string") {
+            if (typeof fileSystemService.settingsFile === "string") {
               var fileContent = fileSystemService.settingsFile;
-              var settings = $.parseJSON(fileContent);
+              var settings = _ember['default'].$.parseJSON(fileContent);
               console.log("DownloadVersion attr:");
               console.log(settings);
               if (settings.scenarios[self.id]) {
@@ -1098,16 +1099,16 @@ define('ttexp/models/scenario', ['exports', 'ember-data'], function (exports, _e
         }
       });
     }),
-    isUpdated: Ember.computed(function () {
+    isUpdated: _ember['default'].computed(function () {
       console.log("Entered scenario.isUpdated()");
       var self = this;
-      return new Promise(function (resolve, reject) {
+      return new RSVP.Promise(function (resolve, reject) {
         if (window.cordova || true) {
           var scenarioVersion = self.get('version');
           self.get('downloadVersion').then(function (downloadVersion) {
 
             setTimeout(function () {
-              if (downloadVersion == scenarioVersion) {
+              if (downloadVersion === scenarioVersion) {
                 resolve(true);
               } else {
                 resolve(false);
@@ -1594,7 +1595,7 @@ define('ttexp/routes/scenarios', ['exports', 'ember', 'ember-simple-auth/mixins/
 
       reader.onloadend = function () {
 
-        console.log("Successful file read: " + this.result);
+        console.log("Successful binary file read: " + this.result);
         // displayFileData(fileEntry.fullPath + ": " + this.result);
 
         var blob = new Blob([new Uint8Array(this.result)], { type: "image/png" });
@@ -1613,7 +1614,7 @@ define('ttexp/routes/scenarios', ['exports', 'ember', 'ember-simple-auth/mixins/
       var reader = new FileReader();
 
       reader.onloadend = function () {
-        console.log("Successful file read: " + this.result);
+        console.log("Successful text file read: " + this.result);
         displayFileData(fileEntry.fullPath + ": " + this.result);
       };
 
@@ -9401,9 +9402,8 @@ define("ttexp/templates/scores", ["exports"], function (exports) {
   })());
 });
 define("ttexp/utils/pg-file-system", ["exports", "ember"], function (exports, _ember) {
-
-  var cordova = window.cordova;
-
+  var service = _ember["default"].inject.service;
+  var RSVP = _ember["default"].RSVP;
   exports["default"] = _ember["default"].Object.extend({
 
     init: function init() {},
@@ -9422,7 +9422,7 @@ define("ttexp/utils/pg-file-system", ["exports", "ember"], function (exports, _e
 
         fileWriter.onwriteend = function () {
           console.log("Successful file write...");
-          if (dataObj.type == "image/png") {
+          if (dataObj.type === "image/png") {
             self.readBinaryFile(fileEntry);
           } else {
             self.readFile(fileEntry);
@@ -9451,34 +9451,31 @@ define("ttexp/utils/pg-file-system", ["exports", "ember"], function (exports, _e
       });
     },
 
-    readFile: function readFile(fileEntry, onSuccess, onError) {
-      fileEntry.file(function (file) {
-        var reader = new FileReader();
+    readFile: function readFile(fileEntry) {
+      console.log("Start readFile promise");
+      return new RSVP.Promise(function (resolve, reject) {
+        fileEntry.file(function (file) {
+          var reader = new FileReader();
 
-        reader.onloadend = function () {
-          console.log("Successful file read:");
-          console.log(this.result);
-          console.log(this);
-          if (onSuccess) {
-            onSuccess();
-          }
-        };
+          reader.onloadend = function () {
+            console.log("Successful file read:");
+            console.log(this);
+            console.log(this.result);
+            resolve(this.result);
+          };
 
-        reader.onerror = function (e) {
-          console.log("Failed file read:");
+          reader.onerror = function (e) {
+            console.log("Failed file read:");
+            console.log(e);
+            reject(e);
+          };
+
+          reader.readAsText(file);
+        }, function (e) {
+          console.log("Error reading file");
           console.log(e);
-          if (onError) {
-            onError();
-          }
-        };
-
-        reader.readAsText(file);
-      }, function (e) {
-        console.log("Error reading file");
-        console.log(e);
-        if (onError) {
-          onError();
-        }
+          reject(e);
+        });
       });
     },
 
@@ -9488,8 +9485,8 @@ define("ttexp/utils/pg-file-system", ["exports", "ember"], function (exports, _e
 
         reader.onloadend = function () {
           console.log("Successful file write:");
-          console.log(this.result);
           console.log(this);
+          console.log(this.result);
 
           var blob = new Blob([new Uint8Array(this.result)], { type: "image/png" });
           //displayImage(blob);
@@ -9519,11 +9516,6 @@ define("ttexp/utils/pg-file-system", ["exports", "ember"], function (exports, _e
 
   });
 });
-/*
-export default function pgFileSystem() {
-  return true;
-}
-*/
 /* jshint ignore:start */
 
 
