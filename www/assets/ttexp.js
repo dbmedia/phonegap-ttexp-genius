@@ -1059,6 +1059,7 @@ define('ttexp/models/scenario', ['exports', 'ember-data'], function (exports, _e
     mediaFiles: _emberData['default'].hasMany('mediaFile'),
 
     downloadVersion: Ember.computed(function () {
+      console.log("Entered scenario.downloadVersion()");
       var self = this;
 
       return new Promise(function (resolve, reject) {
@@ -1079,9 +1080,13 @@ define('ttexp/models/scenario', ['exports', 'ember-data'], function (exports, _e
               }
             } else {
               console.log(fileSystemService.settingsFile);
-              var fileContent = pgFileSystemUtil.readFile(fileSystemService.settingsFile).then(function (value) {
-                resolve(value);
+              console.log("Trying to start readFile promise");
+              pgFileSystemUtil.readFile(fileSystemService.settingsFile).then(function (fileContent) {
+                console.log("resolved");
+                resolve(fileContent);
               }, function (reason) {
+                console.log("Error reading file");
+                console.log(reason);
                 reject(reason);
               });
             }
@@ -1094,16 +1099,27 @@ define('ttexp/models/scenario', ['exports', 'ember-data'], function (exports, _e
       });
     }),
     isUpdated: Ember.computed(function () {
+      console.log("Entered scenario.isUpdated()");
       var self = this;
       return new Promise(function (resolve, reject) {
         if (window.cordova || true) {
           var scenarioVersion = self.get('version');
-          var downloadVersion = self.get('downloadVersion').then(function () {
+          self.get('downloadVersion').then(function (downloadVersion) {
+
+            setTimeout(function () {
+              if (downloadVersion == scenarioVersion) {
+                resolve(true);
+              } else {
+                resolve(false);
+              }
+            }, 100);
+            /*
             if (downloadVersion == scenarioVersion) {
               resolve(true);
             } else {
               resolve(false);
             }
+            */
           }, function (reason) {
             console.log("Error checking scenario.downloadVersion");
             console.log(reason);
@@ -1368,8 +1384,8 @@ define('ttexp/routes/scenarios', ['exports', 'ember', 'ember-simple-auth/mixins/
       play: function play(scenario) {
         var self = this;
         if (window.cordova || true) {
-          scenario.get('isUpdated').then(function (value) {
-            if (!value) {
+          scenario.get('isUpdated').then(function (isUpdated) {
+            if (!isUpdated) {
               // Check if version was not already downloaded or is older
               self.send('download', scenario);
             } else {
