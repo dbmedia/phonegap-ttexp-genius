@@ -1060,11 +1060,12 @@ define('ttexp/models/scenario', ['exports', 'ember-data'], function (exports, _e
 
     downloadVersion: Ember.computed(function () {
       var self = this;
-      if (window.cordova || true) {
-        return new Promise(function (resolve, reject) {
-          var fileSystemService = getOwner(this).lookup('controller:scenarios').get('fileSystem');
-          var pgFileSystemUtil = fileSystemService.get('pgFileSystemUtil');
 
+      return new Promise(function (resolve, reject) {
+        console.log("Download version promise");
+        if (window.cordova || true) {
+          var fileSystemService = getOwner(self).lookup('controller:scenarios').get('fileSystem');
+          var pgFileSystemUtil = fileSystemService.get('pgFileSystemUtil');
           if (fileSystemService.settingsFile) {
             if (typeof fileSystemService.settingsFile == "string") {
               var fileContent = fileSystemService.settingsFile;
@@ -1079,7 +1080,7 @@ define('ttexp/models/scenario', ['exports', 'ember-data'], function (exports, _e
             } else {
               console.log(fileSystemService.settingsFile);
               var fileContent = pgFileSystemUtil.readFile(fileSystemService.settingsFile).then(function (value) {
-                resolve(resolve);
+                resolve(value);
               }, function (reason) {
                 reject(reason);
               });
@@ -1087,23 +1088,31 @@ define('ttexp/models/scenario', ['exports', 'ember-data'], function (exports, _e
           } else {
             resolve(0);
           }
-        });
-      } else {
-        return 0;
-      }
+        } else {
+          resolve(0);
+        }
+      });
     }),
     isUpdated: Ember.computed(function () {
-      if (window.cordova || true) {
-        var scenarioVersion = this.get('version');
-        var downloadVersion = this.get('downloadVersion');
-        if (downloadVersion == scenarioVersion) {
-          return true;
+      var self = this;
+      return new Promise(function (resolve, reject) {
+        if (window.cordova || true) {
+          var scenarioVersion = self.get('version');
+          var downloadVersion = self.get('downloadVersion').then(function () {
+            if (downloadVersion == scenarioVersion) {
+              resolve(true);
+            } else {
+              resolve(false);
+            }
+          }, function (reason) {
+            console.log("Error checking scenario.downloadVersion");
+            console.log(reason);
+            reject(reason);
+          });
         } else {
-          return false;
+          resolve(true);
         }
-      } else {
-        return true;
-      }
+      });
     })
   });
 });
@@ -1359,12 +1368,17 @@ define('ttexp/routes/scenarios', ['exports', 'ember', 'ember-simple-auth/mixins/
       play: function play(scenario) {
         var self = this;
         if (window.cordova || true) {
-          if (!scenario.get('isUpdated')) {
-            // Check if version was not already downloaded or is older
-            self.send('download', scenario);
-          } else {
-            self.transitionTo('play', scenario.id);
-          }
+          scenario.get('isUpdated').then(function (value) {
+            if (!value) {
+              // Check if version was not already downloaded or is older
+              self.send('download', scenario);
+            } else {
+              self.transitionTo('play', scenario.id);
+            }
+          }, function (reason) {
+            console.log("Error getting scenario.isUpdated");
+            console.log(reason);
+          });
         } else {
           self.transitionTo('play', scenario.id);
         }
@@ -1397,7 +1411,10 @@ define('ttexp/routes/scenarios', ['exports', 'ember', 'ember-simple-auth/mixins/
             // TODO: aggiungere controllo, iniziare il download solo se la versione è superiore a quella corrente
             var mediaFileCounter = 0;
             var mediaFileErrors = 0;
-            if (mediaFilesArray.length) {
+            var mediaFileLength = mediaFilesArray.length;
+            mediaFileLength = 2; // TODO: Limite temporaneo per velocizzare i test
+
+            if (mediaFileLength) {
               var downloadSession = self.controller.get('downloadSession');
 
               var downloadQueue = function downloadQueue() {
@@ -1407,7 +1424,7 @@ define('ttexp/routes/scenarios', ['exports', 'ember', 'ember-simple-auth/mixins/
                 }
                 console.log("downloadQueue()");
 
-                var percentage = Math.round(mediaFileCounter / mediaFilesArray.length * 100);
+                var percentage = Math.round(mediaFileCounter / mediaFileLength * 100);
                 $(".progress-bar").width(percentage + '%');
 
                 var mediaFile = mediaFilesArray[mediaFileCounter];
