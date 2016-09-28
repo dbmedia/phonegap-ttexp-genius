@@ -1635,7 +1635,7 @@ define('ttexp/services/file-system', ['exports', 'ember', 'ttexp/utils/pg-file-s
               // fileEntry.name == 'someFile.txt'
               // fileEntry.fullPath == '/someFile.txt'
               //            self.get('mapUtil').createFile(fs.root, "newTempFile.txt", false);
-              self.get('mapUtil').writeFile(fileEntry, null);
+              self.get('pgFileSystemUtil').writeFile(fileEntry, null);
               console.log(fileEntry);
               self.set('settingsFile', fileEntry);
               resolve();
