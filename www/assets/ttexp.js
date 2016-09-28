@@ -1062,12 +1062,14 @@ define('ttexp/models/scenario', ['exports', 'ember-data'], function (exports, _e
       var self = this;
       if (window.cordova || true) {
         var fileSystemService = getOwner(this).lookup('controller:scenarios').get('fileSystem');
+        var pgFileSystemUtil = fileSystemService.get('pgFileSystemUtil');
+
         if (fileSystemService.settingsFile) {
           if (typeof fileSystemService.settingsFile == "string") {
             var fileContent = fileSystemService.settingsFile;
           } else {
             console.log(fileSystemService.settingsFile);
-            var fileContent = fileSystemService.readFile(fileSystemService.settingsFile);
+            var fileContent = pgFileSystemUtil.readFile(fileSystemService.settingsFile);
           }
           var settings = $.parseJSON(fileContent);
           console.log("DownloadVersion attr:");

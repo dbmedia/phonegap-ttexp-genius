@@ -272,7 +272,7 @@ define('ttexp/tests/models/scenario.jshint', ['exports'], function (exports) {
   QUnit.module('JSHint | models/scenario.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(false, 'models/scenario.js should pass jshint.\nmodels/scenario.js: line 30, col 53, Expected \'===\' and instead saw \'==\'.\nmodels/scenario.js: line 34, col 15, \'fileContent\' is already defined.\nmodels/scenario.js: line 36, col 36, \'fileContent\' used out of scope.\nmodels/scenario.js: line 54, col 29, Expected \'===\' and instead saw \'==\'.\nmodels/scenario.js: line 3, col 22, \'Ember\' is not defined.\nmodels/scenario.js: line 25, col 20, \'Ember\' is not defined.\nmodels/scenario.js: line 50, col 14, \'Ember\' is not defined.\nmodels/scenario.js: line 36, col 24, \'$\' is not defined.\n\n8 errors');
+    assert.ok(false, 'models/scenario.js should pass jshint.\nmodels/scenario.js: line 32, col 53, Expected \'===\' and instead saw \'==\'.\nmodels/scenario.js: line 36, col 15, \'fileContent\' is already defined.\nmodels/scenario.js: line 38, col 36, \'fileContent\' used out of scope.\nmodels/scenario.js: line 56, col 29, Expected \'===\' and instead saw \'==\'.\nmodels/scenario.js: line 3, col 22, \'Ember\' is not defined.\nmodels/scenario.js: line 25, col 20, \'Ember\' is not defined.\nmodels/scenario.js: line 52, col 14, \'Ember\' is not defined.\nmodels/scenario.js: line 38, col 24, \'$\' is not defined.\n\n8 errors');
   });
 });
 define('ttexp/tests/models/score.jshint', ['exports'], function (exports) {
