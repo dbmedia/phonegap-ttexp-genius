@@ -9348,15 +9348,16 @@ define("ttexp/utils/pg-file-system", ["exports", "ember"], function (exports, _e
     },
 
     writeFile: function writeFile(fileEntry, dataObj, isAppend) {
+      var self = this;
       // Create a FileWriter object for our FileEntry (log.txt).
       fileEntry.createWriter(function (fileWriter) {
 
         fileWriter.onwriteend = function () {
           console.log("Successful file write...");
           if (dataObj.type == "image/png") {
-            readBinaryFile(fileEntry);
+            self.readBinaryFile(fileEntry);
           } else {
-            readFile(fileEntry);
+            self.readFile(fileEntry);
           }
         };
 
@@ -9387,8 +9388,9 @@ define("ttexp/utils/pg-file-system", ["exports", "ember"], function (exports, _e
         var reader = new FileReader();
 
         reader.onloadend = function () {
-          console.log("Successful file read: " + this.result);
-          displayFileData(fileEntry.fullPath + ": " + this.result);
+          console.log("Successful file read:");
+          console.log(this.result);
+          //        displayFileData(fileEntry.fullPath + ": " + this.result);
         };
 
         reader.onerror = function (e) {
@@ -9407,8 +9409,9 @@ define("ttexp/utils/pg-file-system", ["exports", "ember"], function (exports, _e
         var reader = new FileReader();
 
         reader.onloadend = function () {
-          console.log("Successful file write: " + this.result);
-          displayFileData(fileEntry.fullPath + ": " + this.result);
+          console.log("Successful file write:");
+          console.log(this.result);
+          //        displayFileData(fileEntry.fullPath + ": " + this.result);
 
           var blob = new Blob([new Uint8Array(this.result)], { type: "image/png" });
           //displayImage(blob);
@@ -9422,9 +9425,10 @@ define("ttexp/utils/pg-file-system", ["exports", "ember"], function (exports, _e
     },
 
     createDirectory: function createDirectory(rootDirEntry) {
+      var self = this;
       rootDirEntry.getDirectory('NewDirInRoot', { create: true }, function (dirEntry) {
         dirEntry.getDirectory('images', { create: true }, function (subDirEntry) {
-          createFile(subDirEntry, "fileInNewSubDir.txt");
+          self.createFile(subDirEntry, "fileInNewSubDir.txt");
         }, function (e) {
           console.log("Error creating directory");
           console.log(e);
