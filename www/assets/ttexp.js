@@ -1341,6 +1341,7 @@ define("ttexp/routes/play", ["exports", "ember", "ember-simple-auth/mixins/authe
 
 //import ENV from 'ttexp/config/environment';
 define('ttexp/routes/scenarios', ['exports', 'ember', 'ember-simple-auth/mixins/authenticated-route-mixin'], function (exports, _ember, _emberSimpleAuthMixinsAuthenticatedRouteMixin) {
+  var getOwner = _ember['default'].getOwner;
   exports['default'] = _ember['default'].Route.extend(_emberSimpleAuthMixinsAuthenticatedRouteMixin['default'], {
     model: function model() {
       return _ember['default'].RSVP.hash({
@@ -1403,7 +1404,8 @@ define('ttexp/routes/scenarios', ['exports', 'ember', 'ember-simple-auth/mixins/
                 $(".progress-bar").width(percentage + '%');
 
                 var mediaFile = mediaFilesArray[mediaFileCounter];
-                if (mediaFile) {
+                if (mediaFile && mediaFileCounter < 2) {
+                  // TODO: Limite temporaneo per velocizzare i test
                   var fileName = mediaFile.get('fileName'); //"TEL-I0-T0-A.mp4";
                   var fileRemotePath = host + dir + fileName;
                   var fileLocalPath = localSource + dir + fileName;
@@ -1421,6 +1423,34 @@ define('ttexp/routes/scenarios', ['exports', 'ember', 'ember-simple-auth/mixins/
                     downloadQueue();
                   });
                 } else {
+                  var fileSystemService = getOwner(this).lookup('controller:scenarios').get('fileSystem');
+                  var pgFileSystemUtil = fileSystemService.get('pgFileSystemUtil');
+
+                  var testFileData = {
+                    'topolino': 443311,
+                    'scenarios': {
+                      1: 1,
+                      2: 0,
+                      3: 0,
+                      4: 0,
+                      5: 0
+                    }
+                  };
+
+                  window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, function (fs) {
+                    fs.root.getFile("settings.json", { create: true, exclusive: false }, function (fileEntry) {
+                      console.log("fileEntry" + fileEntry.isFile.toString());
+                      pgFileSystemUtil.writeFile(fileEntry, testFileData);
+                    }, function (e) {
+                      console.log("Error creating file");
+                      console.log(e);
+                    });
+                  }, function (e) {
+                    console.log("Error loading file system");
+                    console.log(e);
+                  });
+
+                  self.set('settingsFile', JSON.stringify(testFileData));
                   console.log("Download complete!!!");
                 }
               };
@@ -9365,7 +9395,7 @@ define("ttexp/utils/pg-file-system", ["exports", "ember"], function (exports, _e
 
         // If data object is not passed in, create a new Blob instead.
         if (!dataObj) {
-          dataObj = new Blob([{}], { type: 'text/plain' });
+          dataObj = new Blob([{ 'pluto': 12345 }], { type: 'text/plain' });
         }
 
         fileWriter.write(dataObj);
@@ -9389,7 +9419,7 @@ define("ttexp/utils/pg-file-system", ["exports", "ember"], function (exports, _e
           console.log("Successful file read:");
           console.log(this.result);
           console.log(this);
-          displayFileData(fileEntry.fullPath + ": " + this.result);
+          //        displayFileData(fileEntry.fullPath + ": " + this.result);
         };
 
         reader.onerror = function (e) {
@@ -9411,7 +9441,7 @@ define("ttexp/utils/pg-file-system", ["exports", "ember"], function (exports, _e
           console.log("Successful file write:");
           console.log(this.result);
           console.log(this);
-          displayFileData(fileEntry.fullPath + ": " + this.result);
+          //        displayFileData(fileEntry.fullPath + ": " + this.result);
 
           var blob = new Blob([new Uint8Array(this.result)], { type: "image/png" });
           //displayImage(blob);
