@@ -1061,26 +1061,33 @@ define('ttexp/models/scenario', ['exports', 'ember-data'], function (exports, _e
     downloadVersion: Ember.computed(function () {
       var self = this;
       if (window.cordova || true) {
-        var fileSystemService = getOwner(this).lookup('controller:scenarios').get('fileSystem');
-        var pgFileSystemUtil = fileSystemService.get('pgFileSystemUtil');
+        return new Promise(function (resolve, reject) {
+          var fileSystemService = getOwner(this).lookup('controller:scenarios').get('fileSystem');
+          var pgFileSystemUtil = fileSystemService.get('pgFileSystemUtil');
 
-        if (fileSystemService.settingsFile) {
-          if (typeof fileSystemService.settingsFile == "string") {
-            var fileContent = fileSystemService.settingsFile;
+          if (fileSystemService.settingsFile) {
+            if (typeof fileSystemService.settingsFile == "string") {
+              var fileContent = fileSystemService.settingsFile;
+              var settings = $.parseJSON(fileContent);
+              console.log("DownloadVersion attr:");
+              console.log(settings);
+              if (settings.scenarios[self.id]) {
+                resolve(settings.scenarios[self.id]);
+              } else {
+                resolve(0);
+              }
+            } else {
+              console.log(fileSystemService.settingsFile);
+              var fileContent = pgFileSystemUtil.readFile(fileSystemService.settingsFile).then(function (value) {
+                resolve(resolve);
+              }, function (reason) {
+                reject(reason);
+              });
+            }
           } else {
-            console.log(fileSystemService.settingsFile);
-            var fileContent = pgFileSystemUtil.readFile(fileSystemService.settingsFile);
+            resolve(0);
           }
-          var settings = $.parseJSON(fileContent);
-          console.log("DownloadVersion attr:");
-          console.log(settings);
-          if (settings.scenarios[self.id]) {
-            return settings.scenarios[self.id];
-          } else {
-            return 0;
-          }
-        }
-        return 0;
+        });
       } else {
         return 0;
       }
@@ -1423,9 +1430,7 @@ define('ttexp/routes/scenarios', ['exports', 'ember', 'ember-simple-auth/mixins/
                     downloadQueue();
                   });
                 } else {
-                  var fileSystemService = getOwner(this).lookup('controller:scenarios').get('fileSystem');
-                  var pgFileSystemUtil = fileSystemService.get('pgFileSystemUtil');
-
+                  console.log("Download complete!!!");
                   var testFileData = {
                     'topolino': 443311,
                     'scenarios': {
@@ -1437,21 +1442,23 @@ define('ttexp/routes/scenarios', ['exports', 'ember', 'ember-simple-auth/mixins/
                     }
                   };
 
-                  window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, function (fs) {
-                    fs.root.getFile("settings.json", { create: true, exclusive: false }, function (fileEntry) {
-                      console.log("fileEntry" + fileEntry.isFile.toString());
-                      pgFileSystemUtil.writeFile(fileEntry, testFileData);
+                  if (window.cordova && true) {
+                    var fileSystemService = getOwner(self).lookup('controller:scenarios').get('fileSystem');
+                    var pgFileSystemUtil = fileSystemService.get('pgFileSystemUtil');
+
+                    window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, function (fs) {
+                      fs.root.getFile("settings.json", { create: true, exclusive: false }, function (fileEntry) {
+                        console.log("fileEntry" + fileEntry.isFile.toString());
+                        pgFileSystemUtil.writeFile(fileEntry, testFileData);
+                      }, function (e) {
+                        console.log("Error creating file");
+                        console.log(e);
+                      });
                     }, function (e) {
-                      console.log("Error creating file");
+                      console.log("Error loading file system");
                       console.log(e);
                     });
-                  }, function (e) {
-                    console.log("Error loading file system");
-                    console.log(e);
-                  });
-
-                  self.set('settingsFile', JSON.stringify(testFileData));
-                  console.log("Download complete!!!");
+                  }
                 }
               };
 
@@ -9411,7 +9418,7 @@ define("ttexp/utils/pg-file-system", ["exports", "ember"], function (exports, _e
       });
     },
 
-    readFile: function readFile(fileEntry) {
+    readFile: function readFile(fileEntry, onSuccess, onError) {
       fileEntry.file(function (file) {
         var reader = new FileReader();
 
@@ -9419,17 +9426,26 @@ define("ttexp/utils/pg-file-system", ["exports", "ember"], function (exports, _e
           console.log("Successful file read:");
           console.log(this.result);
           console.log(this);
-          //        displayFileData(fileEntry.fullPath + ": " + this.result);
+          if (onSuccess) {
+            onSuccess();
+          }
         };
 
         reader.onerror = function (e) {
-          console.log("Failed file read: " + e.toString());
+          console.log("Failed file read:");
+          console.log(e);
+          if (onError) {
+            onError();
+          }
         };
 
         reader.readAsText(file);
       }, function (e) {
         console.log("Error reading file");
         console.log(e);
+        if (onError) {
+          onError();
+        }
       });
     },
 
@@ -9441,7 +9457,6 @@ define("ttexp/utils/pg-file-system", ["exports", "ember"], function (exports, _e
           console.log("Successful file write:");
           console.log(this.result);
           console.log(this);
-          //        displayFileData(fileEntry.fullPath + ": " + this.result);
 
           var blob = new Blob([new Uint8Array(this.result)], { type: "image/png" });
           //displayImage(blob);
