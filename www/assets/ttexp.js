@@ -1638,13 +1638,11 @@ define('ttexp/services/file-system', ['exports', 'ember', 'ttexp/utils/pg-file-s
           window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, function (fs) {
             console.log('file system open: ' + fs.name);
             fs.root.getFile("settings.json", { create: true, exclusive: false }, function (fileEntry) {
-              console.log("fileEntry is file?" + fileEntry.isFile.toString());
               console.log(fileEntry);
               // fileEntry.name == 'someFile.txt'
               // fileEntry.fullPath == '/someFile.txt'
               //            self.get('mapUtil').createFile(fs.root, "newTempFile.txt", false);
               self.get('pgFileSystemUtil').writeFile(fileEntry, null);
-              console.log(fileEntry);
               self.set('settingsFile', fileEntry);
               resolve();
             }, reject); //onErrorCreateFile
@@ -9390,7 +9388,8 @@ define("ttexp/utils/pg-file-system", ["exports", "ember"], function (exports, _e
         reader.onloadend = function () {
           console.log("Successful file read:");
           console.log(this.result);
-          //        displayFileData(fileEntry.fullPath + ": " + this.result);
+          console.log(this);
+          displayFileData(fileEntry.fullPath + ": " + this.result);
         };
 
         reader.onerror = function (e) {
@@ -9411,7 +9410,8 @@ define("ttexp/utils/pg-file-system", ["exports", "ember"], function (exports, _e
         reader.onloadend = function () {
           console.log("Successful file write:");
           console.log(this.result);
-          //        displayFileData(fileEntry.fullPath + ": " + this.result);
+          console.log(this);
+          displayFileData(fileEntry.fullPath + ": " + this.result);
 
           var blob = new Blob([new Uint8Array(this.result)], { type: "image/png" });
           //displayImage(blob);
