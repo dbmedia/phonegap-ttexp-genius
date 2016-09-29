@@ -272,7 +272,7 @@ define('ttexp/tests/models/scenario.jshint', ['exports'], function (exports) {
   QUnit.module('JSHint | models/scenario.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(false, 'models/scenario.js should pass jshint.\nmodels/scenario.js: line 5, col 19, \'service\' is defined but never used.\n\n1 error');
+    assert.ok(false, 'models/scenario.js should pass jshint.\nmodels/scenario.js: line 75, col 33, Expected \'===\' and instead saw \'==\'.\nmodels/scenario.js: line 5, col 19, \'service\' is defined but never used.\n\n2 errors');
   });
 });
 define('ttexp/tests/models/score.jshint', ['exports'], function (exports) {
@@ -380,7 +380,7 @@ define('ttexp/tests/routes/scenarios.jshint', ['exports'], function (exports) {
   QUnit.module('JSHint | routes/scenarios.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(false, 'routes/scenarios.js should pass jshint.\nroutes/scenarios.js: line 67, col 37, Expected \'!==\' and instead saw \'!=\'.\nroutes/scenarios.js: line 125, col 14, Missing semicolon.\nroutes/scenarios.js: line 135, col 19, \'transition\' is defined but never used.\nroutes/scenarios.js: line 74, col 15, \'$\' is not defined.\nroutes/scenarios.js: line 254, col 15, \'$\' is not defined.\nroutes/scenarios.js: line 111, col 44, \'LocalFileSystem\' is not defined.\nroutes/scenarios.js: line 163, col 28, \'FileTransfer\' is not defined.\nroutes/scenarios.js: line 236, col 28, \'FileTransfer\' is not defined.\nroutes/scenarios.js: line 281, col 13, \'displayImage\' is not defined.\nroutes/scenarios.js: line 288, col 8, \'onErrorReadFile\' is not defined.\nroutes/scenarios.js: line 305, col 8, \'onErrorReadFile\' is not defined.\nroutes/scenarios.js: line 234, col 10, \'downloadFile\' is defined but never used.\nroutes/scenarios.js: line 291, col 10, \'readFile\' is defined but never used.\n\n13 errors');
+    assert.ok(false, 'routes/scenarios.js should pass jshint.\nroutes/scenarios.js: line 66, col 37, Expected \'!==\' and instead saw \'!=\'.\nroutes/scenarios.js: line 127, col 14, Missing semicolon.\nroutes/scenarios.js: line 137, col 19, \'transition\' is defined but never used.\nroutes/scenarios.js: line 73, col 15, \'$\' is not defined.\nroutes/scenarios.js: line 110, col 44, \'LocalFileSystem\' is not defined.\nroutes/scenarios.js: line 165, col 28, \'FileTransfer\' is not defined.\n\n6 errors');
   });
 });
 define('ttexp/tests/routes/scores.jshint', ['exports'], function (exports) {

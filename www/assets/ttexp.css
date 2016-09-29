@@ -9331,6 +9331,10 @@ a:hover {
     text-decoration: none;
     opacity: 0.65; }
 
+.modal-body {
+  max-height: calc(100vh - 212px);
+  overflow-y: auto; }
+
 /* Align modals vertically */
 @media screen and (min-width: 768px) {
   .modal {

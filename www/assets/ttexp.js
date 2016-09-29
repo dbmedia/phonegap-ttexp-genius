@@ -1103,24 +1103,14 @@ define('ttexp/models/scenario', ['exports', 'ember', 'ember-data'], function (ex
       console.log("Entered scenario.isUpdated()");
       var self = this;
       return new RSVP.Promise(function (resolve, reject) {
-        if (window.cordova || true) {
+        if (window.cordova && false) {
           var scenarioVersion = self.get('version');
           self.get('downloadVersion').then(function (downloadVersion) {
-
-            setTimeout(function () {
-              if (downloadVersion === scenarioVersion) {
-                resolve(true);
-              } else {
-                resolve(false);
-              }
-            }, 100);
-            /*
             if (downloadVersion == scenarioVersion) {
               resolve(true);
             } else {
               resolve(false);
             }
-            */
           }, function (reason) {
             console.log("Error checking scenario.downloadVersion");
             console.log(reason);
@@ -1429,7 +1419,6 @@ define('ttexp/routes/scenarios', ['exports', 'ember', 'ember-simple-auth/mixins/
             var mediaFileCounter = 0;
             var mediaFileErrors = 0;
             var mediaFileLength = mediaFilesArray.length;
-            mediaFileLength = 2; // TODO: Limite temporaneo per velocizzare i test
 
             if (mediaFileLength) {
               var downloadSession = self.controller.get('downloadSession');
@@ -1445,8 +1434,7 @@ define('ttexp/routes/scenarios', ['exports', 'ember', 'ember-simple-auth/mixins/
                 $(".progress-bar").width(percentage + '%');
 
                 var mediaFile = mediaFilesArray[mediaFileCounter];
-                if (mediaFile && mediaFileCounter < 2) {
-                  // TODO: Limite temporaneo per velocizzare i test
+                if (mediaFile) {
                   var fileName = mediaFile.get('fileName'); //"TEL-I0-T0-A.mp4";
                   var fileRemotePath = host + dir + fileName;
                   var fileLocalPath = localSource + dir + fileName;
@@ -1484,6 +1472,7 @@ define('ttexp/routes/scenarios', ['exports', 'ember', 'ember-simple-auth/mixins/
                       fs.root.getFile("settings.json", { create: true, exclusive: false }, function (fileEntry) {
                         console.log("fileEntry" + fileEntry.isFile.toString());
                         pgFileSystemUtil.writeFile(fileEntry, testFileData);
+                        self.controller.set('showDownloadModal', false); //TODO: Chiudere il modal solo dopo il writefile, modificare writefile per fargli ritornare una promise
                       }, function (e) {
                         console.log("Error creating file");
                         console.log(e);
@@ -1492,6 +1481,8 @@ define('ttexp/routes/scenarios', ['exports', 'ember', 'ember-simple-auth/mixins/
                       console.log("Error loading file system");
                       console.log(e);
                     });
+                  } else {
+                    self.controller.set('showDownloadModal', false);
                   }
                 }
               };
@@ -1558,80 +1549,6 @@ define('ttexp/routes/scenarios', ['exports', 'ember', 'ember-simple-auth/mixins/
       }
     }
   }
-
-  function downloadFile(fileEntry, uri, readBinaryData) {
-
-    var fileTransfer = new FileTransfer();
-    var fileURL = fileEntry.toURL();
-
-    fileTransfer.download(uri, fileURL, function (entry) {
-      console.log("Successful download with function...");
-      console.log("download complete: " + entry.toURL());
-      console.log("internal url: " + entry.toInternalURL());
-      if (readBinaryData) {
-        // Read the file...
-        readBinaryFile(entry);
-      } else {
-        // Or just display it.
-        //              displayImageByFileURL(entry);
-        //              displayFileByUrl(entry);
-        $("#test-storage-file img").prop('src', entry.toURL());
-      }
-    }, function (error) {
-      console.log("download error source " + error.source);
-      console.log("download error target " + error.target);
-      console.log("upload error code" + error.code);
-    }, null, // or, pass false
-    {
-      //headers: {
-      //    "Authorization": "Basic dGVzdHVzZXJuYW1lOnRlc3RwYXNzd29yZA=="
-      //}
-    });
-  }
-
-  function readBinaryFile(fileEntry) {
-    fileEntry.file(function (file) {
-      var reader = new FileReader();
-
-      reader.onloadend = function () {
-
-        console.log("Successful binary file read: " + this.result);
-        // displayFileData(fileEntry.fullPath + ": " + this.result);
-
-        var blob = new Blob([new Uint8Array(this.result)], { type: "image/png" });
-        displayImage(blob);
-      };
-
-      console.log("File read with readBinaryFile:");
-      console.log(file);
-      reader.readAsArrayBuffer(file);
-    }, onErrorReadFile);
-  }
-
-  function readFile(fileEntry) {
-
-    fileEntry.file(function (file) {
-      var reader = new FileReader();
-
-      reader.onloadend = function () {
-        console.log("Successful text file read: " + this.result);
-        displayFileData(fileEntry.fullPath + ": " + this.result);
-      };
-
-      console.log("File read with fileEntry:");
-      console.log(file);
-      reader.readAsText(file);
-    }, onErrorReadFile);
-  }
-
-  function displayFileData(data) {
-    console.log("displayFileData()");
-    console.log(data);
-  }
-
-  //function displayFileByUrl(fileEntry) {
-  //    $("#test-storage-file img").prop('src',fileEntry.toURL());
-  //}
 });
 
 //import ENV from 'ttexp/config/environment';
@@ -6781,11 +6698,522 @@ define("ttexp/templates/login", ["exports"], function (exports) {
         templates: []
       };
     })();
+    var child1 = (function () {
+      var child0 = (function () {
+        return {
+          meta: {
+            "fragmentReason": false,
+            "revision": "Ember@2.6.1",
+            "loc": {
+              "source": null,
+              "start": {
+                "line": 32,
+                "column": 4
+              },
+              "end": {
+                "line": 206,
+                "column": 1
+              }
+            },
+            "moduleName": "ttexp/templates/login.hbs"
+          },
+          isEmpty: false,
+          arity: 0,
+          cachedFragment: null,
+          hasRendered: false,
+          buildFragment: function buildFragment(dom) {
+            var el0 = dom.createDocumentFragment();
+            var el1 = dom.createTextNode("		");
+            dom.appendChild(el0, el1);
+            var el1 = dom.createElement("div");
+            dom.setAttribute(el1, "class", "terms-text");
+            var el2 = dom.createTextNode("\n			");
+            dom.appendChild(el1, el2);
+            var el2 = dom.createElement("p");
+            var el3 = dom.createTextNode("\n			    Questo strumento di simulazione della trattativa ha solamente obiettivi e finalità di allenamento della parte relativa alla trattativa commerciale e di\n			    rapporto con il cliente.\n			");
+            dom.appendChild(el2, el3);
+            dom.appendChild(el1, el2);
+            var el2 = dom.createTextNode("\n			");
+            dom.appendChild(el1, el2);
+            var el2 = dom.createElement("p");
+            var el3 = dom.createTextNode("\n			    Si da per scontato che il consulente pensionistico Generali adempia a tutti gli obblighi formali per il trattamento dei dati personali durante l’attività\n			    di contatto con la clientela effettiva e potenziale per finalità commerciali a distanza.\n			");
+            dom.appendChild(el2, el3);
+            dom.appendChild(el1, el2);
+            var el2 = dom.createTextNode("\n			");
+            dom.appendChild(el1, el2);
+            var el2 = dom.createElement("p");
+            var el3 = dom.createTextNode("\n			    Il consenso privacy commerciale: è l’autorizzazione rilasciata dal Cliente, effettivo o potenziale alla Compagnia, ad essere contattato per finalità di\n			    natura commerciale/promozionale attraverso i mezzi di comunicazione specificamente\n			");
+            dom.appendChild(el2, el3);
+            dom.appendChild(el1, el2);
+            var el2 = dom.createTextNode("\n			");
+            dom.appendChild(el1, el2);
+            var el2 = dom.createElement("p");
+            var el3 = dom.createTextNode("\n			scelti (");
+            dom.appendChild(el2, el3);
+            var el3 = dom.createElement("em");
+            var el4 = dom.createTextNode("posta ordinaria/telefono ");
+            dom.appendChild(el3, el4);
+            dom.appendChild(el2, el3);
+            var el3 = dom.createTextNode("e/o ");
+            dom.appendChild(el2, el3);
+            var el3 = dom.createElement("em");
+            var el4 = dom.createTextNode("email, sms/mms/app.");
+            dom.appendChild(el3, el4);
+            dom.appendChild(el2, el3);
+            var el3 = dom.createTextNode("); tale consenso viene raccolto attraverso la compilazione dell’");
+            dom.appendChild(el2, el3);
+            var el3 = dom.createElement("em");
+            var el4 = dom.createTextNode("Informativa Commerciale ");
+            dom.appendChild(el3, el4);
+            dom.appendChild(el2, el3);
+            var el3 = dom.createTextNode("o dell’");
+            dom.appendChild(el2, el3);
+            var el3 = dom.createElement("em");
+            var el4 = dom.createTextNode("Informativa Mista ");
+            dom.appendChild(el3, el4);
+            dom.appendChild(el2, el3);
+            var el3 = dom.createTextNode("(vedi News on Line:    ");
+            dom.appendChild(el2, el3);
+            var el3 = dom.createElement("em");
+            var el4 = dom.createTextNode("Uniformazione della tipologia di consenso privacy in“Informativa Generali Italia”");
+            dom.appendChild(el3, el4);
+            dom.appendChild(el2, el3);
+            var el3 = dom.createTextNode(").\n			");
+            dom.appendChild(el2, el3);
+            dom.appendChild(el1, el2);
+            var el2 = dom.createTextNode("\n			");
+            dom.appendChild(el1, el2);
+            var el2 = dom.createElement("p");
+            var el3 = dom.createTextNode("\n			    Nella sostanza ogni soggetto deve essere posto nella condizione di scegliere liberamente, dopo essere stato adeguatamente informato, se acconsentire o meno\n			    al trattamento dei propri dati\n			");
+            dom.appendChild(el2, el3);
+            dom.appendChild(el1, el2);
+            var el2 = dom.createTextNode("\n			");
+            dom.appendChild(el1, el2);
+            var el2 = dom.createElement("p");
+            var el3 = dom.createTextNode("\n			    personali.\n			");
+            dom.appendChild(el2, el3);
+            dom.appendChild(el1, el2);
+            var el2 = dom.createTextNode("\n			");
+            dom.appendChild(el1, el2);
+            var el2 = dom.createElement("p");
+            var el3 = dom.createTextNode("\n			    ");
+            dom.appendChild(el2, el3);
+            var el3 = dom.createElement("strong");
+            var el4 = dom.createTextNode("TELEFONATA DI CONTATTO");
+            dom.appendChild(el3, el4);
+            dom.appendChild(el2, el3);
+            var el3 = dom.createTextNode("\n			");
+            dom.appendChild(el2, el3);
+            dom.appendChild(el1, el2);
+            var el2 = dom.createTextNode("\n			");
+            dom.appendChild(el1, el2);
+            var el2 = dom.createElement("p");
+            var el3 = dom.createTextNode("\n			    Al primo contatto telefonico sarà necessario qualificarsi: nominativo della persona che contatta e azienda per cui lavora, finalità e provenienza dei dati\n			    del contatto;\n			");
+            dom.appendChild(el2, el3);
+            dom.appendChild(el1, el2);
+            var el2 = dom.createTextNode("\n			");
+            dom.appendChild(el1, el2);
+            var el2 = dom.createElement("p");
+            var el3 = dom.createTextNode("\n			Esempio testo telefonata:");
+            dom.appendChild(el2, el3);
+            var el3 = dom.createElement("em");
+            var el4 = dom.createTextNode(" “Buongiorno….., sono (nome e cognome)di Generali Italia - divisione ….., abbiamo acquisito il suo nominativo ed i suoi riferimenti dall’");
+            dom.appendChild(el3, el4);
+            dom.appendChild(el2, el3);
+            var el3 = dom.createTextNode("    ");
+            dom.appendChild(el2, el3);
+            var el3 = dom.createElement("em");
+            var el4 = dom.createTextNode("albo di appartenenza");
+            dom.appendChild(el3, el4);
+            dom.appendChild(el2, el3);
+            var el3 = dom.createElement("em");
+            var el4 = dom.createTextNode("; La contattiamo per proporle una consulenza specifica legata alla Sua ");
+            dom.appendChild(el3, el4);
+            dom.appendChild(el2, el3);
+            var el3 = dom.createElement("em");
+            var el4 = dom.createTextNode("professione");
+            dom.appendChild(el3, el4);
+            dom.appendChild(el2, el3);
+            var el3 = dom.createTextNode("\n			    ");
+            dom.appendChild(el2, el3);
+            var el3 = dom.createElement("em");
+            var el4 = dom.createTextNode("\n			        ; se mi conferma il Suo consenso a proseguire con la telefonata, consenso che può revocare in ogni momento inviando apposita comunicazione, avremo\n			        piacere di proporle un incontro per…..”.\n			    ");
+            dom.appendChild(el3, el4);
+            dom.appendChild(el2, el3);
+            var el3 = dom.createTextNode("\n			");
+            dom.appendChild(el2, el3);
+            dom.appendChild(el1, el2);
+            var el2 = dom.createTextNode("\n			");
+            dom.appendChild(el1, el2);
+            var el2 = dom.createElement("p");
+            var el3 = dom.createTextNode("\n			    Sarà inoltre necessario, da parte del chiamante, raccogliere da parte\n			");
+            dom.appendChild(el2, el3);
+            dom.appendChild(el1, el2);
+            var el2 = dom.createTextNode("\n			");
+            dom.appendChild(el1, el2);
+            var el2 = dom.createElement("p");
+            var el3 = dom.createTextNode("\n			    dell’interlocutore, il consenso a proseguire con la conversazione, annotandolo\n			");
+            dom.appendChild(el2, el3);
+            dom.appendChild(el1, el2);
+            var el2 = dom.createTextNode("\n			");
+            dom.appendChild(el1, el2);
+            var el2 = dom.createElement("p");
+            var el3 = dom.createTextNode("\n			    nell’apposita scheda di raccolta consenso.\n			");
+            dom.appendChild(el2, el3);
+            dom.appendChild(el1, el2);
+            var el2 = dom.createTextNode("\n			");
+            dom.appendChild(el1, el2);
+            var el2 = dom.createElement("p");
+            var el3 = dom.createTextNode("\n			    Se si riceve il CONSENSO da parte dell’interlocutore è possibile la prosecuzione della\n			");
+            dom.appendChild(el2, el3);
+            dom.appendChild(el1, el2);
+            var el2 = dom.createTextNode("\n			");
+            dom.appendChild(el1, el2);
+            var el2 = dom.createElement("p");
+            var el3 = dom.createTextNode("\n			    telefonata e annotazione dello stesso nella Scheda Raccolta Consenso\n			");
+            dom.appendChild(el2, el3);
+            dom.appendChild(el1, el2);
+            var el2 = dom.createTextNode("\n			");
+            dom.appendChild(el1, el2);
+            var el2 = dom.createElement("p");
+            var el3 = dom.createTextNode("\n			    “");
+            dom.appendChild(el2, el3);
+            var el3 = dom.createElement("strong");
+            var el4 = dom.createTextNode("SCHEDA RACCOLTA CONSENSO”");
+            dom.appendChild(el3, el4);
+            dom.appendChild(el2, el3);
+            var el3 = dom.createTextNode("\n			");
+            dom.appendChild(el2, el3);
+            dom.appendChild(el1, el2);
+            var el2 = dom.createTextNode("\n			");
+            dom.appendChild(el1, el2);
+            var el2 = dom.createElement("p");
+            var el3 = dom.createTextNode("\n			    Cliente: __________________________\n			");
+            dom.appendChild(el2, el3);
+            dom.appendChild(el1, el2);
+            var el2 = dom.createTextNode("\n			");
+            dom.appendChild(el1, el2);
+            var el2 = dom.createElement("p");
+            var el3 = dom.createTextNode("\n			    Cognome e Nome: ________________________\n			");
+            dom.appendChild(el2, el3);
+            dom.appendChild(el1, el2);
+            var el2 = dom.createTextNode("\n			");
+            dom.appendChild(el1, el2);
+            var el2 = dom.createElement("p");
+            var el3 = dom.createTextNode("\n			    Contattato da: …….. il: ……..\n			");
+            dom.appendChild(el2, el3);
+            dom.appendChild(el1, el2);
+            var el2 = dom.createTextNode("\n			");
+            dom.appendChild(el1, el2);
+            var el2 = dom.createElement("p");
+            var el3 = dom.createTextNode("\n			    CONSENSO Reg.to 34/2010\n			");
+            dom.appendChild(el2, el3);
+            dom.appendChild(el1, el2);
+            var el2 = dom.createTextNode("\n			");
+            dom.appendChild(el1, el2);
+            var el2 = dom.createElement("p");
+            var el3 = dom.createTextNode("\n			    ");
+            dom.appendChild(el2, el3);
+            var el3 = dom.createElement("em");
+            var el4 = dom.createTextNode("Effettuato script primo contatto ");
+            dom.appendChild(el3, el4);
+            dom.appendChild(el2, el3);
+            var el3 = dom.createTextNode("\n			    SI NO\n			");
+            dom.appendChild(el2, el3);
+            dom.appendChild(el1, el2);
+            var el2 = dom.createTextNode("\n			");
+            dom.appendChild(el1, el2);
+            var el2 = dom.createElement("p");
+            var el3 = dom.createTextNode("\n			    ");
+            dom.appendChild(el2, el3);
+            var el3 = dom.createElement("em");
+            var el4 = dom.createTextNode("Ottenuto consenso proseguire ");
+            dom.appendChild(el3, el4);
+            dom.appendChild(el2, el3);
+            var el3 = dom.createTextNode("\n			    SI NO\n			");
+            dom.appendChild(el2, el3);
+            dom.appendChild(el1, el2);
+            var el2 = dom.createTextNode("\n			");
+            dom.appendChild(el1, el2);
+            var el2 = dom.createElement("p");
+            var el3 = dom.createTextNode("\n			    Se non si riceve il CONSENSO:\n			");
+            dom.appendChild(el2, el3);
+            dom.appendChild(el1, el2);
+            var el2 = dom.createTextNode("\n			");
+            dom.appendChild(el1, el2);
+            var el2 = dom.createElement("p");
+            var el3 = dom.createTextNode("\n			    _ non si potrà proseguire la telefonata;\n			");
+            dom.appendChild(el2, el3);
+            dom.appendChild(el1, el2);
+            var el2 = dom.createTextNode("\n			");
+            dom.appendChild(el1, el2);
+            var el2 = dom.createElement("p");
+            var el3 = dom.createTextNode("\n			    _ si dovrà annotare il mancato consenso nella predetta Scheda;\n			");
+            dom.appendChild(el2, el3);
+            dom.appendChild(el1, el2);
+            var el2 = dom.createTextNode("\n			");
+            dom.appendChild(el1, el2);
+            var el2 = dom.createElement("p");
+            var el3 = dom.createTextNode("\n			    _ qualora il Cliente specifichi di non voler essere contattato in futuro per iniziative\n			");
+            dom.appendChild(el2, el3);
+            dom.appendChild(el1, el2);
+            var el2 = dom.createTextNode("\n			");
+            dom.appendChild(el1, el2);
+            var el2 = dom.createElement("p");
+            var el3 = dom.createTextNode("\n			    commerciali, si indicherà allo stesso di COMUNICARE FORMALMENTE TALE DINIEGO, fornendo i relativi riferimenti cui inviare la comunicazione (n° fax\n			    Agenzia);\n			");
+            dom.appendChild(el2, el3);
+            dom.appendChild(el1, el2);
+            var el2 = dom.createTextNode("\n			");
+            dom.appendChild(el1, el2);
+            var el2 = dom.createElement("p");
+            var el3 = dom.createTextNode("\n			    _ ove pervenga successiva comunicazione formale di mancato consenso a futuri contatti commerciali (vedi 3° punto), si registrerà tale diniego in GESTIONE\n			    DATI ANAGRAFICI che aggiornerà settimanalmente la Black List Aziendale.\n			");
+            dom.appendChild(el2, el3);
+            dom.appendChild(el1, el2);
+            var el2 = dom.createTextNode("\n			");
+            dom.appendChild(el1, el2);
+            var el2 = dom.createElement("p");
+            var el3 = dom.createTextNode("\n			    ");
+            dom.appendChild(el2, el3);
+            var el3 = dom.createElement("strong");
+            var el4 = dom.createTextNode("DURANTE L’APPUNTAMENTO");
+            dom.appendChild(el3, el4);
+            dom.appendChild(el2, el3);
+            var el3 = dom.createTextNode("\n			");
+            dom.appendChild(el2, el3);
+            dom.appendChild(el1, el2);
+            var el2 = dom.createTextNode("\n			");
+            dom.appendChild(el1, el2);
+            var el2 = dom.createElement("p");
+            var el3 = dom.createTextNode("\n			    A l primo appuntamento è opportuno consegnare l’Informativa Privacy Commerciale al Cliente e acquisire il consenso scritto da parte dello stesso.\n			");
+            dom.appendChild(el2, el3);
+            dom.appendChild(el1, el2);
+            var el2 = dom.createTextNode("\n			");
+            dom.appendChild(el1, el2);
+            var el2 = dom.createElement("p");
+            var el3 = dom.createTextNode("\n			    In particolare, si dovrà:\n			");
+            dom.appendChild(el2, el3);
+            dom.appendChild(el1, el2);
+            var el2 = dom.createTextNode("\n			");
+            dom.appendChild(el1, el2);
+            var el2 = dom.createElement("p");
+            var el3 = dom.createTextNode("\n			    _ in caso ottenimento del consenso\n			");
+            dom.appendChild(el2, el3);
+            dom.appendChild(el1, el2);
+            var el2 = dom.createTextNode("\n			");
+            dom.appendChild(el1, el2);
+            var el2 = dom.createElement("p");
+            var el3 = dom.createTextNode("\n			    - conservare l’Informativa nella documentazione del Cliente;\n			");
+            dom.appendChild(el2, el3);
+            dom.appendChild(el1, el2);
+            var el2 = dom.createTextNode("\n			");
+            dom.appendChild(el1, el2);
+            var el2 = dom.createElement("p");
+            var el3 = dom.createTextNode("\n			    - registrare come da prassi il consenso in anagrafica Clienti;\n			");
+            dom.appendChild(el2, el3);
+            dom.appendChild(el1, el2);
+            var el2 = dom.createTextNode("\n			");
+            dom.appendChild(el1, el2);
+            var el2 = dom.createElement("p");
+            var el3 = dom.createTextNode("\n			    ");
+            dom.appendChild(el2, el3);
+            var el3 = dom.createElement("em");
+            var el4 = dom.createTextNode("CR.IA.009.2014");
+            dom.appendChild(el3, el4);
+            dom.appendChild(el2, el3);
+            var el3 = dom.createTextNode("\n			");
+            dom.appendChild(el2, el3);
+            dom.appendChild(el1, el2);
+            var el2 = dom.createTextNode("\n			");
+            dom.appendChild(el1, el2);
+            var el2 = dom.createElement("p");
+            var el3 = dom.createTextNode("\n			    6\n			");
+            dom.appendChild(el2, el3);
+            dom.appendChild(el1, el2);
+            var el2 = dom.createTextNode("\n			");
+            dom.appendChild(el1, el2);
+            var el2 = dom.createElement("p");
+            var el3 = dom.createTextNode("\n			    _ in caso di mancato ottenimento del consenso\n			");
+            dom.appendChild(el2, el3);
+            dom.appendChild(el1, el2);
+            var el2 = dom.createTextNode("\n			");
+            dom.appendChild(el1, el2);
+            var el2 = dom.createElement("p");
+            var el3 = dom.createTextNode("\n			    - conservare l’informativa nella documentazione del Cliente;\n			");
+            dom.appendChild(el2, el3);
+            dom.appendChild(el1, el2);
+            var el2 = dom.createTextNode("\n			");
+            dom.appendChild(el1, el2);
+            var el2 = dom.createElement("p");
+            var el3 = dom.createTextNode("\n			    - registrare come da prassi il diniego in anagrafica Clienti per il corretto\n			");
+            dom.appendChild(el2, el3);
+            dom.appendChild(el1, el2);
+            var el2 = dom.createTextNode("\n			");
+            dom.appendChild(el1, el2);
+            var el2 = dom.createElement("p");
+            var el3 = dom.createTextNode("\n			    aggiornamento della Black List Aziendale.\n			");
+            dom.appendChild(el2, el3);
+            dom.appendChild(el1, el2);
+            var el2 = dom.createTextNode("\n			");
+            dom.appendChild(el1, el2);
+            var el2 = dom.createElement("p");
+            var el3 = dom.createTextNode("\n			    ");
+            dom.appendChild(el2, el3);
+            var el3 = dom.createElement("strong");
+            var el4 = dom.createTextNode("SOTTOSCRIZIONE DEL CONTRATTO ASSICURATIVO");
+            dom.appendChild(el3, el4);
+            dom.appendChild(el2, el3);
+            var el3 = dom.createTextNode("\n			");
+            dom.appendChild(el2, el3);
+            dom.appendChild(el1, el2);
+            var el2 = dom.createTextNode("\n			");
+            dom.appendChild(el1, el2);
+            var el2 = dom.createElement("p");
+            var el3 = dom.createTextNode("\n			    Il consenso privacy per fini assicurativi viene raccolto attraverso la sottoscrizione dell’");
+            dom.appendChild(el2, el3);
+            var el3 = dom.createElement("em");
+            var el4 = dom.createTextNode("Informativa Assicurativa o Mista e ");
+            dom.appendChild(el3, el4);
+            dom.appendChild(el2, el3);
+            var el3 = dom.createTextNode("sottoscritto\n			    contestualmente al contratto/i assicurativo/i, preventivo/i o proposta/e.\n			");
+            dom.appendChild(el2, el3);
+            dom.appendChild(el1, el2);
+            var el2 = dom.createTextNode("\n			");
+            dom.appendChild(el1, el2);
+            var el2 = dom.createElement("p");
+            var el3 = dom.createTextNode("\n			    Tale consenso è l’autorizzazione rilasciata alla Compagnia da parte dei soggetti di cui vengono trattati i dati personali, al trattamento dei propri dati\n			    con esclusivo riferimento al/i contratto/i assicurativo/i, preventivo/i o proposta/e,; Questo\n			");
+            dom.appendChild(el2, el3);
+            dom.appendChild(el1, el2);
+            var el2 = dom.createTextNode("\n			");
+            dom.appendChild(el1, el2);
+            var el2 = dom.createElement("p");
+            var el3 = dom.createTextNode("\n			    autorizza la Rete di vendita a poter sempre contattare la Clientela per gestire gli\n			");
+            dom.appendChild(el2, el3);
+            dom.appendChild(el1, el2);
+            var el2 = dom.createTextNode("\n			");
+            dom.appendChild(el1, el2);
+            var el2 = dom.createElement("p");
+            var el3 = dom.createTextNode("\n			    aspetti relativi al/i contratto/i in essere, anche se il cliente ha negato il proprio\n			");
+            dom.appendChild(el2, el3);
+            dom.appendChild(el1, el2);
+            var el2 = dom.createTextNode("\n			");
+            dom.appendChild(el1, el2);
+            var el2 = dom.createElement("p");
+            var el3 = dom.createTextNode("\n			    consenso all’attività di natura commerciale. In tale ipotesi NON potrà essere\n			");
+            dom.appendChild(el2, el3);
+            dom.appendChild(el1, el2);
+            var el2 = dom.createTextNode("\n			");
+            dom.appendChild(el1, el2);
+            var el2 = dom.createElement("p");
+            var el3 = dom.createTextNode("\n			    effettuata alcuna comunicazione di natura puramente commerciale.\n			");
+            dom.appendChild(el2, el3);
+            dom.appendChild(el1, el2);
+            var el2 = dom.createTextNode("\n			");
+            dom.appendChild(el1, el2);
+            var el2 = dom.createElement("p");
+            var el3 = dom.createTextNode("\n			    ");
+            dom.appendChild(el2, el3);
+            var el3 = dom.createElement("strong");
+            var el4 = dom.createTextNode("RACCOLTA REFERENZE");
+            dom.appendChild(el3, el4);
+            dom.appendChild(el2, el3);
+            var el3 = dom.createTextNode("\n			");
+            dom.appendChild(el2, el3);
+            dom.appendChild(el1, el2);
+            var el2 = dom.createTextNode("\n			");
+            dom.appendChild(el1, el2);
+            var el2 = dom.createElement("p");
+            var el3 = dom.createTextNode("\n			    Non è possibile contattare telefonicamente le referenze: in tal senso è assolutamente da utilizzare una forma di contatto “diretta” anche per il tramite\n			    del nostro Cliente.\n			");
+            dom.appendChild(el2, el3);
+            dom.appendChild(el1, el2);
+            var el2 = dom.createTextNode("\n			");
+            dom.appendChild(el1, el2);
+            var el2 = dom.createElement("p");
+            var el3 = dom.createTextNode("\n			    ");
+            dom.appendChild(el2, el3);
+            var el3 = dom.createElement("strong");
+            var el4 = dom.createTextNode("REVOCA TRATTAMENTO DATI PERSONALI");
+            dom.appendChild(el3, el4);
+            dom.appendChild(el2, el3);
+            var el3 = dom.createTextNode("\n			");
+            dom.appendChild(el2, el3);
+            dom.appendChild(el1, el2);
+            var el2 = dom.createTextNode("\n			");
+            dom.appendChild(el1, el2);
+            var el2 = dom.createElement("p");
+            var el3 = dom.createTextNode("\n			    Ricordiamo come ogni singolo cliente ha anche il diritto di revocare, in qualsiasi momento, il consenso concesso e di opporsi al trattamento dei suoi dati\n			    personali per fini commerciali.\n			");
+            dom.appendChild(el2, el3);
+            dom.appendChild(el1, el2);
+            var el2 = dom.createTextNode("\n			");
+            dom.appendChild(el1, el2);
+            var el2 = dom.createElement("p");
+            var el3 = dom.createTextNode("\n			    E’ obbligatorio rispettare la volontà espressa da ogni cliente; infatti, in assenza di un valido consenso, il trattamento dei dati risulta illecito e\n			    passibile di sanzioni\n			");
+            dom.appendChild(el2, el3);
+            dom.appendChild(el1, el2);
+            var el2 = dom.createTextNode("\n		");
+            dom.appendChild(el1, el2);
+            dom.appendChild(el0, el1);
+            var el1 = dom.createTextNode("\n");
+            dom.appendChild(el0, el1);
+            return el0;
+          },
+          buildRenderNodes: function buildRenderNodes() {
+            return [];
+          },
+          statements: [],
+          locals: [],
+          templates: []
+        };
+      })();
+      return {
+        meta: {
+          "fragmentReason": false,
+          "revision": "Ember@2.6.1",
+          "loc": {
+            "source": null,
+            "start": {
+              "line": 31,
+              "column": 0
+            },
+            "end": {
+              "line": 208,
+              "column": 1
+            }
+          },
+          "moduleName": "ttexp/templates/login.hbs"
+        },
+        isEmpty: false,
+        arity: 0,
+        cachedFragment: null,
+        hasRendered: false,
+        buildFragment: function buildFragment(dom) {
+          var el0 = dom.createDocumentFragment();
+          var el1 = dom.createComment("");
+          dom.appendChild(el0, el1);
+          var el1 = dom.createTextNode("   	");
+          dom.appendChild(el0, el1);
+          var el1 = dom.createComment("");
+          dom.appendChild(el0, el1);
+          var el1 = dom.createTextNode("\n");
+          dom.appendChild(el0, el1);
+          return el0;
+        },
+        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+          var morphs = new Array(2);
+          morphs[0] = dom.createMorphAt(fragment, 0, 0, contextualElement);
+          morphs[1] = dom.createMorphAt(fragment, 2, 2, contextualElement);
+          dom.insertBoundary(fragment, 0);
+          return morphs;
+        },
+        statements: [["block", "bs-modal-body", [], [], 0, null, ["loc", [null, [32, 4], [206, 19]]]], ["inline", "bs-modal-footer", [], ["closeTitle", "Accetto"], ["loc", [null, [207, 4], [207, 44]]]]],
+        locals: [],
+        templates: [child0]
+      };
+    })();
     return {
       meta: {
         "fragmentReason": {
           "name": "missing-wrapper",
-          "problems": ["multiple-nodes"]
+          "problems": ["multiple-nodes", "wrong-type"]
         },
         "revision": "Ember@2.6.1",
         "loc": {
@@ -6795,8 +7223,8 @@ define("ttexp/templates/login", ["exports"], function (exports) {
             "column": 0
           },
           "end": {
-            "line": 28,
-            "column": 6
+            "line": 208,
+            "column": 14
           }
         },
         "moduleName": "ttexp/templates/login.hbs"
@@ -6895,20 +7323,26 @@ define("ttexp/templates/login", ["exports"], function (exports) {
         var el2 = dom.createTextNode("\n");
         dom.appendChild(el1, el2);
         dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createComment("");
+        dom.appendChild(el0, el1);
         return el0;
       },
       buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
         var element0 = dom.childAt(fragment, [2, 1]);
-        var morphs = new Array(4);
+        var morphs = new Array(5);
         morphs[0] = dom.createElementMorph(element0);
         morphs[1] = dom.createMorphAt(dom.childAt(element0, [3]), 3, 3);
         morphs[2] = dom.createMorphAt(dom.childAt(element0, [5]), 3, 3);
         morphs[3] = dom.createMorphAt(dom.childAt(element0, [9]), 1, 1);
+        morphs[4] = dom.createMorphAt(fragment, 4, 4, contextualElement);
+        dom.insertBoundary(fragment, null);
         return morphs;
       },
-      statements: [["element", "action", ["authenticate"], ["on", "submit", "method", "get"], ["loc", [null, [9, 7], [9, 57]]]], ["inline", "input", [], ["class", "form-control", "id", "identification", "placeholder", "Email / Username", "autocapitalize", "none", "autocorrect", "off", "value", ["subexpr", "@mut", [["get", "identification", ["loc", [null, [13, 129], [13, 143]]]]], [], []]], ["loc", [null, [13, 3], [13, 145]]]], ["inline", "input", [], ["class", "form-control", "id", "password", "placeholder", "Password", "type", "password", "autocapitalize", "none", "autocorrect", "off", "value", ["subexpr", "@mut", [["get", "password", ["loc", [null, [17, 131], [17, 139]]]]], [], []]], ["loc", [null, [17, 3], [17, 141]]]], ["block", "if", [["get", "errorMessage", ["loc", [null, [23, 9], [23, 21]]]]], [], 0, null, ["loc", [null, [23, 3], [25, 10]]]]],
+      statements: [["element", "action", ["authenticate"], ["on", "submit", "method", "get"], ["loc", [null, [9, 7], [9, 57]]]], ["inline", "input", [], ["class", "form-control", "id", "identification", "placeholder", "Email / Username", "autocapitalize", "none", "autocorrect", "off", "value", ["subexpr", "@mut", [["get", "identification", ["loc", [null, [13, 129], [13, 143]]]]], [], []]], ["loc", [null, [13, 3], [13, 145]]]], ["inline", "input", [], ["class", "form-control", "id", "password", "placeholder", "Password", "type", "password", "autocapitalize", "none", "autocorrect", "off", "value", ["subexpr", "@mut", [["get", "password", ["loc", [null, [17, 131], [17, 139]]]]], [], []]], ["loc", [null, [17, 3], [17, 141]]]], ["block", "if", [["get", "errorMessage", ["loc", [null, [23, 9], [23, 21]]]]], [], 0, null, ["loc", [null, [23, 3], [25, 10]]]], ["block", "bs-modal", [], ["body", false, "footer", false, "open", true, "elementId", "downloadModal", "title", "Termini di utilizzo", "closeButton", false], 1, null, ["loc", [null, [31, 0], [208, 14]]]]],
       locals: [],
-      templates: [child0]
+      templates: [child0, child1]
     };
   })());
 });
@@ -7564,8 +7998,6 @@ define("ttexp/templates/play", ["exports"], function (exports) {
         dom.setAttribute(el2, "class", "btn btn-link ttexp-btn ttexp-position-absolute top-left");
         var el3 = dom.createElement("i");
         dom.setAttribute(el3, "class", "fa fa-home");
-        var el4 = dom.createTextNode("X");
-        dom.appendChild(el3, el4);
         dom.appendChild(el2, el3);
         dom.appendChild(el1, el2);
         var el2 = dom.createTextNode("\n	");
@@ -8335,8 +8767,6 @@ define("ttexp/templates/scenarios", ["exports"], function (exports) {
           dom.setAttribute(el3, "class", "btn-link hiddenXXX");
           var el4 = dom.createElement("i");
           dom.setAttribute(el4, "class", "fa fa-download");
-          var el5 = dom.createTextNode("Q");
-          dom.appendChild(el4, el5);
           dom.appendChild(el3, el4);
           dom.appendChild(el2, el3);
           var el3 = dom.createTextNode("\n								  			");
@@ -8585,17 +9015,9 @@ define("ttexp/templates/scenarios", ["exports"], function (exports) {
         var el9 = dom.createTextNode("In ogni caso, per ciascuna fase sono richiesti almeno otto (8) tentativi, al termine dei quali potrai decidere con il tuo Manager se approfondire ulteriormente l’allenamento.");
         dom.appendChild(el8, el9);
         dom.appendChild(el7, el8);
-        var el8 = dom.createTextNode("\n							");
+        var el8 = dom.createTextNode("\n");
         dom.appendChild(el7, el8);
-        var el8 = dom.createElement("p");
-        var el9 = dom.createTextNode("SettingsFile: ");
-        dom.appendChild(el8, el9);
-        var el9 = dom.createComment("");
-        dom.appendChild(el8, el9);
-        var el9 = dom.createComment("");
-        dom.appendChild(el8, el9);
-        dom.appendChild(el7, el8);
-        var el8 = dom.createTextNode("\n						");
+        var el8 = dom.createTextNode("						");
         dom.appendChild(el7, el8);
         dom.appendChild(el6, el7);
         var el7 = dom.createTextNode("\n						");
@@ -8708,18 +9130,14 @@ define("ttexp/templates/scenarios", ["exports"], function (exports) {
       },
       buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
         var element6 = dom.childAt(fragment, [0, 1, 1]);
-        var element7 = dom.childAt(element6, [3, 3, 3]);
-        var element8 = dom.childAt(element7, [1, 7]);
-        var morphs = new Array(6);
+        var morphs = new Array(4);
         morphs[0] = dom.createMorphAt(dom.childAt(element6, [1]), 1, 1);
-        morphs[1] = dom.createMorphAt(element8, 1, 1);
-        morphs[2] = dom.createMorphAt(element8, 2, 2);
-        morphs[3] = dom.createMorphAt(dom.childAt(element7, [5, 1, 3]), 1, 1);
-        morphs[4] = dom.createMorphAt(fragment, 4, 4, contextualElement);
-        morphs[5] = dom.createMorphAt(fragment, 6, 6, contextualElement);
+        morphs[1] = dom.createMorphAt(dom.childAt(element6, [3, 3, 3, 5, 1, 3]), 1, 1);
+        morphs[2] = dom.createMorphAt(fragment, 4, 4, contextualElement);
+        morphs[3] = dom.createMorphAt(fragment, 6, 6, contextualElement);
         return morphs;
       },
-      statements: [["inline", "partial", ["layout/menu"], [], ["loc", [null, [5, 4], [5, 29]]]], ["content", "fileSystem", ["loc", [null, [22, 24], [22, 38]]]], ["content", "fileSystem.settingsFile", ["loc", [null, [22, 38], [22, 65]]]], ["block", "each", [["get", "model.scenarios", ["loc", [null, [37, 17], [37, 32]]]]], [], 0, 1, ["loc", [null, [37, 9], [93, 18]]]], ["block", "bs-modal", [], ["open", ["subexpr", "@mut", [["get", "showDownloadModal", ["loc", [null, [106, 18], [106, 35]]]]], [], []], "closedAction", ["subexpr", "action", ["closeDownloadModal"], [], ["loc", [null, [106, 49], [106, 78]]]], "elementId", "downloadModal", "title", "Download Scenario"], 2, null, ["loc", [null, [106, 1], [110, 14]]]], ["content", "outlet", ["loc", [null, [112, 0], [112, 10]]]]],
+      statements: [["inline", "partial", ["layout/menu"], [], ["loc", [null, [5, 4], [5, 29]]]], ["block", "each", [["get", "model.scenarios", ["loc", [null, [37, 17], [37, 32]]]]], [], 0, 1, ["loc", [null, [37, 9], [93, 18]]]], ["block", "bs-modal", [], ["footer", false, "open", ["subexpr", "@mut", [["get", "showDownloadModal", ["loc", [null, [106, 31], [106, 48]]]]], [], []], "closeAction", ["subexpr", "action", ["closeDownloadModal"], [], ["loc", [null, [106, 61], [106, 90]]]], "elementId", "downloadModal", "title", "Download Scenario"], 2, null, ["loc", [null, [106, 1], [110, 14]]]], ["content", "outlet", ["loc", [null, [112, 0], [112, 10]]]]],
       locals: [],
       templates: [child0, child1, child2]
     };
@@ -9548,7 +9966,7 @@ catch(err) {
 /* jshint ignore:start */
 
 if (!runningTests) {
-  require("ttexp/app")["default"].create({"serverApiUrl":"http://demo.ttexp.net/api","LOG_ACTIVE_GENERATION":false,"LOG_VIEW_LOOKUPS":false,"name":"ttexp","version":"1.0.6+d120ee3c"});
+  require("ttexp/app")["default"].create({"serverApiUrl":"http://demo.ttexp.net/api","LOG_ACTIVE_GENERATION":false,"LOG_VIEW_LOOKUPS":false,"name":"ttexp","version":"1.0.7+adb30a1b"});
 }
 
 /* jshint ignore:end */
