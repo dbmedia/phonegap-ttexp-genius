@@ -12,8 +12,6 @@ var runningTests = false;
 (function(global) {
   'use strict';
 
-  var stats;
-
   // Save off the original values of these globals, so we can restore them if someone asks us to
   var oldGlobals = {
     loader: loader,
@@ -51,6 +49,7 @@ var runningTests = false;
     requirejs._stats = stats;
   }
 
+  var stats;
 
   resetStats();
 
@@ -142,7 +141,7 @@ var runningTests = false;
     this.finalized = false;
     this._foundDeps = false;
     this.isPending = false;
-    this.module = { exports: {} };
+    this.module = { exports: {}};
   };
 
   Module.prototype.reify = function() {
@@ -189,7 +188,7 @@ var runningTests = false;
     r['default'] = r;
     r.has = function(dep) {
       return has(resolve(dep, name));
-    };
+    }
     return r;
   };
 
@@ -65570,135 +65569,15 @@ requireModule("ember");
   generateModule('rsvp', { 'default': Ember.RSVP });
 })();
 
-;(function() {
-  function objectAt(content, idx) {
-    if (content.objectAt) {
-      return content.objectAt(idx);
-    }
-
-    return content[idx];
-  }
-
-  function arrayIncludes(obj, startAt) {
-    var len = Ember.get(this, 'length');
-    var idx, currentObj;
-
-    if (startAt === undefined) {
-      startAt = 0;
-    }
-
-    if (startAt < 0) {
-      startAt += len;
-    }
-
-    for (idx = startAt; idx < len; idx++) {
-      currentObj = objectAt(this, idx);
-
-      // SameValueZero comparison (NaN !== NaN)
-      if (obj === currentObj || (obj !== obj && currentObj !== currentObj)) {
-        return true;
-      }
-    }
-
-    return false;
-  }
-
-  Ember.Array.reopen({
-    // inlined from https://git.io/v6F5T
-    includes: arrayIncludes
-  });
-
-  Ember.MutableArray.reopen({
-    addObject: function(obj) {
-      if (!this.includes(obj)) {
-        this.pushObject(obj);
-      }
-
-      return this;
-    }
-  });
-
-  Ember.Enumerable.reopen({
-    includes: function(obj) {
-      Ember.assert('Enumerable#includes cannot accept a second argument "startAt" as enumerable items are unordered.', arguments.length === 1);
-
-      var len = Ember.get(this, 'length');
-      var idx, next;
-      var last = null;
-      var found = false;
-
-      for (idx = 0; idx < len && !found; idx++) {
-        next = this.nextObject(idx, last);
-
-        found = obj === next || (obj !== obj && next !== next);
-
-        last = next;
-      }
-
-      next = last = null;
-
-      return found;
-    }
-  });
-
-  if ((Ember.EXTEND_PROTOTYPES === true || Ember.EXTEND_PROTOTYPES.Array) && !Array.prototype.includes) {
-    Array.prototype.includes = arrayIncludes;
-  }
-})();
-
-;/* globals define */
-define('ember/load-initializers', ['exports', 'ember-load-initializers', 'ember'], function(exports, loadInitializers, Ember) {
-  Ember['default'].deprecate(
-    'Usage of `' + 'ember/load-initializers' + '` module is deprecated, please update to `ember-load-initializers`.',
-    false,
-    { id: 'ember-load-initializers.legacy-shims', until: '3.0.0' }
-  );
-
-  exports['default'] = loadInitializers['default'];
-});
-
-;/* globals define */
-
-function createDeprecatedModule(moduleId) {
-  define(moduleId, ['exports', 'ember-resolver/resolver', 'ember'], function(exports, Resolver, Ember) {
-    Ember['default'].deprecate(
-      'Usage of `' + moduleId + '` module is deprecated, please update to `ember-resolver`.',
-      false,
-      { id: 'ember-resolver.legacy-shims', until: '3.0.0' }
-    );
-
-    exports['default'] = Resolver['default'];
-  });
-}
-
-createDeprecatedModule('ember/resolver');
-createDeprecatedModule('resolver');
-
-;Ember.libraries.register('Ember Simple Auth', '1.1.0');
-
-;/*!
- * Bootstrap v3.3.6 (http://getbootstrap.com)
- * Copyright 2011-2015 Twitter, Inc.
- * Licensed under the MIT license
+;/**
+ * Patched to replace setTimeout with Ember.run.later
  */
-
-if (typeof jQuery === 'undefined') {
-  throw new Error('Bootstrap\'s JavaScript requires jQuery')
-}
-
-+function ($) {
-  'use strict';
-  var version = $.fn.jquery.split(' ')[0].split('.')
-  if ((version[0] < 2 && version[1] < 9) || (version[0] == 1 && version[1] == 9 && version[2] < 1) || (version[0] > 2)) {
-    throw new Error('Bootstrap\'s JavaScript requires jQuery version 1.9.1 or higher, but lower than version 3')
-  }
-}(jQuery);
 
 /* ========================================================================
  * Bootstrap: transition.js v3.3.6
  * http://getbootstrap.com/javascript/#transitions
  * ========================================================================
- * Copyright 2011-2015 Twitter, Inc.
+ * Copyright 2011-2016 Twitter, Inc.
  * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
  * ======================================================================== */
 
@@ -65734,7 +65613,7 @@ if (typeof jQuery === 'undefined') {
     var $el = this
     $(this).one('bsTransitionEnd', function () { called = true })
     var callback = function () { if (!called) $($el).trigger($.support.transition.end) }
-    setTimeout(callback, duration)
+    Ember.run.later(this, callback, duration)
     return this
   }
 
@@ -65753,2299 +65632,40 @@ if (typeof jQuery === 'undefined') {
   })
 
 }(jQuery);
-
-/* ========================================================================
- * Bootstrap: alert.js v3.3.6
- * http://getbootstrap.com/javascript/#alerts
- * ========================================================================
- * Copyright 2011-2015 Twitter, Inc.
- * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
- * ======================================================================== */
-
-
-+function ($) {
-  'use strict';
-
-  // ALERT CLASS DEFINITION
-  // ======================
-
-  var dismiss = '[data-dismiss="alert"]'
-  var Alert   = function (el) {
-    $(el).on('click', dismiss, this.close)
-  }
-
-  Alert.VERSION = '3.3.6'
-
-  Alert.TRANSITION_DURATION = 150
-
-  Alert.prototype.close = function (e) {
-    var $this    = $(this)
-    var selector = $this.attr('data-target')
-
-    if (!selector) {
-      selector = $this.attr('href')
-      selector = selector && selector.replace(/.*(?=#[^\s]*$)/, '') // strip for ie7
-    }
-
-    var $parent = $(selector)
-
-    if (e) e.preventDefault()
-
-    if (!$parent.length) {
-      $parent = $this.closest('.alert')
-    }
-
-    $parent.trigger(e = $.Event('close.bs.alert'))
-
-    if (e.isDefaultPrevented()) return
-
-    $parent.removeClass('in')
-
-    function removeElement() {
-      // detach from parent, fire event then clean up data
-      $parent.detach().trigger('closed.bs.alert').remove()
-    }
-
-    $.support.transition && $parent.hasClass('fade') ?
-      $parent
-        .one('bsTransitionEnd', removeElement)
-        .emulateTransitionEnd(Alert.TRANSITION_DURATION) :
-      removeElement()
-  }
-
-
-  // ALERT PLUGIN DEFINITION
-  // =======================
-
-  function Plugin(option) {
-    return this.each(function () {
-      var $this = $(this)
-      var data  = $this.data('bs.alert')
-
-      if (!data) $this.data('bs.alert', (data = new Alert(this)))
-      if (typeof option == 'string') data[option].call($this)
-    })
-  }
-
-  var old = $.fn.alert
-
-  $.fn.alert             = Plugin
-  $.fn.alert.Constructor = Alert
-
-
-  // ALERT NO CONFLICT
-  // =================
-
-  $.fn.alert.noConflict = function () {
-    $.fn.alert = old
-    return this
-  }
-
-
-  // ALERT DATA-API
-  // ==============
-
-  $(document).on('click.bs.alert.data-api', dismiss, Alert.prototype.close)
-
-}(jQuery);
-
-/* ========================================================================
- * Bootstrap: button.js v3.3.6
- * http://getbootstrap.com/javascript/#buttons
- * ========================================================================
- * Copyright 2011-2015 Twitter, Inc.
- * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
- * ======================================================================== */
-
-
-+function ($) {
-  'use strict';
-
-  // BUTTON PUBLIC CLASS DEFINITION
-  // ==============================
-
-  var Button = function (element, options) {
-    this.$element  = $(element)
-    this.options   = $.extend({}, Button.DEFAULTS, options)
-    this.isLoading = false
-  }
-
-  Button.VERSION  = '3.3.6'
-
-  Button.DEFAULTS = {
-    loadingText: 'loading...'
-  }
-
-  Button.prototype.setState = function (state) {
-    var d    = 'disabled'
-    var $el  = this.$element
-    var val  = $el.is('input') ? 'val' : 'html'
-    var data = $el.data()
-
-    state += 'Text'
-
-    if (data.resetText == null) $el.data('resetText', $el[val]())
-
-    // push to event loop to allow forms to submit
-    setTimeout($.proxy(function () {
-      $el[val](data[state] == null ? this.options[state] : data[state])
-
-      if (state == 'loadingText') {
-        this.isLoading = true
-        $el.addClass(d).attr(d, d)
-      } else if (this.isLoading) {
-        this.isLoading = false
-        $el.removeClass(d).removeAttr(d)
-      }
-    }, this), 0)
-  }
-
-  Button.prototype.toggle = function () {
-    var changed = true
-    var $parent = this.$element.closest('[data-toggle="buttons"]')
-
-    if ($parent.length) {
-      var $input = this.$element.find('input')
-      if ($input.prop('type') == 'radio') {
-        if ($input.prop('checked')) changed = false
-        $parent.find('.active').removeClass('active')
-        this.$element.addClass('active')
-      } else if ($input.prop('type') == 'checkbox') {
-        if (($input.prop('checked')) !== this.$element.hasClass('active')) changed = false
-        this.$element.toggleClass('active')
-      }
-      $input.prop('checked', this.$element.hasClass('active'))
-      if (changed) $input.trigger('change')
-    } else {
-      this.$element.attr('aria-pressed', !this.$element.hasClass('active'))
-      this.$element.toggleClass('active')
-    }
-  }
-
-
-  // BUTTON PLUGIN DEFINITION
-  // ========================
-
-  function Plugin(option) {
-    return this.each(function () {
-      var $this   = $(this)
-      var data    = $this.data('bs.button')
-      var options = typeof option == 'object' && option
-
-      if (!data) $this.data('bs.button', (data = new Button(this, options)))
-
-      if (option == 'toggle') data.toggle()
-      else if (option) data.setState(option)
-    })
-  }
-
-  var old = $.fn.button
-
-  $.fn.button             = Plugin
-  $.fn.button.Constructor = Button
-
-
-  // BUTTON NO CONFLICT
-  // ==================
-
-  $.fn.button.noConflict = function () {
-    $.fn.button = old
-    return this
-  }
-
-
-  // BUTTON DATA-API
-  // ===============
-
-  $(document)
-    .on('click.bs.button.data-api', '[data-toggle^="button"]', function (e) {
-      var $btn = $(e.target)
-      if (!$btn.hasClass('btn')) $btn = $btn.closest('.btn')
-      Plugin.call($btn, 'toggle')
-      if (!($(e.target).is('input[type="radio"]') || $(e.target).is('input[type="checkbox"]'))) e.preventDefault()
-    })
-    .on('focus.bs.button.data-api blur.bs.button.data-api', '[data-toggle^="button"]', function (e) {
-      $(e.target).closest('.btn').toggleClass('focus', /^focus(in)?$/.test(e.type))
-    })
-
-}(jQuery);
-
-/* ========================================================================
- * Bootstrap: carousel.js v3.3.6
- * http://getbootstrap.com/javascript/#carousel
- * ========================================================================
- * Copyright 2011-2015 Twitter, Inc.
- * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
- * ======================================================================== */
-
-
-+function ($) {
-  'use strict';
-
-  // CAROUSEL CLASS DEFINITION
-  // =========================
-
-  var Carousel = function (element, options) {
-    this.$element    = $(element)
-    this.$indicators = this.$element.find('.carousel-indicators')
-    this.options     = options
-    this.paused      = null
-    this.sliding     = null
-    this.interval    = null
-    this.$active     = null
-    this.$items      = null
-
-    this.options.keyboard && this.$element.on('keydown.bs.carousel', $.proxy(this.keydown, this))
-
-    this.options.pause == 'hover' && !('ontouchstart' in document.documentElement) && this.$element
-      .on('mouseenter.bs.carousel', $.proxy(this.pause, this))
-      .on('mouseleave.bs.carousel', $.proxy(this.cycle, this))
-  }
-
-  Carousel.VERSION  = '3.3.6'
-
-  Carousel.TRANSITION_DURATION = 600
-
-  Carousel.DEFAULTS = {
-    interval: 5000,
-    pause: 'hover',
-    wrap: true,
-    keyboard: true
-  }
-
-  Carousel.prototype.keydown = function (e) {
-    if (/input|textarea/i.test(e.target.tagName)) return
-    switch (e.which) {
-      case 37: this.prev(); break
-      case 39: this.next(); break
-      default: return
-    }
-
-    e.preventDefault()
-  }
-
-  Carousel.prototype.cycle = function (e) {
-    e || (this.paused = false)
-
-    this.interval && clearInterval(this.interval)
-
-    this.options.interval
-      && !this.paused
-      && (this.interval = setInterval($.proxy(this.next, this), this.options.interval))
-
-    return this
-  }
-
-  Carousel.prototype.getItemIndex = function (item) {
-    this.$items = item.parent().children('.item')
-    return this.$items.index(item || this.$active)
-  }
-
-  Carousel.prototype.getItemForDirection = function (direction, active) {
-    var activeIndex = this.getItemIndex(active)
-    var willWrap = (direction == 'prev' && activeIndex === 0)
-                || (direction == 'next' && activeIndex == (this.$items.length - 1))
-    if (willWrap && !this.options.wrap) return active
-    var delta = direction == 'prev' ? -1 : 1
-    var itemIndex = (activeIndex + delta) % this.$items.length
-    return this.$items.eq(itemIndex)
-  }
-
-  Carousel.prototype.to = function (pos) {
-    var that        = this
-    var activeIndex = this.getItemIndex(this.$active = this.$element.find('.item.active'))
-
-    if (pos > (this.$items.length - 1) || pos < 0) return
-
-    if (this.sliding)       return this.$element.one('slid.bs.carousel', function () { that.to(pos) }) // yes, "slid"
-    if (activeIndex == pos) return this.pause().cycle()
-
-    return this.slide(pos > activeIndex ? 'next' : 'prev', this.$items.eq(pos))
-  }
-
-  Carousel.prototype.pause = function (e) {
-    e || (this.paused = true)
-
-    if (this.$element.find('.next, .prev').length && $.support.transition) {
-      this.$element.trigger($.support.transition.end)
-      this.cycle(true)
-    }
-
-    this.interval = clearInterval(this.interval)
-
-    return this
-  }
-
-  Carousel.prototype.next = function () {
-    if (this.sliding) return
-    return this.slide('next')
-  }
-
-  Carousel.prototype.prev = function () {
-    if (this.sliding) return
-    return this.slide('prev')
-  }
-
-  Carousel.prototype.slide = function (type, next) {
-    var $active   = this.$element.find('.item.active')
-    var $next     = next || this.getItemForDirection(type, $active)
-    var isCycling = this.interval
-    var direction = type == 'next' ? 'left' : 'right'
-    var that      = this
-
-    if ($next.hasClass('active')) return (this.sliding = false)
-
-    var relatedTarget = $next[0]
-    var slideEvent = $.Event('slide.bs.carousel', {
-      relatedTarget: relatedTarget,
-      direction: direction
-    })
-    this.$element.trigger(slideEvent)
-    if (slideEvent.isDefaultPrevented()) return
-
-    this.sliding = true
-
-    isCycling && this.pause()
-
-    if (this.$indicators.length) {
-      this.$indicators.find('.active').removeClass('active')
-      var $nextIndicator = $(this.$indicators.children()[this.getItemIndex($next)])
-      $nextIndicator && $nextIndicator.addClass('active')
-    }
-
-    var slidEvent = $.Event('slid.bs.carousel', { relatedTarget: relatedTarget, direction: direction }) // yes, "slid"
-    if ($.support.transition && this.$element.hasClass('slide')) {
-      $next.addClass(type)
-      $next[0].offsetWidth // force reflow
-      $active.addClass(direction)
-      $next.addClass(direction)
-      $active
-        .one('bsTransitionEnd', function () {
-          $next.removeClass([type, direction].join(' ')).addClass('active')
-          $active.removeClass(['active', direction].join(' '))
-          that.sliding = false
-          setTimeout(function () {
-            that.$element.trigger(slidEvent)
-          }, 0)
-        })
-        .emulateTransitionEnd(Carousel.TRANSITION_DURATION)
-    } else {
-      $active.removeClass('active')
-      $next.addClass('active')
-      this.sliding = false
-      this.$element.trigger(slidEvent)
-    }
-
-    isCycling && this.cycle()
-
-    return this
-  }
-
-
-  // CAROUSEL PLUGIN DEFINITION
-  // ==========================
-
-  function Plugin(option) {
-    return this.each(function () {
-      var $this   = $(this)
-      var data    = $this.data('bs.carousel')
-      var options = $.extend({}, Carousel.DEFAULTS, $this.data(), typeof option == 'object' && option)
-      var action  = typeof option == 'string' ? option : options.slide
-
-      if (!data) $this.data('bs.carousel', (data = new Carousel(this, options)))
-      if (typeof option == 'number') data.to(option)
-      else if (action) data[action]()
-      else if (options.interval) data.pause().cycle()
-    })
-  }
-
-  var old = $.fn.carousel
-
-  $.fn.carousel             = Plugin
-  $.fn.carousel.Constructor = Carousel
-
-
-  // CAROUSEL NO CONFLICT
-  // ====================
-
-  $.fn.carousel.noConflict = function () {
-    $.fn.carousel = old
-    return this
-  }
-
-
-  // CAROUSEL DATA-API
-  // =================
-
-  var clickHandler = function (e) {
-    var href
-    var $this   = $(this)
-    var $target = $($this.attr('data-target') || (href = $this.attr('href')) && href.replace(/.*(?=#[^\s]+$)/, '')) // strip for ie7
-    if (!$target.hasClass('carousel')) return
-    var options = $.extend({}, $target.data(), $this.data())
-    var slideIndex = $this.attr('data-slide-to')
-    if (slideIndex) options.interval = false
-
-    Plugin.call($target, options)
-
-    if (slideIndex) {
-      $target.data('bs.carousel').to(slideIndex)
-    }
-
-    e.preventDefault()
-  }
-
-  $(document)
-    .on('click.bs.carousel.data-api', '[data-slide]', clickHandler)
-    .on('click.bs.carousel.data-api', '[data-slide-to]', clickHandler)
-
-  $(window).on('load', function () {
-    $('[data-ride="carousel"]').each(function () {
-      var $carousel = $(this)
-      Plugin.call($carousel, $carousel.data())
-    })
-  })
-
-}(jQuery);
-
-/* ========================================================================
- * Bootstrap: collapse.js v3.3.6
- * http://getbootstrap.com/javascript/#collapse
- * ========================================================================
- * Copyright 2011-2015 Twitter, Inc.
- * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
- * ======================================================================== */
-
-
-+function ($) {
-  'use strict';
-
-  // COLLAPSE PUBLIC CLASS DEFINITION
-  // ================================
-
-  var Collapse = function (element, options) {
-    this.$element      = $(element)
-    this.options       = $.extend({}, Collapse.DEFAULTS, options)
-    this.$trigger      = $('[data-toggle="collapse"][href="#' + element.id + '"],' +
-                           '[data-toggle="collapse"][data-target="#' + element.id + '"]')
-    this.transitioning = null
-
-    if (this.options.parent) {
-      this.$parent = this.getParent()
-    } else {
-      this.addAriaAndCollapsedClass(this.$element, this.$trigger)
-    }
-
-    if (this.options.toggle) this.toggle()
-  }
-
-  Collapse.VERSION  = '3.3.6'
-
-  Collapse.TRANSITION_DURATION = 350
-
-  Collapse.DEFAULTS = {
-    toggle: true
-  }
-
-  Collapse.prototype.dimension = function () {
-    var hasWidth = this.$element.hasClass('width')
-    return hasWidth ? 'width' : 'height'
-  }
-
-  Collapse.prototype.show = function () {
-    if (this.transitioning || this.$element.hasClass('in')) return
-
-    var activesData
-    var actives = this.$parent && this.$parent.children('.panel').children('.in, .collapsing')
-
-    if (actives && actives.length) {
-      activesData = actives.data('bs.collapse')
-      if (activesData && activesData.transitioning) return
-    }
-
-    var startEvent = $.Event('show.bs.collapse')
-    this.$element.trigger(startEvent)
-    if (startEvent.isDefaultPrevented()) return
-
-    if (actives && actives.length) {
-      Plugin.call(actives, 'hide')
-      activesData || actives.data('bs.collapse', null)
-    }
-
-    var dimension = this.dimension()
-
-    this.$element
-      .removeClass('collapse')
-      .addClass('collapsing')[dimension](0)
-      .attr('aria-expanded', true)
-
-    this.$trigger
-      .removeClass('collapsed')
-      .attr('aria-expanded', true)
-
-    this.transitioning = 1
-
-    var complete = function () {
-      this.$element
-        .removeClass('collapsing')
-        .addClass('collapse in')[dimension]('')
-      this.transitioning = 0
-      this.$element
-        .trigger('shown.bs.collapse')
-    }
-
-    if (!$.support.transition) return complete.call(this)
-
-    var scrollSize = $.camelCase(['scroll', dimension].join('-'))
-
-    this.$element
-      .one('bsTransitionEnd', $.proxy(complete, this))
-      .emulateTransitionEnd(Collapse.TRANSITION_DURATION)[dimension](this.$element[0][scrollSize])
-  }
-
-  Collapse.prototype.hide = function () {
-    if (this.transitioning || !this.$element.hasClass('in')) return
-
-    var startEvent = $.Event('hide.bs.collapse')
-    this.$element.trigger(startEvent)
-    if (startEvent.isDefaultPrevented()) return
-
-    var dimension = this.dimension()
-
-    this.$element[dimension](this.$element[dimension]())[0].offsetHeight
-
-    this.$element
-      .addClass('collapsing')
-      .removeClass('collapse in')
-      .attr('aria-expanded', false)
-
-    this.$trigger
-      .addClass('collapsed')
-      .attr('aria-expanded', false)
-
-    this.transitioning = 1
-
-    var complete = function () {
-      this.transitioning = 0
-      this.$element
-        .removeClass('collapsing')
-        .addClass('collapse')
-        .trigger('hidden.bs.collapse')
-    }
-
-    if (!$.support.transition) return complete.call(this)
-
-    this.$element
-      [dimension](0)
-      .one('bsTransitionEnd', $.proxy(complete, this))
-      .emulateTransitionEnd(Collapse.TRANSITION_DURATION)
-  }
-
-  Collapse.prototype.toggle = function () {
-    this[this.$element.hasClass('in') ? 'hide' : 'show']()
-  }
-
-  Collapse.prototype.getParent = function () {
-    return $(this.options.parent)
-      .find('[data-toggle="collapse"][data-parent="' + this.options.parent + '"]')
-      .each($.proxy(function (i, element) {
-        var $element = $(element)
-        this.addAriaAndCollapsedClass(getTargetFromTrigger($element), $element)
-      }, this))
-      .end()
-  }
-
-  Collapse.prototype.addAriaAndCollapsedClass = function ($element, $trigger) {
-    var isOpen = $element.hasClass('in')
-
-    $element.attr('aria-expanded', isOpen)
-    $trigger
-      .toggleClass('collapsed', !isOpen)
-      .attr('aria-expanded', isOpen)
-  }
-
-  function getTargetFromTrigger($trigger) {
-    var href
-    var target = $trigger.attr('data-target')
-      || (href = $trigger.attr('href')) && href.replace(/.*(?=#[^\s]+$)/, '') // strip for ie7
-
-    return $(target)
-  }
-
-
-  // COLLAPSE PLUGIN DEFINITION
-  // ==========================
-
-  function Plugin(option) {
-    return this.each(function () {
-      var $this   = $(this)
-      var data    = $this.data('bs.collapse')
-      var options = $.extend({}, Collapse.DEFAULTS, $this.data(), typeof option == 'object' && option)
-
-      if (!data && options.toggle && /show|hide/.test(option)) options.toggle = false
-      if (!data) $this.data('bs.collapse', (data = new Collapse(this, options)))
-      if (typeof option == 'string') data[option]()
-    })
-  }
-
-  var old = $.fn.collapse
-
-  $.fn.collapse             = Plugin
-  $.fn.collapse.Constructor = Collapse
-
-
-  // COLLAPSE NO CONFLICT
-  // ====================
-
-  $.fn.collapse.noConflict = function () {
-    $.fn.collapse = old
-    return this
-  }
-
-
-  // COLLAPSE DATA-API
-  // =================
-
-  $(document).on('click.bs.collapse.data-api', '[data-toggle="collapse"]', function (e) {
-    var $this   = $(this)
-
-    if (!$this.attr('data-target')) e.preventDefault()
-
-    var $target = getTargetFromTrigger($this)
-    var data    = $target.data('bs.collapse')
-    var option  = data ? 'toggle' : $this.data()
-
-    Plugin.call($target, option)
-  })
-
-}(jQuery);
-
-/* ========================================================================
- * Bootstrap: dropdown.js v3.3.6
- * http://getbootstrap.com/javascript/#dropdowns
- * ========================================================================
- * Copyright 2011-2015 Twitter, Inc.
- * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
- * ======================================================================== */
-
-
-+function ($) {
-  'use strict';
-
-  // DROPDOWN CLASS DEFINITION
-  // =========================
-
-  var backdrop = '.dropdown-backdrop'
-  var toggle   = '[data-toggle="dropdown"]'
-  var Dropdown = function (element) {
-    $(element).on('click.bs.dropdown', this.toggle)
-  }
-
-  Dropdown.VERSION = '3.3.6'
-
-  function getParent($this) {
-    var selector = $this.attr('data-target')
-
-    if (!selector) {
-      selector = $this.attr('href')
-      selector = selector && /#[A-Za-z]/.test(selector) && selector.replace(/.*(?=#[^\s]*$)/, '') // strip for ie7
-    }
-
-    var $parent = selector && $(selector)
-
-    return $parent && $parent.length ? $parent : $this.parent()
-  }
-
-  function clearMenus(e) {
-    if (e && e.which === 3) return
-    $(backdrop).remove()
-    $(toggle).each(function () {
-      var $this         = $(this)
-      var $parent       = getParent($this)
-      var relatedTarget = { relatedTarget: this }
-
-      if (!$parent.hasClass('open')) return
-
-      if (e && e.type == 'click' && /input|textarea/i.test(e.target.tagName) && $.contains($parent[0], e.target)) return
-
-      $parent.trigger(e = $.Event('hide.bs.dropdown', relatedTarget))
-
-      if (e.isDefaultPrevented()) return
-
-      $this.attr('aria-expanded', 'false')
-      $parent.removeClass('open').trigger($.Event('hidden.bs.dropdown', relatedTarget))
-    })
-  }
-
-  Dropdown.prototype.toggle = function (e) {
-    var $this = $(this)
-
-    if ($this.is('.disabled, :disabled')) return
-
-    var $parent  = getParent($this)
-    var isActive = $parent.hasClass('open')
-
-    clearMenus()
-
-    if (!isActive) {
-      if ('ontouchstart' in document.documentElement && !$parent.closest('.navbar-nav').length) {
-        // if mobile we use a backdrop because click events don't delegate
-        $(document.createElement('div'))
-          .addClass('dropdown-backdrop')
-          .insertAfter($(this))
-          .on('click', clearMenus)
-      }
-
-      var relatedTarget = { relatedTarget: this }
-      $parent.trigger(e = $.Event('show.bs.dropdown', relatedTarget))
-
-      if (e.isDefaultPrevented()) return
-
-      $this
-        .trigger('focus')
-        .attr('aria-expanded', 'true')
-
-      $parent
-        .toggleClass('open')
-        .trigger($.Event('shown.bs.dropdown', relatedTarget))
-    }
-
-    return false
-  }
-
-  Dropdown.prototype.keydown = function (e) {
-    if (!/(38|40|27|32)/.test(e.which) || /input|textarea/i.test(e.target.tagName)) return
-
-    var $this = $(this)
-
-    e.preventDefault()
-    e.stopPropagation()
-
-    if ($this.is('.disabled, :disabled')) return
-
-    var $parent  = getParent($this)
-    var isActive = $parent.hasClass('open')
-
-    if (!isActive && e.which != 27 || isActive && e.which == 27) {
-      if (e.which == 27) $parent.find(toggle).trigger('focus')
-      return $this.trigger('click')
-    }
-
-    var desc = ' li:not(.disabled):visible a'
-    var $items = $parent.find('.dropdown-menu' + desc)
-
-    if (!$items.length) return
-
-    var index = $items.index(e.target)
-
-    if (e.which == 38 && index > 0)                 index--         // up
-    if (e.which == 40 && index < $items.length - 1) index++         // down
-    if (!~index)                                    index = 0
-
-    $items.eq(index).trigger('focus')
-  }
-
-
-  // DROPDOWN PLUGIN DEFINITION
-  // ==========================
-
-  function Plugin(option) {
-    return this.each(function () {
-      var $this = $(this)
-      var data  = $this.data('bs.dropdown')
-
-      if (!data) $this.data('bs.dropdown', (data = new Dropdown(this)))
-      if (typeof option == 'string') data[option].call($this)
-    })
-  }
-
-  var old = $.fn.dropdown
-
-  $.fn.dropdown             = Plugin
-  $.fn.dropdown.Constructor = Dropdown
-
-
-  // DROPDOWN NO CONFLICT
-  // ====================
-
-  $.fn.dropdown.noConflict = function () {
-    $.fn.dropdown = old
-    return this
-  }
-
-
-  // APPLY TO STANDARD DROPDOWN ELEMENTS
-  // ===================================
-
-  $(document)
-    .on('click.bs.dropdown.data-api', clearMenus)
-    .on('click.bs.dropdown.data-api', '.dropdown form', function (e) { e.stopPropagation() })
-    .on('click.bs.dropdown.data-api', toggle, Dropdown.prototype.toggle)
-    .on('keydown.bs.dropdown.data-api', toggle, Dropdown.prototype.keydown)
-    .on('keydown.bs.dropdown.data-api', '.dropdown-menu', Dropdown.prototype.keydown)
-
-}(jQuery);
-
-/* ========================================================================
- * Bootstrap: modal.js v3.3.6
- * http://getbootstrap.com/javascript/#modals
- * ========================================================================
- * Copyright 2011-2015 Twitter, Inc.
- * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
- * ======================================================================== */
-
-
-+function ($) {
-  'use strict';
-
-  // MODAL CLASS DEFINITION
-  // ======================
-
-  var Modal = function (element, options) {
-    this.options             = options
-    this.$body               = $(document.body)
-    this.$element            = $(element)
-    this.$dialog             = this.$element.find('.modal-dialog')
-    this.$backdrop           = null
-    this.isShown             = null
-    this.originalBodyPad     = null
-    this.scrollbarWidth      = 0
-    this.ignoreBackdropClick = false
-
-    if (this.options.remote) {
-      this.$element
-        .find('.modal-content')
-        .load(this.options.remote, $.proxy(function () {
-          this.$element.trigger('loaded.bs.modal')
-        }, this))
-    }
-  }
-
-  Modal.VERSION  = '3.3.6'
-
-  Modal.TRANSITION_DURATION = 300
-  Modal.BACKDROP_TRANSITION_DURATION = 150
-
-  Modal.DEFAULTS = {
-    backdrop: true,
-    keyboard: true,
-    show: true
-  }
-
-  Modal.prototype.toggle = function (_relatedTarget) {
-    return this.isShown ? this.hide() : this.show(_relatedTarget)
-  }
-
-  Modal.prototype.show = function (_relatedTarget) {
-    var that = this
-    var e    = $.Event('show.bs.modal', { relatedTarget: _relatedTarget })
-
-    this.$element.trigger(e)
-
-    if (this.isShown || e.isDefaultPrevented()) return
-
-    this.isShown = true
-
-    this.checkScrollbar()
-    this.setScrollbar()
-    this.$body.addClass('modal-open')
-
-    this.escape()
-    this.resize()
-
-    this.$element.on('click.dismiss.bs.modal', '[data-dismiss="modal"]', $.proxy(this.hide, this))
-
-    this.$dialog.on('mousedown.dismiss.bs.modal', function () {
-      that.$element.one('mouseup.dismiss.bs.modal', function (e) {
-        if ($(e.target).is(that.$element)) that.ignoreBackdropClick = true
-      })
-    })
-
-    this.backdrop(function () {
-      var transition = $.support.transition && that.$element.hasClass('fade')
-
-      if (!that.$element.parent().length) {
-        that.$element.appendTo(that.$body) // don't move modals dom position
-      }
-
-      that.$element
-        .show()
-        .scrollTop(0)
-
-      that.adjustDialog()
-
-      if (transition) {
-        that.$element[0].offsetWidth // force reflow
-      }
-
-      that.$element.addClass('in')
-
-      that.enforceFocus()
-
-      var e = $.Event('shown.bs.modal', { relatedTarget: _relatedTarget })
-
-      transition ?
-        that.$dialog // wait for modal to slide in
-          .one('bsTransitionEnd', function () {
-            that.$element.trigger('focus').trigger(e)
-          })
-          .emulateTransitionEnd(Modal.TRANSITION_DURATION) :
-        that.$element.trigger('focus').trigger(e)
-    })
-  }
-
-  Modal.prototype.hide = function (e) {
-    if (e) e.preventDefault()
-
-    e = $.Event('hide.bs.modal')
-
-    this.$element.trigger(e)
-
-    if (!this.isShown || e.isDefaultPrevented()) return
-
-    this.isShown = false
-
-    this.escape()
-    this.resize()
-
-    $(document).off('focusin.bs.modal')
-
-    this.$element
-      .removeClass('in')
-      .off('click.dismiss.bs.modal')
-      .off('mouseup.dismiss.bs.modal')
-
-    this.$dialog.off('mousedown.dismiss.bs.modal')
-
-    $.support.transition && this.$element.hasClass('fade') ?
-      this.$element
-        .one('bsTransitionEnd', $.proxy(this.hideModal, this))
-        .emulateTransitionEnd(Modal.TRANSITION_DURATION) :
-      this.hideModal()
-  }
-
-  Modal.prototype.enforceFocus = function () {
-    $(document)
-      .off('focusin.bs.modal') // guard against infinite focus loop
-      .on('focusin.bs.modal', $.proxy(function (e) {
-        if (this.$element[0] !== e.target && !this.$element.has(e.target).length) {
-          this.$element.trigger('focus')
-        }
-      }, this))
-  }
-
-  Modal.prototype.escape = function () {
-    if (this.isShown && this.options.keyboard) {
-      this.$element.on('keydown.dismiss.bs.modal', $.proxy(function (e) {
-        e.which == 27 && this.hide()
-      }, this))
-    } else if (!this.isShown) {
-      this.$element.off('keydown.dismiss.bs.modal')
-    }
-  }
-
-  Modal.prototype.resize = function () {
-    if (this.isShown) {
-      $(window).on('resize.bs.modal', $.proxy(this.handleUpdate, this))
-    } else {
-      $(window).off('resize.bs.modal')
-    }
-  }
-
-  Modal.prototype.hideModal = function () {
-    var that = this
-    this.$element.hide()
-    this.backdrop(function () {
-      that.$body.removeClass('modal-open')
-      that.resetAdjustments()
-      that.resetScrollbar()
-      that.$element.trigger('hidden.bs.modal')
-    })
-  }
-
-  Modal.prototype.removeBackdrop = function () {
-    this.$backdrop && this.$backdrop.remove()
-    this.$backdrop = null
-  }
-
-  Modal.prototype.backdrop = function (callback) {
-    var that = this
-    var animate = this.$element.hasClass('fade') ? 'fade' : ''
-
-    if (this.isShown && this.options.backdrop) {
-      var doAnimate = $.support.transition && animate
-
-      this.$backdrop = $(document.createElement('div'))
-        .addClass('modal-backdrop ' + animate)
-        .appendTo(this.$body)
-
-      this.$element.on('click.dismiss.bs.modal', $.proxy(function (e) {
-        if (this.ignoreBackdropClick) {
-          this.ignoreBackdropClick = false
-          return
-        }
-        if (e.target !== e.currentTarget) return
-        this.options.backdrop == 'static'
-          ? this.$element[0].focus()
-          : this.hide()
-      }, this))
-
-      if (doAnimate) this.$backdrop[0].offsetWidth // force reflow
-
-      this.$backdrop.addClass('in')
-
-      if (!callback) return
-
-      doAnimate ?
-        this.$backdrop
-          .one('bsTransitionEnd', callback)
-          .emulateTransitionEnd(Modal.BACKDROP_TRANSITION_DURATION) :
-        callback()
-
-    } else if (!this.isShown && this.$backdrop) {
-      this.$backdrop.removeClass('in')
-
-      var callbackRemove = function () {
-        that.removeBackdrop()
-        callback && callback()
-      }
-      $.support.transition && this.$element.hasClass('fade') ?
-        this.$backdrop
-          .one('bsTransitionEnd', callbackRemove)
-          .emulateTransitionEnd(Modal.BACKDROP_TRANSITION_DURATION) :
-        callbackRemove()
-
-    } else if (callback) {
-      callback()
-    }
-  }
-
-  // these following methods are used to handle overflowing modals
-
-  Modal.prototype.handleUpdate = function () {
-    this.adjustDialog()
-  }
-
-  Modal.prototype.adjustDialog = function () {
-    var modalIsOverflowing = this.$element[0].scrollHeight > document.documentElement.clientHeight
-
-    this.$element.css({
-      paddingLeft:  !this.bodyIsOverflowing && modalIsOverflowing ? this.scrollbarWidth : '',
-      paddingRight: this.bodyIsOverflowing && !modalIsOverflowing ? this.scrollbarWidth : ''
-    })
-  }
-
-  Modal.prototype.resetAdjustments = function () {
-    this.$element.css({
-      paddingLeft: '',
-      paddingRight: ''
-    })
-  }
-
-  Modal.prototype.checkScrollbar = function () {
-    var fullWindowWidth = window.innerWidth
-    if (!fullWindowWidth) { // workaround for missing window.innerWidth in IE8
-      var documentElementRect = document.documentElement.getBoundingClientRect()
-      fullWindowWidth = documentElementRect.right - Math.abs(documentElementRect.left)
-    }
-    this.bodyIsOverflowing = document.body.clientWidth < fullWindowWidth
-    this.scrollbarWidth = this.measureScrollbar()
-  }
-
-  Modal.prototype.setScrollbar = function () {
-    var bodyPad = parseInt((this.$body.css('padding-right') || 0), 10)
-    this.originalBodyPad = document.body.style.paddingRight || ''
-    if (this.bodyIsOverflowing) this.$body.css('padding-right', bodyPad + this.scrollbarWidth)
-  }
-
-  Modal.prototype.resetScrollbar = function () {
-    this.$body.css('padding-right', this.originalBodyPad)
-  }
-
-  Modal.prototype.measureScrollbar = function () { // thx walsh
-    var scrollDiv = document.createElement('div')
-    scrollDiv.className = 'modal-scrollbar-measure'
-    this.$body.append(scrollDiv)
-    var scrollbarWidth = scrollDiv.offsetWidth - scrollDiv.clientWidth
-    this.$body[0].removeChild(scrollDiv)
-    return scrollbarWidth
-  }
-
-
-  // MODAL PLUGIN DEFINITION
-  // =======================
-
-  function Plugin(option, _relatedTarget) {
-    return this.each(function () {
-      var $this   = $(this)
-      var data    = $this.data('bs.modal')
-      var options = $.extend({}, Modal.DEFAULTS, $this.data(), typeof option == 'object' && option)
-
-      if (!data) $this.data('bs.modal', (data = new Modal(this, options)))
-      if (typeof option == 'string') data[option](_relatedTarget)
-      else if (options.show) data.show(_relatedTarget)
-    })
-  }
-
-  var old = $.fn.modal
-
-  $.fn.modal             = Plugin
-  $.fn.modal.Constructor = Modal
-
-
-  // MODAL NO CONFLICT
-  // =================
-
-  $.fn.modal.noConflict = function () {
-    $.fn.modal = old
-    return this
-  }
-
-
-  // MODAL DATA-API
-  // ==============
-
-  $(document).on('click.bs.modal.data-api', '[data-toggle="modal"]', function (e) {
-    var $this   = $(this)
-    var href    = $this.attr('href')
-    var $target = $($this.attr('data-target') || (href && href.replace(/.*(?=#[^\s]+$)/, ''))) // strip for ie7
-    var option  = $target.data('bs.modal') ? 'toggle' : $.extend({ remote: !/#/.test(href) && href }, $target.data(), $this.data())
-
-    if ($this.is('a')) e.preventDefault()
-
-    $target.one('show.bs.modal', function (showEvent) {
-      if (showEvent.isDefaultPrevented()) return // only register focus restorer if modal will actually get shown
-      $target.one('hidden.bs.modal', function () {
-        $this.is(':visible') && $this.trigger('focus')
-      })
-    })
-    Plugin.call($target, option, this)
-  })
-
-}(jQuery);
-
-/* ========================================================================
- * Bootstrap: tooltip.js v3.3.6
- * http://getbootstrap.com/javascript/#tooltip
- * Inspired by the original jQuery.tipsy by Jason Frame
- * ========================================================================
- * Copyright 2011-2015 Twitter, Inc.
- * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
- * ======================================================================== */
-
-
-+function ($) {
-  'use strict';
-
-  // TOOLTIP PUBLIC CLASS DEFINITION
-  // ===============================
-
-  var Tooltip = function (element, options) {
-    this.type       = null
-    this.options    = null
-    this.enabled    = null
-    this.timeout    = null
-    this.hoverState = null
-    this.$element   = null
-    this.inState    = null
-
-    this.init('tooltip', element, options)
-  }
-
-  Tooltip.VERSION  = '3.3.6'
-
-  Tooltip.TRANSITION_DURATION = 150
-
-  Tooltip.DEFAULTS = {
-    animation: true,
-    placement: 'top',
-    selector: false,
-    template: '<div class="tooltip" role="tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div>',
-    trigger: 'hover focus',
-    title: '',
-    delay: 0,
-    html: false,
-    container: false,
-    viewport: {
-      selector: 'body',
-      padding: 0
-    }
-  }
-
-  Tooltip.prototype.init = function (type, element, options) {
-    this.enabled   = true
-    this.type      = type
-    this.$element  = $(element)
-    this.options   = this.getOptions(options)
-    this.$viewport = this.options.viewport && $($.isFunction(this.options.viewport) ? this.options.viewport.call(this, this.$element) : (this.options.viewport.selector || this.options.viewport))
-    this.inState   = { click: false, hover: false, focus: false }
-
-    if (this.$element[0] instanceof document.constructor && !this.options.selector) {
-      throw new Error('`selector` option must be specified when initializing ' + this.type + ' on the window.document object!')
-    }
-
-    var triggers = this.options.trigger.split(' ')
-
-    for (var i = triggers.length; i--;) {
-      var trigger = triggers[i]
-
-      if (trigger == 'click') {
-        this.$element.on('click.' + this.type, this.options.selector, $.proxy(this.toggle, this))
-      } else if (trigger != 'manual') {
-        var eventIn  = trigger == 'hover' ? 'mouseenter' : 'focusin'
-        var eventOut = trigger == 'hover' ? 'mouseleave' : 'focusout'
-
-        this.$element.on(eventIn  + '.' + this.type, this.options.selector, $.proxy(this.enter, this))
-        this.$element.on(eventOut + '.' + this.type, this.options.selector, $.proxy(this.leave, this))
-      }
-    }
-
-    this.options.selector ?
-      (this._options = $.extend({}, this.options, { trigger: 'manual', selector: '' })) :
-      this.fixTitle()
-  }
-
-  Tooltip.prototype.getDefaults = function () {
-    return Tooltip.DEFAULTS
-  }
-
-  Tooltip.prototype.getOptions = function (options) {
-    options = $.extend({}, this.getDefaults(), this.$element.data(), options)
-
-    if (options.delay && typeof options.delay == 'number') {
-      options.delay = {
-        show: options.delay,
-        hide: options.delay
-      }
-    }
-
-    return options
-  }
-
-  Tooltip.prototype.getDelegateOptions = function () {
-    var options  = {}
-    var defaults = this.getDefaults()
-
-    this._options && $.each(this._options, function (key, value) {
-      if (defaults[key] != value) options[key] = value
-    })
-
-    return options
-  }
-
-  Tooltip.prototype.enter = function (obj) {
-    var self = obj instanceof this.constructor ?
-      obj : $(obj.currentTarget).data('bs.' + this.type)
-
-    if (!self) {
-      self = new this.constructor(obj.currentTarget, this.getDelegateOptions())
-      $(obj.currentTarget).data('bs.' + this.type, self)
-    }
-
-    if (obj instanceof $.Event) {
-      self.inState[obj.type == 'focusin' ? 'focus' : 'hover'] = true
-    }
-
-    if (self.tip().hasClass('in') || self.hoverState == 'in') {
-      self.hoverState = 'in'
-      return
-    }
-
-    clearTimeout(self.timeout)
-
-    self.hoverState = 'in'
-
-    if (!self.options.delay || !self.options.delay.show) return self.show()
-
-    self.timeout = setTimeout(function () {
-      if (self.hoverState == 'in') self.show()
-    }, self.options.delay.show)
-  }
-
-  Tooltip.prototype.isInStateTrue = function () {
-    for (var key in this.inState) {
-      if (this.inState[key]) return true
-    }
-
-    return false
-  }
-
-  Tooltip.prototype.leave = function (obj) {
-    var self = obj instanceof this.constructor ?
-      obj : $(obj.currentTarget).data('bs.' + this.type)
-
-    if (!self) {
-      self = new this.constructor(obj.currentTarget, this.getDelegateOptions())
-      $(obj.currentTarget).data('bs.' + this.type, self)
-    }
-
-    if (obj instanceof $.Event) {
-      self.inState[obj.type == 'focusout' ? 'focus' : 'hover'] = false
-    }
-
-    if (self.isInStateTrue()) return
-
-    clearTimeout(self.timeout)
-
-    self.hoverState = 'out'
-
-    if (!self.options.delay || !self.options.delay.hide) return self.hide()
-
-    self.timeout = setTimeout(function () {
-      if (self.hoverState == 'out') self.hide()
-    }, self.options.delay.hide)
-  }
-
-  Tooltip.prototype.show = function () {
-    var e = $.Event('show.bs.' + this.type)
-
-    if (this.hasContent() && this.enabled) {
-      this.$element.trigger(e)
-
-      var inDom = $.contains(this.$element[0].ownerDocument.documentElement, this.$element[0])
-      if (e.isDefaultPrevented() || !inDom) return
-      var that = this
-
-      var $tip = this.tip()
-
-      var tipId = this.getUID(this.type)
-
-      this.setContent()
-      $tip.attr('id', tipId)
-      this.$element.attr('aria-describedby', tipId)
-
-      if (this.options.animation) $tip.addClass('fade')
-
-      var placement = typeof this.options.placement == 'function' ?
-        this.options.placement.call(this, $tip[0], this.$element[0]) :
-        this.options.placement
-
-      var autoToken = /\s?auto?\s?/i
-      var autoPlace = autoToken.test(placement)
-      if (autoPlace) placement = placement.replace(autoToken, '') || 'top'
-
-      $tip
-        .detach()
-        .css({ top: 0, left: 0, display: 'block' })
-        .addClass(placement)
-        .data('bs.' + this.type, this)
-
-      this.options.container ? $tip.appendTo(this.options.container) : $tip.insertAfter(this.$element)
-      this.$element.trigger('inserted.bs.' + this.type)
-
-      var pos          = this.getPosition()
-      var actualWidth  = $tip[0].offsetWidth
-      var actualHeight = $tip[0].offsetHeight
-
-      if (autoPlace) {
-        var orgPlacement = placement
-        var viewportDim = this.getPosition(this.$viewport)
-
-        placement = placement == 'bottom' && pos.bottom + actualHeight > viewportDim.bottom ? 'top'    :
-                    placement == 'top'    && pos.top    - actualHeight < viewportDim.top    ? 'bottom' :
-                    placement == 'right'  && pos.right  + actualWidth  > viewportDim.width  ? 'left'   :
-                    placement == 'left'   && pos.left   - actualWidth  < viewportDim.left   ? 'right'  :
-                    placement
-
-        $tip
-          .removeClass(orgPlacement)
-          .addClass(placement)
-      }
-
-      var calculatedOffset = this.getCalculatedOffset(placement, pos, actualWidth, actualHeight)
-
-      this.applyPlacement(calculatedOffset, placement)
-
-      var complete = function () {
-        var prevHoverState = that.hoverState
-        that.$element.trigger('shown.bs.' + that.type)
-        that.hoverState = null
-
-        if (prevHoverState == 'out') that.leave(that)
-      }
-
-      $.support.transition && this.$tip.hasClass('fade') ?
-        $tip
-          .one('bsTransitionEnd', complete)
-          .emulateTransitionEnd(Tooltip.TRANSITION_DURATION) :
-        complete()
-    }
-  }
-
-  Tooltip.prototype.applyPlacement = function (offset, placement) {
-    var $tip   = this.tip()
-    var width  = $tip[0].offsetWidth
-    var height = $tip[0].offsetHeight
-
-    // manually read margins because getBoundingClientRect includes difference
-    var marginTop = parseInt($tip.css('margin-top'), 10)
-    var marginLeft = parseInt($tip.css('margin-left'), 10)
-
-    // we must check for NaN for ie 8/9
-    if (isNaN(marginTop))  marginTop  = 0
-    if (isNaN(marginLeft)) marginLeft = 0
-
-    offset.top  += marginTop
-    offset.left += marginLeft
-
-    // $.fn.offset doesn't round pixel values
-    // so we use setOffset directly with our own function B-0
-    $.offset.setOffset($tip[0], $.extend({
-      using: function (props) {
-        $tip.css({
-          top: Math.round(props.top),
-          left: Math.round(props.left)
-        })
-      }
-    }, offset), 0)
-
-    $tip.addClass('in')
-
-    // check to see if placing tip in new offset caused the tip to resize itself
-    var actualWidth  = $tip[0].offsetWidth
-    var actualHeight = $tip[0].offsetHeight
-
-    if (placement == 'top' && actualHeight != height) {
-      offset.top = offset.top + height - actualHeight
-    }
-
-    var delta = this.getViewportAdjustedDelta(placement, offset, actualWidth, actualHeight)
-
-    if (delta.left) offset.left += delta.left
-    else offset.top += delta.top
-
-    var isVertical          = /top|bottom/.test(placement)
-    var arrowDelta          = isVertical ? delta.left * 2 - width + actualWidth : delta.top * 2 - height + actualHeight
-    var arrowOffsetPosition = isVertical ? 'offsetWidth' : 'offsetHeight'
-
-    $tip.offset(offset)
-    this.replaceArrow(arrowDelta, $tip[0][arrowOffsetPosition], isVertical)
-  }
-
-  Tooltip.prototype.replaceArrow = function (delta, dimension, isVertical) {
-    this.arrow()
-      .css(isVertical ? 'left' : 'top', 50 * (1 - delta / dimension) + '%')
-      .css(isVertical ? 'top' : 'left', '')
-  }
-
-  Tooltip.prototype.setContent = function () {
-    var $tip  = this.tip()
-    var title = this.getTitle()
-
-    $tip.find('.tooltip-inner')[this.options.html ? 'html' : 'text'](title)
-    $tip.removeClass('fade in top bottom left right')
-  }
-
-  Tooltip.prototype.hide = function (callback) {
-    var that = this
-    var $tip = $(this.$tip)
-    var e    = $.Event('hide.bs.' + this.type)
-
-    function complete() {
-      if (that.hoverState != 'in') $tip.detach()
-      that.$element
-        .removeAttr('aria-describedby')
-        .trigger('hidden.bs.' + that.type)
-      callback && callback()
-    }
-
-    this.$element.trigger(e)
-
-    if (e.isDefaultPrevented()) return
-
-    $tip.removeClass('in')
-
-    $.support.transition && $tip.hasClass('fade') ?
-      $tip
-        .one('bsTransitionEnd', complete)
-        .emulateTransitionEnd(Tooltip.TRANSITION_DURATION) :
-      complete()
-
-    this.hoverState = null
-
-    return this
-  }
-
-  Tooltip.prototype.fixTitle = function () {
-    var $e = this.$element
-    if ($e.attr('title') || typeof $e.attr('data-original-title') != 'string') {
-      $e.attr('data-original-title', $e.attr('title') || '').attr('title', '')
-    }
-  }
-
-  Tooltip.prototype.hasContent = function () {
-    return this.getTitle()
-  }
-
-  Tooltip.prototype.getPosition = function ($element) {
-    $element   = $element || this.$element
-
-    var el     = $element[0]
-    var isBody = el.tagName == 'BODY'
-
-    var elRect    = el.getBoundingClientRect()
-    if (elRect.width == null) {
-      // width and height are missing in IE8, so compute them manually; see https://github.com/twbs/bootstrap/issues/14093
-      elRect = $.extend({}, elRect, { width: elRect.right - elRect.left, height: elRect.bottom - elRect.top })
-    }
-    var elOffset  = isBody ? { top: 0, left: 0 } : $element.offset()
-    var scroll    = { scroll: isBody ? document.documentElement.scrollTop || document.body.scrollTop : $element.scrollTop() }
-    var outerDims = isBody ? { width: $(window).width(), height: $(window).height() } : null
-
-    return $.extend({}, elRect, scroll, outerDims, elOffset)
-  }
-
-  Tooltip.prototype.getCalculatedOffset = function (placement, pos, actualWidth, actualHeight) {
-    return placement == 'bottom' ? { top: pos.top + pos.height,   left: pos.left + pos.width / 2 - actualWidth / 2 } :
-           placement == 'top'    ? { top: pos.top - actualHeight, left: pos.left + pos.width / 2 - actualWidth / 2 } :
-           placement == 'left'   ? { top: pos.top + pos.height / 2 - actualHeight / 2, left: pos.left - actualWidth } :
-        /* placement == 'right' */ { top: pos.top + pos.height / 2 - actualHeight / 2, left: pos.left + pos.width }
-
-  }
-
-  Tooltip.prototype.getViewportAdjustedDelta = function (placement, pos, actualWidth, actualHeight) {
-    var delta = { top: 0, left: 0 }
-    if (!this.$viewport) return delta
-
-    var viewportPadding = this.options.viewport && this.options.viewport.padding || 0
-    var viewportDimensions = this.getPosition(this.$viewport)
-
-    if (/right|left/.test(placement)) {
-      var topEdgeOffset    = pos.top - viewportPadding - viewportDimensions.scroll
-      var bottomEdgeOffset = pos.top + viewportPadding - viewportDimensions.scroll + actualHeight
-      if (topEdgeOffset < viewportDimensions.top) { // top overflow
-        delta.top = viewportDimensions.top - topEdgeOffset
-      } else if (bottomEdgeOffset > viewportDimensions.top + viewportDimensions.height) { // bottom overflow
-        delta.top = viewportDimensions.top + viewportDimensions.height - bottomEdgeOffset
-      }
-    } else {
-      var leftEdgeOffset  = pos.left - viewportPadding
-      var rightEdgeOffset = pos.left + viewportPadding + actualWidth
-      if (leftEdgeOffset < viewportDimensions.left) { // left overflow
-        delta.left = viewportDimensions.left - leftEdgeOffset
-      } else if (rightEdgeOffset > viewportDimensions.right) { // right overflow
-        delta.left = viewportDimensions.left + viewportDimensions.width - rightEdgeOffset
-      }
-    }
-
-    return delta
-  }
-
-  Tooltip.prototype.getTitle = function () {
-    var title
-    var $e = this.$element
-    var o  = this.options
-
-    title = $e.attr('data-original-title')
-      || (typeof o.title == 'function' ? o.title.call($e[0]) :  o.title)
-
-    return title
-  }
-
-  Tooltip.prototype.getUID = function (prefix) {
-    do prefix += ~~(Math.random() * 1000000)
-    while (document.getElementById(prefix))
-    return prefix
-  }
-
-  Tooltip.prototype.tip = function () {
-    if (!this.$tip) {
-      this.$tip = $(this.options.template)
-      if (this.$tip.length != 1) {
-        throw new Error(this.type + ' `template` option must consist of exactly 1 top-level element!')
-      }
-    }
-    return this.$tip
-  }
-
-  Tooltip.prototype.arrow = function () {
-    return (this.$arrow = this.$arrow || this.tip().find('.tooltip-arrow'))
-  }
-
-  Tooltip.prototype.enable = function () {
-    this.enabled = true
-  }
-
-  Tooltip.prototype.disable = function () {
-    this.enabled = false
-  }
-
-  Tooltip.prototype.toggleEnabled = function () {
-    this.enabled = !this.enabled
-  }
-
-  Tooltip.prototype.toggle = function (e) {
-    var self = this
-    if (e) {
-      self = $(e.currentTarget).data('bs.' + this.type)
-      if (!self) {
-        self = new this.constructor(e.currentTarget, this.getDelegateOptions())
-        $(e.currentTarget).data('bs.' + this.type, self)
-      }
-    }
-
-    if (e) {
-      self.inState.click = !self.inState.click
-      if (self.isInStateTrue()) self.enter(self)
-      else self.leave(self)
-    } else {
-      self.tip().hasClass('in') ? self.leave(self) : self.enter(self)
-    }
-  }
-
-  Tooltip.prototype.destroy = function () {
-    var that = this
-    clearTimeout(this.timeout)
-    this.hide(function () {
-      that.$element.off('.' + that.type).removeData('bs.' + that.type)
-      if (that.$tip) {
-        that.$tip.detach()
-      }
-      that.$tip = null
-      that.$arrow = null
-      that.$viewport = null
-    })
-  }
-
-
-  // TOOLTIP PLUGIN DEFINITION
-  // =========================
-
-  function Plugin(option) {
-    return this.each(function () {
-      var $this   = $(this)
-      var data    = $this.data('bs.tooltip')
-      var options = typeof option == 'object' && option
-
-      if (!data && /destroy|hide/.test(option)) return
-      if (!data) $this.data('bs.tooltip', (data = new Tooltip(this, options)))
-      if (typeof option == 'string') data[option]()
-    })
-  }
-
-  var old = $.fn.tooltip
-
-  $.fn.tooltip             = Plugin
-  $.fn.tooltip.Constructor = Tooltip
-
-
-  // TOOLTIP NO CONFLICT
-  // ===================
-
-  $.fn.tooltip.noConflict = function () {
-    $.fn.tooltip = old
-    return this
-  }
-
-}(jQuery);
-
-/* ========================================================================
- * Bootstrap: popover.js v3.3.6
- * http://getbootstrap.com/javascript/#popovers
- * ========================================================================
- * Copyright 2011-2015 Twitter, Inc.
- * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
- * ======================================================================== */
-
-
-+function ($) {
-  'use strict';
-
-  // POPOVER PUBLIC CLASS DEFINITION
-  // ===============================
-
-  var Popover = function (element, options) {
-    this.init('popover', element, options)
-  }
-
-  if (!$.fn.tooltip) throw new Error('Popover requires tooltip.js')
-
-  Popover.VERSION  = '3.3.6'
-
-  Popover.DEFAULTS = $.extend({}, $.fn.tooltip.Constructor.DEFAULTS, {
-    placement: 'right',
-    trigger: 'click',
-    content: '',
-    template: '<div class="popover" role="tooltip"><div class="arrow"></div><h3 class="popover-title"></h3><div class="popover-content"></div></div>'
-  })
-
-
-  // NOTE: POPOVER EXTENDS tooltip.js
-  // ================================
-
-  Popover.prototype = $.extend({}, $.fn.tooltip.Constructor.prototype)
-
-  Popover.prototype.constructor = Popover
-
-  Popover.prototype.getDefaults = function () {
-    return Popover.DEFAULTS
-  }
-
-  Popover.prototype.setContent = function () {
-    var $tip    = this.tip()
-    var title   = this.getTitle()
-    var content = this.getContent()
-
-    $tip.find('.popover-title')[this.options.html ? 'html' : 'text'](title)
-    $tip.find('.popover-content').children().detach().end()[ // we use append for html objects to maintain js events
-      this.options.html ? (typeof content == 'string' ? 'html' : 'append') : 'text'
-    ](content)
-
-    $tip.removeClass('fade top bottom left right in')
-
-    // IE8 doesn't accept hiding via the `:empty` pseudo selector, we have to do
-    // this manually by checking the contents.
-    if (!$tip.find('.popover-title').html()) $tip.find('.popover-title').hide()
-  }
-
-  Popover.prototype.hasContent = function () {
-    return this.getTitle() || this.getContent()
-  }
-
-  Popover.prototype.getContent = function () {
-    var $e = this.$element
-    var o  = this.options
-
-    return $e.attr('data-content')
-      || (typeof o.content == 'function' ?
-            o.content.call($e[0]) :
-            o.content)
-  }
-
-  Popover.prototype.arrow = function () {
-    return (this.$arrow = this.$arrow || this.tip().find('.arrow'))
-  }
-
-
-  // POPOVER PLUGIN DEFINITION
-  // =========================
-
-  function Plugin(option) {
-    return this.each(function () {
-      var $this   = $(this)
-      var data    = $this.data('bs.popover')
-      var options = typeof option == 'object' && option
-
-      if (!data && /destroy|hide/.test(option)) return
-      if (!data) $this.data('bs.popover', (data = new Popover(this, options)))
-      if (typeof option == 'string') data[option]()
-    })
-  }
-
-  var old = $.fn.popover
-
-  $.fn.popover             = Plugin
-  $.fn.popover.Constructor = Popover
-
-
-  // POPOVER NO CONFLICT
-  // ===================
-
-  $.fn.popover.noConflict = function () {
-    $.fn.popover = old
-    return this
-  }
-
-}(jQuery);
-
-/* ========================================================================
- * Bootstrap: scrollspy.js v3.3.6
- * http://getbootstrap.com/javascript/#scrollspy
- * ========================================================================
- * Copyright 2011-2015 Twitter, Inc.
- * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
- * ======================================================================== */
-
-
-+function ($) {
-  'use strict';
-
-  // SCROLLSPY CLASS DEFINITION
-  // ==========================
-
-  function ScrollSpy(element, options) {
-    this.$body          = $(document.body)
-    this.$scrollElement = $(element).is(document.body) ? $(window) : $(element)
-    this.options        = $.extend({}, ScrollSpy.DEFAULTS, options)
-    this.selector       = (this.options.target || '') + ' .nav li > a'
-    this.offsets        = []
-    this.targets        = []
-    this.activeTarget   = null
-    this.scrollHeight   = 0
-
-    this.$scrollElement.on('scroll.bs.scrollspy', $.proxy(this.process, this))
-    this.refresh()
-    this.process()
-  }
-
-  ScrollSpy.VERSION  = '3.3.6'
-
-  ScrollSpy.DEFAULTS = {
-    offset: 10
-  }
-
-  ScrollSpy.prototype.getScrollHeight = function () {
-    return this.$scrollElement[0].scrollHeight || Math.max(this.$body[0].scrollHeight, document.documentElement.scrollHeight)
-  }
-
-  ScrollSpy.prototype.refresh = function () {
-    var that          = this
-    var offsetMethod  = 'offset'
-    var offsetBase    = 0
-
-    this.offsets      = []
-    this.targets      = []
-    this.scrollHeight = this.getScrollHeight()
-
-    if (!$.isWindow(this.$scrollElement[0])) {
-      offsetMethod = 'position'
-      offsetBase   = this.$scrollElement.scrollTop()
-    }
-
-    this.$body
-      .find(this.selector)
-      .map(function () {
-        var $el   = $(this)
-        var href  = $el.data('target') || $el.attr('href')
-        var $href = /^#./.test(href) && $(href)
-
-        return ($href
-          && $href.length
-          && $href.is(':visible')
-          && [[$href[offsetMethod]().top + offsetBase, href]]) || null
-      })
-      .sort(function (a, b) { return a[0] - b[0] })
-      .each(function () {
-        that.offsets.push(this[0])
-        that.targets.push(this[1])
-      })
-  }
-
-  ScrollSpy.prototype.process = function () {
-    var scrollTop    = this.$scrollElement.scrollTop() + this.options.offset
-    var scrollHeight = this.getScrollHeight()
-    var maxScroll    = this.options.offset + scrollHeight - this.$scrollElement.height()
-    var offsets      = this.offsets
-    var targets      = this.targets
-    var activeTarget = this.activeTarget
-    var i
-
-    if (this.scrollHeight != scrollHeight) {
-      this.refresh()
-    }
-
-    if (scrollTop >= maxScroll) {
-      return activeTarget != (i = targets[targets.length - 1]) && this.activate(i)
-    }
-
-    if (activeTarget && scrollTop < offsets[0]) {
-      this.activeTarget = null
-      return this.clear()
-    }
-
-    for (i = offsets.length; i--;) {
-      activeTarget != targets[i]
-        && scrollTop >= offsets[i]
-        && (offsets[i + 1] === undefined || scrollTop < offsets[i + 1])
-        && this.activate(targets[i])
-    }
-  }
-
-  ScrollSpy.prototype.activate = function (target) {
-    this.activeTarget = target
-
-    this.clear()
-
-    var selector = this.selector +
-      '[data-target="' + target + '"],' +
-      this.selector + '[href="' + target + '"]'
-
-    var active = $(selector)
-      .parents('li')
-      .addClass('active')
-
-    if (active.parent('.dropdown-menu').length) {
-      active = active
-        .closest('li.dropdown')
-        .addClass('active')
-    }
-
-    active.trigger('activate.bs.scrollspy')
-  }
-
-  ScrollSpy.prototype.clear = function () {
-    $(this.selector)
-      .parentsUntil(this.options.target, '.active')
-      .removeClass('active')
-  }
-
-
-  // SCROLLSPY PLUGIN DEFINITION
-  // ===========================
-
-  function Plugin(option) {
-    return this.each(function () {
-      var $this   = $(this)
-      var data    = $this.data('bs.scrollspy')
-      var options = typeof option == 'object' && option
-
-      if (!data) $this.data('bs.scrollspy', (data = new ScrollSpy(this, options)))
-      if (typeof option == 'string') data[option]()
-    })
-  }
-
-  var old = $.fn.scrollspy
-
-  $.fn.scrollspy             = Plugin
-  $.fn.scrollspy.Constructor = ScrollSpy
-
-
-  // SCROLLSPY NO CONFLICT
-  // =====================
-
-  $.fn.scrollspy.noConflict = function () {
-    $.fn.scrollspy = old
-    return this
-  }
-
-
-  // SCROLLSPY DATA-API
-  // ==================
-
-  $(window).on('load.bs.scrollspy.data-api', function () {
-    $('[data-spy="scroll"]').each(function () {
-      var $spy = $(this)
-      Plugin.call($spy, $spy.data())
-    })
-  })
-
-}(jQuery);
-
-/* ========================================================================
- * Bootstrap: tab.js v3.3.6
- * http://getbootstrap.com/javascript/#tabs
- * ========================================================================
- * Copyright 2011-2015 Twitter, Inc.
- * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
- * ======================================================================== */
-
-
-+function ($) {
-  'use strict';
-
-  // TAB CLASS DEFINITION
-  // ====================
-
-  var Tab = function (element) {
-    // jscs:disable requireDollarBeforejQueryAssignment
-    this.element = $(element)
-    // jscs:enable requireDollarBeforejQueryAssignment
-  }
-
-  Tab.VERSION = '3.3.6'
-
-  Tab.TRANSITION_DURATION = 150
-
-  Tab.prototype.show = function () {
-    var $this    = this.element
-    var $ul      = $this.closest('ul:not(.dropdown-menu)')
-    var selector = $this.data('target')
-
-    if (!selector) {
-      selector = $this.attr('href')
-      selector = selector && selector.replace(/.*(?=#[^\s]*$)/, '') // strip for ie7
-    }
-
-    if ($this.parent('li').hasClass('active')) return
-
-    var $previous = $ul.find('.active:last a')
-    var hideEvent = $.Event('hide.bs.tab', {
-      relatedTarget: $this[0]
-    })
-    var showEvent = $.Event('show.bs.tab', {
-      relatedTarget: $previous[0]
-    })
-
-    $previous.trigger(hideEvent)
-    $this.trigger(showEvent)
-
-    if (showEvent.isDefaultPrevented() || hideEvent.isDefaultPrevented()) return
-
-    var $target = $(selector)
-
-    this.activate($this.closest('li'), $ul)
-    this.activate($target, $target.parent(), function () {
-      $previous.trigger({
-        type: 'hidden.bs.tab',
-        relatedTarget: $this[0]
-      })
-      $this.trigger({
-        type: 'shown.bs.tab',
-        relatedTarget: $previous[0]
-      })
-    })
-  }
-
-  Tab.prototype.activate = function (element, container, callback) {
-    var $active    = container.find('> .active')
-    var transition = callback
-      && $.support.transition
-      && ($active.length && $active.hasClass('fade') || !!container.find('> .fade').length)
-
-    function next() {
-      $active
-        .removeClass('active')
-        .find('> .dropdown-menu > .active')
-          .removeClass('active')
-        .end()
-        .find('[data-toggle="tab"]')
-          .attr('aria-expanded', false)
-
-      element
-        .addClass('active')
-        .find('[data-toggle="tab"]')
-          .attr('aria-expanded', true)
-
-      if (transition) {
-        element[0].offsetWidth // reflow for transition
-        element.addClass('in')
-      } else {
-        element.removeClass('fade')
-      }
-
-      if (element.parent('.dropdown-menu').length) {
-        element
-          .closest('li.dropdown')
-            .addClass('active')
-          .end()
-          .find('[data-toggle="tab"]')
-            .attr('aria-expanded', true)
-      }
-
-      callback && callback()
-    }
-
-    $active.length && transition ?
-      $active
-        .one('bsTransitionEnd', next)
-        .emulateTransitionEnd(Tab.TRANSITION_DURATION) :
-      next()
-
-    $active.removeClass('in')
-  }
-
-
-  // TAB PLUGIN DEFINITION
-  // =====================
-
-  function Plugin(option) {
-    return this.each(function () {
-      var $this = $(this)
-      var data  = $this.data('bs.tab')
-
-      if (!data) $this.data('bs.tab', (data = new Tab(this)))
-      if (typeof option == 'string') data[option]()
-    })
-  }
-
-  var old = $.fn.tab
-
-  $.fn.tab             = Plugin
-  $.fn.tab.Constructor = Tab
-
-
-  // TAB NO CONFLICT
-  // ===============
-
-  $.fn.tab.noConflict = function () {
-    $.fn.tab = old
-    return this
-  }
-
-
-  // TAB DATA-API
-  // ============
-
-  var clickHandler = function (e) {
-    e.preventDefault()
-    Plugin.call($(this), 'show')
-  }
-
-  $(document)
-    .on('click.bs.tab.data-api', '[data-toggle="tab"]', clickHandler)
-    .on('click.bs.tab.data-api', '[data-toggle="pill"]', clickHandler)
-
-}(jQuery);
-
-/* ========================================================================
- * Bootstrap: affix.js v3.3.6
- * http://getbootstrap.com/javascript/#affix
- * ========================================================================
- * Copyright 2011-2015 Twitter, Inc.
- * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
- * ======================================================================== */
-
-
-+function ($) {
-  'use strict';
-
-  // AFFIX CLASS DEFINITION
-  // ======================
-
-  var Affix = function (element, options) {
-    this.options = $.extend({}, Affix.DEFAULTS, options)
-
-    this.$target = $(this.options.target)
-      .on('scroll.bs.affix.data-api', $.proxy(this.checkPosition, this))
-      .on('click.bs.affix.data-api',  $.proxy(this.checkPositionWithEventLoop, this))
-
-    this.$element     = $(element)
-    this.affixed      = null
-    this.unpin        = null
-    this.pinnedOffset = null
-
-    this.checkPosition()
-  }
-
-  Affix.VERSION  = '3.3.6'
-
-  Affix.RESET    = 'affix affix-top affix-bottom'
-
-  Affix.DEFAULTS = {
-    offset: 0,
-    target: window
-  }
-
-  Affix.prototype.getState = function (scrollHeight, height, offsetTop, offsetBottom) {
-    var scrollTop    = this.$target.scrollTop()
-    var position     = this.$element.offset()
-    var targetHeight = this.$target.height()
-
-    if (offsetTop != null && this.affixed == 'top') return scrollTop < offsetTop ? 'top' : false
-
-    if (this.affixed == 'bottom') {
-      if (offsetTop != null) return (scrollTop + this.unpin <= position.top) ? false : 'bottom'
-      return (scrollTop + targetHeight <= scrollHeight - offsetBottom) ? false : 'bottom'
-    }
-
-    var initializing   = this.affixed == null
-    var colliderTop    = initializing ? scrollTop : position.top
-    var colliderHeight = initializing ? targetHeight : height
-
-    if (offsetTop != null && scrollTop <= offsetTop) return 'top'
-    if (offsetBottom != null && (colliderTop + colliderHeight >= scrollHeight - offsetBottom)) return 'bottom'
-
-    return false
-  }
-
-  Affix.prototype.getPinnedOffset = function () {
-    if (this.pinnedOffset) return this.pinnedOffset
-    this.$element.removeClass(Affix.RESET).addClass('affix')
-    var scrollTop = this.$target.scrollTop()
-    var position  = this.$element.offset()
-    return (this.pinnedOffset = position.top - scrollTop)
-  }
-
-  Affix.prototype.checkPositionWithEventLoop = function () {
-    setTimeout($.proxy(this.checkPosition, this), 1)
-  }
-
-  Affix.prototype.checkPosition = function () {
-    if (!this.$element.is(':visible')) return
-
-    var height       = this.$element.height()
-    var offset       = this.options.offset
-    var offsetTop    = offset.top
-    var offsetBottom = offset.bottom
-    var scrollHeight = Math.max($(document).height(), $(document.body).height())
-
-    if (typeof offset != 'object')         offsetBottom = offsetTop = offset
-    if (typeof offsetTop == 'function')    offsetTop    = offset.top(this.$element)
-    if (typeof offsetBottom == 'function') offsetBottom = offset.bottom(this.$element)
-
-    var affix = this.getState(scrollHeight, height, offsetTop, offsetBottom)
-
-    if (this.affixed != affix) {
-      if (this.unpin != null) this.$element.css('top', '')
-
-      var affixType = 'affix' + (affix ? '-' + affix : '')
-      var e         = $.Event(affixType + '.bs.affix')
-
-      this.$element.trigger(e)
-
-      if (e.isDefaultPrevented()) return
-
-      this.affixed = affix
-      this.unpin = affix == 'bottom' ? this.getPinnedOffset() : null
-
-      this.$element
-        .removeClass(Affix.RESET)
-        .addClass(affixType)
-        .trigger(affixType.replace('affix', 'affixed') + '.bs.affix')
-    }
-
-    if (affix == 'bottom') {
-      this.$element.offset({
-        top: scrollHeight - height - offsetBottom
-      })
-    }
-  }
-
-
-  // AFFIX PLUGIN DEFINITION
-  // =======================
-
-  function Plugin(option) {
-    return this.each(function () {
-      var $this   = $(this)
-      var data    = $this.data('bs.affix')
-      var options = typeof option == 'object' && option
-
-      if (!data) $this.data('bs.affix', (data = new Affix(this, options)))
-      if (typeof option == 'string') data[option]()
-    })
-  }
-
-  var old = $.fn.affix
-
-  $.fn.affix             = Plugin
-  $.fn.affix.Constructor = Affix
-
-
-  // AFFIX NO CONFLICT
-  // =================
-
-  $.fn.affix.noConflict = function () {
-    $.fn.affix = old
-    return this
-  }
-
-
-  // AFFIX DATA-API
-  // ==============
-
-  $(window).on('load', function () {
-    $('[data-spy="affix"]').each(function () {
-      var $spy = $(this)
-      var data = $spy.data()
-
-      data.offset = data.offset || {}
-
-      if (data.offsetBottom != null) data.offset.bottom = data.offsetBottom
-      if (data.offsetTop    != null) data.offset.top    = data.offsetTop
-
-      Plugin.call($spy, data)
-    })
-  })
-
-}(jQuery);
+;/* globals define */
+define('ember/load-initializers', ['exports', 'ember-load-initializers', 'ember'], function(exports, loadInitializers, Ember) {
+  Ember['default'].deprecate(
+    'Usage of `' + 'ember/load-initializers' + '` module is deprecated, please update to `ember-load-initializers`.',
+    false,
+    { id: 'ember-load-initializers.legacy-shims', until: '3.0.0' }
+  );
+
+  exports['default'] = loadInitializers['default'];
+});
+
+;/* globals define */
+
+function createDeprecatedModule(moduleId) {
+  define(moduleId, ['exports', 'ember-resolver/resolver', 'ember'], function(exports, Resolver, Ember) {
+    Ember['default'].deprecate(
+      'Usage of `' + moduleId + '` module is deprecated, please update to `ember-resolver`.',
+      false,
+      { id: 'ember-resolver.legacy-shims', until: '3.0.0' }
+    );
+
+    exports['default'] = Resolver['default'];
+  });
+}
+
+createDeprecatedModule('ember/resolver');
+createDeprecatedModule('resolver');
+
+;Ember.libraries.register('Ember Simple Auth', '1.1.0');
 
 ;define('ember-ajax/ajax-request', ['exports', 'ember', 'ember-ajax/mixins/ajax-request'], function (exports, _ember, _emberAjaxMixinsAjaxRequest) {
   'use strict';
 
-  var EmberObject = _ember['default'].Object;
-
-  exports['default'] = EmberObject.extend(_emberAjaxMixinsAjaxRequest['default']);
+  exports['default'] = _ember['default'].Object.extend(_emberAjaxMixinsAjaxRequest['default']);
 });
 define('ember-ajax/errors', ['exports', 'ember'], function (exports, _ember) {
   'use strict';
@@ -68058,7 +65678,6 @@ define('ember-ajax/errors', ['exports', 'ember'], function (exports, _ember) {
   exports.NotFoundError = NotFoundError;
   exports.TimeoutError = TimeoutError;
   exports.AbortError = AbortError;
-  exports.ConflictError = ConflictError;
   exports.ServerError = ServerError;
   exports.isAjaxError = isAjaxError;
   exports.isUnauthorizedError = isUnauthorizedError;
@@ -68068,7 +65687,6 @@ define('ember-ajax/errors', ['exports', 'ember'], function (exports, _ember) {
   exports.isNotFoundError = isNotFoundError;
   exports.isTimeoutError = isTimeoutError;
   exports.isAbortError = isAbortError;
-  exports.isConflictError = isConflictError;
   exports.isServerError = isServerError;
   exports.isSuccess = isSuccess;
 
@@ -68095,7 +65713,6 @@ define('ember-ajax/errors', ['exports', 'ember'], function (exports, _ember) {
   /**
    * @class InvalidError
    * @public
-   * @extends AjaxError
    */
 
   function InvalidError(errors) {
@@ -68107,7 +65724,6 @@ define('ember-ajax/errors', ['exports', 'ember'], function (exports, _ember) {
   /**
    * @class UnauthorizedError
    * @public
-   * @extends AjaxError
    */
 
   function UnauthorizedError(errors) {
@@ -68119,7 +65735,6 @@ define('ember-ajax/errors', ['exports', 'ember'], function (exports, _ember) {
   /**
    * @class ForbiddenError
    * @public
-   * @extends AjaxError
    */
 
   function ForbiddenError(errors) {
@@ -68131,7 +65746,6 @@ define('ember-ajax/errors', ['exports', 'ember'], function (exports, _ember) {
   /**
    * @class BadRequestError
    * @public
-   * @extends AjaxError
    */
 
   function BadRequestError(errors) {
@@ -68143,7 +65757,6 @@ define('ember-ajax/errors', ['exports', 'ember'], function (exports, _ember) {
   /**
    * @class NotFoundError
    * @public
-   * @extends AjaxError
    */
 
   function NotFoundError(errors) {
@@ -68155,7 +65768,6 @@ define('ember-ajax/errors', ['exports', 'ember'], function (exports, _ember) {
   /**
    * @class TimeoutError
    * @public
-   * @extends AjaxError
    */
 
   function TimeoutError() {
@@ -68167,7 +65779,6 @@ define('ember-ajax/errors', ['exports', 'ember'], function (exports, _ember) {
   /**
    * @class AbortError
    * @public
-   * @extends AjaxError
    */
 
   function AbortError() {
@@ -68177,21 +65788,8 @@ define('ember-ajax/errors', ['exports', 'ember'], function (exports, _ember) {
   AbortError.prototype = Object.create(AjaxError.prototype);
 
   /**
-   * @class ConflictError
-   * @public
-   * @extends AjaxError
-   */
-
-  function ConflictError() {
-    AjaxError.call(this, null, 'The ajax operation failed due to a conflict');
-  }
-
-  ConflictError.prototype = Object.create(AjaxError.prototype);
-
-  /**
    * @class ServerError
    * @public
-   * @extends AjaxError
    */
 
   function ServerError(errors) {
@@ -68202,7 +65800,6 @@ define('ember-ajax/errors', ['exports', 'ember'], function (exports, _ember) {
 
   /**
    * Checks if the given error is or inherits from AjaxError
-   *
    * @method isAjaxError
    * @public
    * @param  {Error} error
@@ -68216,7 +65813,6 @@ define('ember-ajax/errors', ['exports', 'ember'], function (exports, _ember) {
   /**
    * Checks if the given status code or AjaxError object represents an
    * unauthorized request error
-   *
    * @method isUnauthorizedError
    * @public
    * @param  {Number | AjaxError} error
@@ -68234,7 +65830,6 @@ define('ember-ajax/errors', ['exports', 'ember'], function (exports, _ember) {
   /**
    * Checks if the given status code or AjaxError object represents a forbidden
    * request error
-   *
    * @method isForbiddenError
    * @public
    * @param  {Number | AjaxError} error
@@ -68252,7 +65847,6 @@ define('ember-ajax/errors', ['exports', 'ember'], function (exports, _ember) {
   /**
    * Checks if the given status code or AjaxError object represents an invalid
    * request error
-   *
    * @method isInvalidError
    * @public
    * @param  {Number | AjaxError} error
@@ -68270,7 +65864,6 @@ define('ember-ajax/errors', ['exports', 'ember'], function (exports, _ember) {
   /**
    * Checks if the given status code or AjaxError object represents a bad request
    * error
-   *
    * @method isBadRequestError
    * @public
    * @param  {Number | AjaxError} error
@@ -68288,7 +65881,6 @@ define('ember-ajax/errors', ['exports', 'ember'], function (exports, _ember) {
   /**
    * Checks if the given status code or AjaxError object represents a
    * "not found" error
-   *
    * @method isNotFoundError
    * @public
    * @param  {Number | AjaxError} error
@@ -68306,7 +65898,6 @@ define('ember-ajax/errors', ['exports', 'ember'], function (exports, _ember) {
   /**
    * Checks if the given status code or AjaxError object represents a
    * "timeout" error
-   *
    * @method isTimeoutError
    * @public
    * @param  {AjaxError} error
@@ -68320,7 +65911,6 @@ define('ember-ajax/errors', ['exports', 'ember'], function (exports, _ember) {
   /**
    * Checks if the given status code or AjaxError object represents an
    * "abort" error
-   *
    * @method isAbortError
    * @public
    * @param  {AjaxError} error
@@ -68332,26 +65922,7 @@ define('ember-ajax/errors', ['exports', 'ember'], function (exports, _ember) {
   }
 
   /**
-   * Checks if the given status code or AjaxError object represents a
-   * conflict error
-   *
-   * @method isConflictError
-   * @public
-   * @param  {Number | AjaxError} error
-   * @return {Boolean}
-   */
-
-  function isConflictError(error) {
-    if (isAjaxError(error)) {
-      return error instanceof ConflictError;
-    } else {
-      return error === 409;
-    }
-  }
-
-  /**
    * Checks if the given status code or AjaxError object represents a server error
-   *
    * @method isServerError
    * @public
    * @param  {Number | AjaxError} error
@@ -68368,7 +65939,6 @@ define('ember-ajax/errors', ['exports', 'ember'], function (exports, _ember) {
 
   /**
    * Checks if the given status code represents a successful request
-   *
    * @method isSuccess
    * @public
    * @param  {Number} status
@@ -68394,20 +65964,15 @@ define('ember-ajax/mixins/ajax-request', ['exports', 'ember', 'ember-ajax/errors
   'use strict';
 
   var $ = _ember['default'].$;
-  var A = _ember['default'].A;
   var EmberError = _ember['default'].Error;
-  var Logger = _ember['default'].Logger;
   var Mixin = _ember['default'].Mixin;
   var Promise = _ember['default'].RSVP.Promise;
-  var Test = _ember['default'].Test;
   var get = _ember['default'].get;
-  var isArray = _ember['default'].isArray;
   var isNone = _ember['default'].isNone;
   var merge = _ember['default'].merge;
   var run = _ember['default'].run;
-  var runInDebug = _ember['default'].runInDebug;
+  var Test = _ember['default'].Test;
   var testing = _ember['default'].testing;
-  var warn = _ember['default'].warn;
 
   var JSONAPIContentType = 'application/vnd.api+json';
 
@@ -68439,14 +66004,6 @@ define('ember-ajax/mixins/ajax-request', ['exports', 'ember', 'ember-ajax/errors
     return path;
   }
 
-  function isObject(object) {
-    return typeof object === 'object';
-  }
-
-  function isString(object) {
-    return typeof object === 'string';
-  }
-
   var pendingRequestCount = 0;
   if (testing) {
     Test.registerWaiter(function () {
@@ -68454,118 +66011,14 @@ define('ember-ajax/mixins/ajax-request', ['exports', 'ember', 'ember-ajax/errors
     });
   }
 
-  /**
-   * AjaxRequest Mixin
-   *
-   * @public
-   * @mixin
-   */
   exports['default'] = Mixin.create({
 
-    /**
-     * The default value for the request `contentType`
-     *
-     * For now, defaults to the same value that jQuery would assign.  In the
-     * future, the default value will be for JSON requests.
-     * @property {string} contentType
-     * @public
-     * @default
-     */
-    contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
-
-    /**
-     * Headers to include on the request
-     *
-     * Some APIs require HTTP headers, e.g. to provide an API key. Arbitrary
-     * headers can be set as key/value pairs on the `RESTAdapter`'s `headers`
-     * object and Ember Data will send them along with each ajax request.
-     *
-     * ```javascript
-     * // app/services/ajax.js
-     * import AjaxService from 'ember-ajax/services/ajax';
-     *
-     * export default AjaxService.extend({
-     *   headers: {
-     *     'API_KEY': 'secret key',
-     *     'ANOTHER_HEADER': 'Some header value'
-     *   }
-     * });
-     * ```
-     *
-     * `headers` can also be used as a computed property to support dynamic
-     * headers.
-     *
-     * ```javascript
-     * // app/services/ajax.js
-     * import Ember from 'ember';
-     * import AjaxService from 'ember-ajax/services/ajax';
-     *
-     * const {
-     *   computed,
-     *   get,
-     *   inject: { service }
-     * } = Ember;
-     *
-     * export default AjaxService.extend({
-     *   session: service(),
-     *   headers: computed('session.authToken', function() {
-     *     return {
-     *       'API_KEY': get(this, 'session.authToken'),
-     *       'ANOTHER_HEADER': 'Some header value'
-     *     };
-     *   })
-     * });
-     * ```
-     *
-     * In some cases, your dynamic headers may require data from some object
-     * outside of Ember's observer system (for example `document.cookie`). You
-     * can use the `volatile` function to set the property into a non-cached mode
-     * causing the headers to be recomputed with every request.
-     *
-     * ```javascript
-     * // app/services/ajax.js
-     * import Ember from 'ember';
-     * import AjaxService from 'ember-ajax/services/ajax';
-     *
-     * const {
-     *   computed,
-     *   get,
-     *   inject: { service }
-     * } = Ember;
-     *
-     * export default AjaxService.extend({
-     *   session: service(),
-     *   headers: computed('session.authToken', function() {
-     *     return {
-     *       'API_KEY': get(document.cookie.match(/apiKey\=([^;]*)/), '1'),
-     *       'ANOTHER_HEADER': 'Some header value'
-     *     };
-     *   }).volatile()
-     * });
-     * ```
-     *
-     * @property {Object} headers
-     * @public
-     * @default
-     */
-    headers: {},
-
-    /**
-     * Make an AJAX request, ignoring the raw XHR object and dealing only with
-     * the response
-     *
-     * @method request
-     * @public
-     * @param {string} url The url to make a request to
-     * @param {Object} options The options for the request
-     * @return {Promise} The result of the request
-     */
     request: function request(url, options) {
       var _this = this;
 
       var hash = this.options(url, options);
       return new Promise(function (resolve, reject) {
-        _this._makeRequest(url, hash).then(function (_ref) {
+        _this.raw(url, hash).then(function (_ref) {
           var response = _ref.response;
 
           resolve(response);
@@ -68577,32 +66030,10 @@ define('ember-ajax/mixins/ajax-request', ['exports', 'ember', 'ember-ajax/errors
       }, 'ember-ajax: ' + hash.type + ' ' + hash.url + ' response');
     },
 
-    /**
-     * Make an AJAX request, returning the raw XHR object along with the response
-     *
-     * @method raw
-     * @public
-     * @param {string} url The url to make a request to
-     * @param {Object} options The options for the request
-     * @return {Promise} The result of the request
-     */
     raw: function raw(url, options) {
-      var hash = this.options(url, options);
-      return this._makeRequest(url, hash);
-    },
-
-    /**
-     * Shared method to actually make an AJAX request
-     *
-     * @method _makeRequest
-     * @private
-     * @param {string} url The url to make a request to
-     * @param {Object} hash The options for the request
-     * @return {Promise} The result of the request
-     */
-    _makeRequest: function _makeRequest(url, hash) {
       var _this2 = this;
 
+      var hash = this.options(url, options);
       var requestData = {
         type: hash.type,
         url: hash.url
@@ -68618,7 +66049,7 @@ define('ember-ajax/mixins/ajax-request', ['exports', 'ember', 'ember-ajax/errors
         hash.success = function (payload, textStatus, jqXHR) {
           var response = _this2.handleResponse(jqXHR.status, (0, _emberAjaxUtilsParseResponseHeaders['default'])(jqXHR.getAllResponseHeaders()), payload, requestData);
 
-          pendingRequestCount = pendingRequestCount - 1;
+          pendingRequestCount--;
 
           if ((0, _emberAjaxErrors.isAjaxError)(response)) {
             run.join(null, reject, { payload: payload, textStatus: textStatus, jqXHR: jqXHR, response: response });
@@ -68628,14 +66059,6 @@ define('ember-ajax/mixins/ajax-request', ['exports', 'ember', 'ember-ajax/errors
         };
 
         hash.error = function (jqXHR, textStatus, errorThrown) {
-          runInDebug(function () {
-            var message = 'The server returned an empty string for ' + requestData.type + ' ' + url + ', which cannot be parsed into a valid JSON. Return either null or {}.';
-            var validJSONString = !(textStatus === 'parsererror' && jqXHR.responseText === '');
-            warn(message, validJSONString, {
-              id: 'ds.adapter.returned-empty-string-as-JSON'
-            });
-          });
-
           var payload = _this2.parseErrorResponse(jqXHR.responseText) || errorThrown;
           var response = undefined;
 
@@ -68649,12 +66072,12 @@ define('ember-ajax/mixins/ajax-request', ['exports', 'ember', 'ember-ajax/errors
             response = _this2.handleResponse(jqXHR.status, (0, _emberAjaxUtilsParseResponseHeaders['default'])(jqXHR.getAllResponseHeaders()), payload, requestData);
           }
 
-          pendingRequestCount = pendingRequestCount - 1;
+          pendingRequestCount--;
 
           run.join(null, reject, { payload: payload, textStatus: textStatus, jqXHR: jqXHR, errorThrown: errorThrown, response: response });
         };
 
-        pendingRequestCount = pendingRequestCount + 1;
+        pendingRequestCount++;
 
         (0, _emberAjaxUtilsAjax['default'])(hash);
       }, 'ember-ajax: ' + hash.type + ' ' + hash.url);
@@ -68662,12 +66085,7 @@ define('ember-ajax/mixins/ajax-request', ['exports', 'ember', 'ember-ajax/errors
 
     /**
      * calls `request()` but forces `options.type` to `POST`
-     *
-     * @method post
      * @public
-     * @param {string} url The url to make a request to
-     * @param {Object} options The options for the request
-     * @return {Promise} The result of the request
      */
     post: function post(url, options) {
       return this.request(url, this._addTypeToOptionsFor(options, 'POST'));
@@ -68675,12 +66093,7 @@ define('ember-ajax/mixins/ajax-request', ['exports', 'ember', 'ember-ajax/errors
 
     /**
      * calls `request()` but forces `options.type` to `PUT`
-     *
-     * @method put
      * @public
-     * @param {string} url The url to make a request to
-     * @param {Object} options The options for the request
-     * @return {Promise} The result of the request
      */
     put: function put(url, options) {
       return this.request(url, this._addTypeToOptionsFor(options, 'PUT'));
@@ -68688,12 +66101,7 @@ define('ember-ajax/mixins/ajax-request', ['exports', 'ember', 'ember-ajax/errors
 
     /**
      * calls `request()` but forces `options.type` to `PATCH`
-     *
-     * @method patch
      * @public
-     * @param {string} url The url to make a request to
-     * @param {Object} options The options for the request
-     * @return {Promise} The result of the request
      */
     patch: function patch(url, options) {
       return this.request(url, this._addTypeToOptionsFor(options, 'PATCH'));
@@ -68701,12 +66109,7 @@ define('ember-ajax/mixins/ajax-request', ['exports', 'ember', 'ember-ajax/errors
 
     /**
      * calls `request()` but forces `options.type` to `DELETE`
-     *
-     * @method del
      * @public
-     * @param {string} url The url to make a request to
-     * @param {Object} options The options for the request
-     * @return {Promise} The result of the request
      */
     del: function del(url, options) {
       return this.request(url, this._addTypeToOptionsFor(options, 'DELETE'));
@@ -68714,14 +66117,8 @@ define('ember-ajax/mixins/ajax-request', ['exports', 'ember', 'ember-ajax/errors
 
     /**
      * calls `request()` but forces `options.type` to `DELETE`
-     *
-     * Alias for `del()`
-     *
-     * @method delete
+     * alias for `del()`
      * @public
-     * @param {string} url The url to make a request to
-     * @param {Object} options The options for the request
-     * @return {Promise} The result of the request
      */
     'delete': function _delete() {
       return this.del.apply(this, arguments);
@@ -68743,15 +66140,7 @@ define('ember-ajax/mixins/ajax-request', ['exports', 'ember', 'ember-ajax/errors
       return this._super.apply(this, arguments);
     },
 
-    /**
-     * Manipulates the options hash to include the HTTP method on the type key
-     *
-     * @method _addTypeToOptionsFor
-     * @private
-     * @param {Object} options The original request options
-     * @param {string} method The method to enforce
-     * @return {Object} The new options, with the method set
-     */
+    // forcibly manipulates the options hash to include the HTTP method on the type key
     _addTypeToOptionsFor: function _addTypeToOptionsFor(options, method) {
       options = options || {};
       options.type = method;
@@ -68759,16 +66148,13 @@ define('ember-ajax/mixins/ajax-request', ['exports', 'ember', 'ember-ajax/errors
     },
 
     /**
-     * Get the full "headers" hash, combining the service-defined headers with
-     * the ones provided for the request
-     *
      * @method _getFullHeadersHash
      * @private
      * @param {Object} headers
      * @return {Object}
      */
     _getFullHeadersHash: function _getFullHeadersHash(headers) {
-      var classHeaders = get(this, 'headers');
+      var classHeaders = get(this, 'headers') || {};
       var _headers = merge({}, classHeaders);
       return merge(_headers, headers);
     },
@@ -68776,7 +66162,7 @@ define('ember-ajax/mixins/ajax-request', ['exports', 'ember', 'ember-ajax/errors
     /**
      * @method options
      * @private
-     * @param {string} url
+     * @param {String} url
      * @param {Object} options
      * @return {Object}
      */
@@ -68786,7 +66172,6 @@ define('ember-ajax/mixins/ajax-request', ['exports', 'ember', 'ember-ajax/errors
       _options.url = this._buildURL(url, _options);
       _options.type = _options.type || 'GET';
       _options.dataType = _options.dataType || 'json';
-      _options.contentType = _options.contentType || get(this, 'contentType');
 
       if (this._shouldSendHeaders(_options)) {
         _options.headers = this._getFullHeadersHash(_options.headers);
@@ -68807,8 +66192,8 @@ define('ember-ajax/mixins/ajax-request', ['exports', 'ember', 'ember-ajax/errors
      *
      * @private
      * @param {string} url the url, or url segment, to request
-     * @param {Object} [options={}] the options for the request being made
-     * @param {string} [options.host] the host to use for this request
+     * @param {object} [options] the options for the request being made
+     * @param {object.host} [host] the host to use for this request
      * @returns {string} the URL to make a request to
      */
     _buildURL: function _buildURL(url) {
@@ -68822,7 +66207,7 @@ define('ember-ajax/mixins/ajax-request', ['exports', 'ember', 'ember-ajax/errors
       }
 
       var host = options.host || get(this, 'host');
-      var namespace = options.namespace || get(this, 'namespace');
+      var namespace = get(this, 'namespace');
       if (namespace) {
         namespace = stripSlashes(namespace);
       }
@@ -68850,6 +66235,21 @@ define('ember-ajax/mixins/ajax-request', ['exports', 'ember', 'ember-ajax/errors
       return fullUrl;
     },
 
+    _normalizePath: function _normalizePath(path) {
+      if (path) {
+        // make sure path starts with `/`
+        if (path.charAt(0) !== '/') {
+          path = '/' + path;
+        }
+
+        // remove end `/`
+        if (path.charAt(path.length - 1) === '/') {
+          path = path.slice(0, -1);
+        }
+      }
+      return path;
+    },
+
     /**
      * Takes an ajax response, and returns the json payload or an error.
      *
@@ -68871,7 +66271,7 @@ define('ember-ajax/mixins/ajax-request', ['exports', 'ember', 'ember-ajax/errors
      * @return {Object | AjaxError} response
      */
     handleResponse: function handleResponse(status, headers, payload, requestData) {
-      payload = payload === null || payload === undefined ? {} : payload;
+      payload = payload || {};
       var errors = this.normalizeErrorResponse(status, headers, payload);
 
       if (this.isSuccess(status, headers, payload)) {
@@ -68886,10 +66286,6 @@ define('ember-ajax/mixins/ajax-request', ['exports', 'ember', 'ember-ajax/errors
         return new _emberAjaxErrors.BadRequestError(errors);
       } else if (this.isNotFoundError(status, headers, payload)) {
         return new _emberAjaxErrors.NotFoundError(errors);
-      } else if (this.isAbortError(status, headers, payload)) {
-        return new _emberAjaxErrors.AbortError(errors);
-      } else if (this.isConflictError(status, headers, payload)) {
-        return new _emberAjaxErrors.ConflictError(errors);
       } else if (this.isServerError(status, headers, payload)) {
         return new _emberAjaxErrors.ServerError(errors);
       }
@@ -68903,8 +66299,8 @@ define('ember-ajax/mixins/ajax-request', ['exports', 'ember', 'ember-ajax/errors
      *
      * @method matchHosts
      * @private
-     * @param {string} host the host you are sending too
-     * @param {RegExp | string} matcher a string or regex that you can match the host to.
+     * @param {String} host the host you are sending too
+     * @param {RegExp | String} matcher a string or regex that you can match the host to.
      * @returns {Boolean} if the host passed the matcher
      */
     _matchHosts: function _matchHosts(host, matcher) {
@@ -68913,7 +66309,7 @@ define('ember-ajax/mixins/ajax-request', ['exports', 'ember', 'ember-ajax/errors
       } else if (typeof matcher === 'string') {
         return matcher === host;
       } else {
-        Logger.warn('trustedHosts only handles strings or regexes.', matcher, 'is neither.');
+        _ember['default'].Logger.warn('trustedHosts only handles strings or regexes.', matcher, 'is neither.');
         return false;
       }
     },
@@ -68947,7 +66343,7 @@ define('ember-ajax/mixins/ajax-request', ['exports', 'ember', 'ember-ajax/errors
       host = host || get(this, 'host') || '';
 
       var urlObject = new _emberAjaxUtilsUrlHelpers.RequestURL(url);
-      var trustedHosts = get(this, 'trustedHosts') || A();
+      var trustedHosts = get(this, 'trustedHosts') || _ember['default'].A();
 
       // Add headers on relative URLs
       if (!urlObject.isComplete) {
@@ -68966,7 +66362,6 @@ define('ember-ajax/mixins/ajax-request', ['exports', 'ember', 'ember-ajax/errors
     /**
      * Generates a detailed ("friendly") error message, with plenty
      * of information for debugging (good luck!)
-     *
      * @method generateDetailedMessage
      * @private
      * @param  {Number} status
@@ -68988,13 +66383,12 @@ define('ember-ajax/mixins/ajax-request', ['exports', 'ember', 'ember-ajax/errors
       var requestDescription = requestData.type + ' ' + requestData.url;
       var payloadDescription = 'Payload (' + payloadContentType + ')';
 
-      return ['Ember AJAX Request ' + requestDescription + ' returned a ' + status, payloadDescription, shortenedPayload].join('\n');
+      return ['Ember Data Request ' + requestDescription + ' returned a ' + status, payloadDescription, shortenedPayload].join('\n');
     },
 
     /**
      * Default `handleResponse` implementation uses this hook to decide if the
      * response is a an authorized error.
-     *
      * @method isUnauthorizedError
      * @private
      * @param {Number} status
@@ -69009,7 +66403,6 @@ define('ember-ajax/mixins/ajax-request', ['exports', 'ember', 'ember-ajax/errors
     /**
      * Default `handleResponse` implementation uses this hook to decide if the
      * response is a forbidden error.
-     *
      * @method isForbiddenError
      * @private
      * @param {Number} status
@@ -69024,7 +66417,6 @@ define('ember-ajax/mixins/ajax-request', ['exports', 'ember', 'ember-ajax/errors
     /**
      * Default `handleResponse` implementation uses this hook to decide if the
      * response is a an invalid error.
-     *
      * @method isInvalidError
      * @private
      * @param {Number} status
@@ -69039,7 +66431,6 @@ define('ember-ajax/mixins/ajax-request', ['exports', 'ember', 'ember-ajax/errors
     /**
      * Default `handleResponse` implementation uses this hook to decide if the
      * response is a bad request error.
-     *
      * @method isBadRequestError
      * @private
      * @param {Number} status
@@ -69054,7 +66445,6 @@ define('ember-ajax/mixins/ajax-request', ['exports', 'ember', 'ember-ajax/errors
     /**
      * Default `handleResponse` implementation uses this hook to decide if the
      * response is a "not found" error.
-     *
      * @method isNotFoundError
      * @private
      * @param {Number} status
@@ -69068,38 +66458,7 @@ define('ember-ajax/mixins/ajax-request', ['exports', 'ember', 'ember-ajax/errors
 
     /**
      * Default `handleResponse` implementation uses this hook to decide if the
-     * response is an "abort" error.
-     *
-     * @method isAbortError
-     * @private
-     * @param {Number} status
-     * @param {Object} headers
-     * @param {Object} payload
-     * @return {Boolean}
-     */
-    isAbortError: function isAbortError(status) {
-      return (0, _emberAjaxErrors.isAbortError)(status);
-    },
-
-    /**
-     * Default `handleResponse` implementation uses this hook to decide if the
-     * response is a "conflict" error.
-     *
-     * @method isConflictError
-     * @private
-     * @param {Number} status
-     * @param {Object} headers
-     * @param {Object} payload
-     * @return {Boolean}
-     */
-    isConflictError: function isConflictError(status) {
-      return (0, _emberAjaxErrors.isConflictError)(status);
-    },
-
-    /**
-     * Default `handleResponse` implementation uses this hook to decide if the
      * response is a server error.
-     *
      * @method isServerError
      * @private
      * @param {Number} status
@@ -69114,7 +66473,6 @@ define('ember-ajax/mixins/ajax-request', ['exports', 'ember', 'ember-ajax/errors
     /**
      * Default `handleResponse` implementation uses this hook to decide if the
      * response is a success.
-     *
      * @method isSuccess
      * @private
      * @param {Number} status
@@ -69129,143 +66487,49 @@ define('ember-ajax/mixins/ajax-request', ['exports', 'ember', 'ember-ajax/errors
     /**
      * @method parseErrorResponse
      * @private
-     * @param {string} responseText
+     * @param {String} responseText
      * @return {Object}
      */
     parseErrorResponse: function parseErrorResponse(responseText) {
+      var json = responseText;
+
       try {
-        return $.parseJSON(responseText);
-      } catch (e) {
-        return responseText;
-      }
+        json = $.parseJSON(responseText);
+      } catch (e) {}
+
+      return json;
     },
 
     /**
-     * Normalize the error from the server into the same format
-     *
-     * The format we normalize to is based on the JSON API specification.  The
-     * return value should be an array of objects that match the format they
-     * describe. More details about the object format can be found
-     * [here](http://jsonapi.org/format/#error-objects)
-     *
-     * The basics of the format are as follows:
-     *
-     * ```javascript
-     * [
-     *   {
-     *     status: 'The status code for the error',
-     *     title: 'The human-readable title of the error'
-     *     detail: 'The human-readable details of the error'
-     *   }
-     * ]
-     * ```
-     *
-     * In cases where the server returns an array, then there should be one item
-     * in the array for each of the payload.  If your server returns a JSON API
-     * formatted payload already, it will just be returned directly.
-     *
-     * If your server returns something other than a JSON API format, it's
-     * suggested that you override this method to convert your own errors into the
-     * one described above.
-     *
      * @method normalizeErrorResponse
      * @private
      * @param  {Number} status
      * @param  {Object} headers
      * @param  {Object} payload
-     * @return {Array} An array of JSON API-formatted error objects
+     * @return {Array} errors payload
      */
     normalizeErrorResponse: function normalizeErrorResponse(status, headers, payload) {
-      if (isArray(payload.errors)) {
+      if (payload && typeof payload === 'object' && payload.errors) {
+        if (!_ember['default'].isArray(payload.errors)) {
+          return payload.errors;
+        }
+
         return payload.errors.map(function (error) {
-          if (isObject(error)) {
-            var ret = merge({}, error);
-            ret.status = '' + error.status;
-            return ret;
-          } else {
-            return {
-              status: '' + status,
-              title: error
-            };
+          var ret = merge({}, error);
+
+          if (typeof ret.status === 'number') {
+            ret.status = '' + ret.status;
           }
-        });
-      } else if (isArray(payload)) {
-        return payload.map(function (error) {
-          if (isObject(error)) {
-            return {
-              status: '' + status,
-              title: error.title || 'The backend responded with an error',
-              detail: error
-            };
-          } else {
-            return {
-              status: '' + status,
-              title: '' + error
-            };
-          }
+
+          return ret;
         });
       } else {
-        if (isString(payload)) {
-          return [{
-            status: '' + status,
-            title: payload
-          }];
-        } else {
-          return [{
-            status: '' + status,
-            title: payload.title || 'The backend responded with an error',
-            detail: payload
-          }];
-        }
+        return [{
+          status: '' + status,
+          title: 'The backend responded with an error',
+          detail: payload
+        }];
       }
-    }
-  });
-});
-define('ember-ajax/mixins/ajax-support', ['exports', 'ember'], function (exports, _ember) {
-  'use strict';
-
-  var Mixin = _ember['default'].Mixin;
-  var service = _ember['default'].inject.service;
-  var alias = _ember['default'].computed.alias;
-
-  exports['default'] = Mixin.create({
-
-    /**
-     * The AJAX service to send requests through
-     *
-     * @property {AjaxService} ajaxService
-     * @public
-     */
-    ajaxService: service('ajax'),
-
-    /**
-     * @property {string} host
-     * @public
-     */
-    host: alias('ajaxService.host'),
-
-    /**
-     * @property {string} namespace
-     * @public
-     */
-    namespace: alias('ajaxService.namespace'),
-
-    /**
-     * @property {object} headers
-     * @public
-     */
-    headers: alias('ajaxService.headers'),
-
-    ajax: function ajax(url, type, options) {
-      options = this.ajaxOptions.apply(this, arguments);
-      return this.get('ajaxService').request(url, options);
-    },
-
-    ajaxOptions: function ajaxOptions(url, type) {
-      var options = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
-
-      options.type = type;
-      return this.get('ajaxService').options(url, options);
     }
   });
 });
@@ -69313,6 +66577,65 @@ define('ember-ajax/services/ajax', ['exports', 'ember', 'ember-ajax/mixins/ajax-
 
   var Service = _ember['default'].Service;
 
+  /**
+   * ### Headers customization
+   *
+   * Some APIs require HTTP headers, e.g. to provide an API key. Arbitrary
+   * headers can be set as key/value pairs on the `RESTAdapter`'s `headers`
+   * object and Ember Data will send them along with each ajax request.
+   *
+   * ```app/services/ajax
+   * import AjaxService from 'ember-ajax/services/ajax';
+   *
+   * export default AjaxService.extend({
+   *   headers: {
+   *     "API_KEY": "secret key",
+   *     "ANOTHER_HEADER": "Some header value"
+   *   }
+   * });
+   * ```
+   *
+   * `headers` can also be used as a computed property to support dynamic
+   * headers.
+   *
+   * ```app/services/ajax.js
+   * import Ember from 'ember';
+   * import AjaxService from 'ember-ajax/services/ajax';
+   *
+   * export default AjaxService.extend({
+   *   session: Ember.inject.service(),
+   *   headers: Ember.computed("session.authToken", function() {
+   *     return {
+   *       "API_KEY": this.get("session.authToken"),
+   *       "ANOTHER_HEADER": "Some header value"
+   *     };
+   *   })
+   * });
+   * ```
+   *
+   * In some cases, your dynamic headers may require data from some
+   * object outside of Ember's observer system (for example
+   * `document.cookie`). You can use the
+   * [volatile](/api/classes/Ember.ComputedProperty.html#method_volatile)
+   * function to set the property into a non-cached mode causing the headers to
+   * be recomputed with every request.
+   *
+   * ```app/services/ajax.js
+   * import Ember from 'ember';
+   * import AjaxService from 'ember-ajax/services/ajax';
+   *
+   * export default AjaxService.extend({
+   *   session: Ember.inject.service(),
+   *   headers: Ember.computed("session.authToken", function() {
+   *     return {
+   *       "API_KEY": Ember.get(document.cookie.match(/apiKey\=([^;]*)/), "1"),
+   *       "ANOTHER_HEADER": "Some header value"
+   *     };
+   *   }).volatile()
+   * });
+   * ```
+   * @public
+   */
   exports['default'] = Service.extend(_emberAjaxMixinsAjaxRequest['default']);
 });
 define('ember-ajax/utils/ajax', ['exports', 'ember', 'ember-ajax/utils/is-fastboot'], function (exports, _ember, _emberAjaxUtilsIsFastboot) {
@@ -69403,7 +66726,6 @@ define('ember-ajax/utils/url-helpers', ['exports', 'ember-ajax/utils/is-fastboot
   /**
    * Get the node url module or an anchor element
    *
-   * @function getUrlModule
    * @private
    * @return {Object|HTMLAnchorElement} Object to parse urls
    */
@@ -69433,9 +66755,7 @@ define('ember-ajax/utils/url-helpers', ['exports', 'ember-ajax/utils/is-fastboot
    *   search: query parameters
    *   hash: the URL hash
    *
-   * @function parseUrl
    * @private
-   * @param {string} str The string to parse
    * @return {Object} URL structure
    */
   function parseUrl(str) {
@@ -69491,9 +66811,7 @@ define('ember-ajax/utils/url-helpers', ['exports', 'ember-ajax/utils/is-fastboot
 
         var explodedUrl = parseUrl(value);
         for (var prop in explodedUrl) {
-          if (({}).hasOwnProperty.call(explodedUrl, prop)) {
-            this[prop] = explodedUrl[prop];
-          }
+          this[prop] = explodedUrl[prop];
         }
 
         return this._url;
@@ -69509,6 +66827,5841 @@ define('ember-ajax/utils/url-helpers', ['exports', 'ember-ajax/utils/is-fastboot
   })();
 
   exports.RequestURL = RequestURL;
+});
+define('ember-bootstrap/components/bs-accordion-item', ['exports', 'ember', 'ember-bootstrap/mixins/type-class', 'ember-bootstrap/mixins/component-child', 'ember-bootstrap/components/bs-accordion'], function (exports, _ember, _emberBootstrapMixinsTypeClass, _emberBootstrapMixinsComponentChild, _emberBootstrapComponentsBsAccordion) {
+  'use strict';
+
+  var computed = _ember['default'].computed;
+
+  /**
+   A collapsible/expandable item within an accordion
+  
+   See [Components.Accordion](Components.Accordion.html) for examples.
+  
+  
+   @class AccordionItem
+   @namespace Components
+   @extends Ember.Component
+   @uses Mixins.ComponentChild
+   @uses Mixins.TypeClass
+   @public
+   */
+  exports['default'] = _ember['default'].Component.extend(_emberBootstrapMixinsComponentChild['default'], _emberBootstrapMixinsTypeClass['default'], {
+    classNames: ['panel'],
+
+    /**
+     * @property classTypePrefix
+     * @type String
+     * @default 'panel'
+     * @protected
+     */
+    classTypePrefix: 'panel',
+
+    /**
+     * The title of the accordion item, displayed as a .panel-title element
+     *
+     * @property title
+     * @type string
+     * @public
+     */
+    title: null,
+
+    /**
+     * The value of the accordion item, which is used as the value of the `selected` property of the parent [Components.Accordion](Components.Accordion.html) component
+     *
+     * @property value
+     * @public
+     */
+    value: computed.oneWay('elementId'),
+
+    selected: computed.alias('accordion.selected'),
+
+    collapsed: computed('value', 'selected', function () {
+      return this.get('value') !== this.get('selected');
+    }),
+    active: computed.not('collapsed'),
+
+    /**
+     * Reference to the parent `Components.Accordion` class.
+     *
+     * @property accordion
+     * @private
+     */
+    accordion: computed(function () {
+      return this.nearestOfType(_emberBootstrapComponentsBsAccordion['default']);
+    }),
+
+    target: computed.reads('accordion'),
+
+    actions: {
+      toggleActive: function toggleActive() {
+        var value = this.get('value');
+        var previous = this.get('selected');
+        var active = this.get('active');
+        if (!active) {
+          this.set('selected', value);
+          this.send('selected', value, previous);
+        } else {
+          this.set('selected', null);
+          this.send('selected', null, previous);
+        }
+      }
+    }
+
+  });
+});
+define('ember-bootstrap/components/bs-accordion', ['exports', 'ember', 'ember-bootstrap/mixins/component-parent'], function (exports, _ember, _emberBootstrapMixinsComponentParent) {
+  'use strict';
+
+  /**
+   Bootstrap-style accordion group, with collapsible/expandable items.
+   See http://getbootstrap.com/components/#btn-groups
+  
+   Use as a block level component with any number of [Components.AccordionItem](Components.AccordionItem.html) components as children:
+  
+   ```handlebars
+    {{#bs-accordion selected=selected}}
+        {{#bs-accordion-item value="1" title="First item"}}
+          <p>Lorem ipsum...</p>
+        {{/bs-accordion-item}}
+        {{#bs-accordion-item value="2" title="Second item"}}
+          <p>Lorem ipsum...</p>
+        {{/bs-accordion-item}}
+        {{#bs-accordion-item value="3" title="Third item"}}
+          <p>Lorem ipsum...</p>
+        {{/bs-accordion-item}}
+    {{/bs-accordion}}
+  
+    <p>Selected accordion item: {{selected}}</p>
+   ```
+  
+  
+   @class Accordion
+   @namespace Components
+   @extends Ember.Component
+   @uses Mixins.ComponentParent
+   @public
+   */
+  exports['default'] = _ember['default'].Component.extend(_emberBootstrapMixinsComponentParent['default'], {
+    classNames: ['panel-group'],
+    ariaRole: 'tablist',
+
+    /**
+     * The value of the currently selected accordion item
+     *
+     * @property selected
+     * @public
+     */
+    selected: null,
+
+    actions: {
+      selected: function selected(currentValue, previousValue) {
+        this.sendAction('action', currentValue, previousValue);
+      }
+    }
+
+  });
+});
+define('ember-bootstrap/components/bs-alert', ['exports', 'ember', 'ember-bootstrap/mixins/type-class'], function (exports, _ember, _emberBootstrapMixinsTypeClass) {
+  'use strict';
+
+  var computed = _ember['default'].computed;
+  var observer = _ember['default'].observer;
+
+  /**
+   Implements Bootstrap alerts, see http://getbootstrap.com/components/#alerts
+  
+   By default it is a user dismissible alert with a fade out animation, both of which can be disabled. Be sure to set the
+   `type` property for proper styling.
+  
+   ```hbs
+   {{#bs-alert type="success"}}
+   <strong>Well done!</strong> You successfully read this important alert message.
+   {{/bs-alert}}
+   ```
+  
+   @class Alert
+   @namespace Components
+   @extends Ember.Component
+   @uses Mixins.TypeClass
+   @public
+   */
+  exports['default'] = _ember['default'].Component.extend(_emberBootstrapMixinsTypeClass['default'], {
+    classNameBindings: ['alert', 'fade', 'in'],
+
+    /**
+     * A dismissible alert will have a close button in the upper right corner, that the user can click to dismiss
+     * the alert.
+     *
+     * @property dismissible
+     * @type boolean
+     * @default true
+     * @public
+     */
+    dismissible: true,
+
+    /**
+     * If true the alert is completely hidden. Will be set when the fade animation has finished.
+     *
+     * @property hidden
+     * @type boolean
+     * @default false
+     * @readonly
+     * @protected
+     */
+    hidden: false,
+
+    /**
+     * This property controls if the alert should be visible. If false it might still be in the DOM until the fade animation
+     * has completed.
+     *
+     * @property visible
+     * @type boolean
+     * @default true
+     * @public
+     */
+    visible: true,
+    notVisible: computed.not('visible'),
+
+    /**
+     * Set to false to disable the fade out animation when hiding the alert.
+     *
+     * @property fade
+     * @type boolean
+     * @default true
+     * @public
+     */
+    fade: true,
+
+    /**
+     * Computed property to set the alert class to the component div. Will be false when dismissed to have the component
+     * div (which cannot be removed form DOM by the component itself) without any markup.
+     *
+     * @property alert
+     * @type boolean
+     * @private
+     */
+    alert: computed.not('hidden'),
+    'in': computed.and('visible', 'fade'),
+
+    /**
+     * @property classTypePrefix
+     * @type String
+     * @default 'alert'
+     * @protected
+     */
+    classTypePrefix: 'alert',
+
+    /**
+     * The duration of the fade out animation
+     *
+     * @property fadeDuration
+     * @type integer
+     * @default 150
+     * @public
+     */
+    fadeDuration: 150,
+
+    /**
+     * The action to be sent after the alert has been dismissed (including the CSS transition).
+     *
+     * @property dismissedAction
+     * @type string
+     * @default null
+     * @public
+     */
+    dismissedAction: null,
+
+    actions: {
+      dismiss: function dismiss() {
+        this.set('visible', false);
+      }
+    },
+
+    _onVisibleChange: observer('visible', function () {
+      if (this.get('visible')) {
+        this.show();
+      } else {
+        this.hide();
+      }
+    }),
+
+    /**
+     * Call to make the alert visible again after it has been hidden
+     *
+     * @method show
+     * @private
+     */
+    show: function show() {
+      this.setProperties({
+        hidden: false
+      });
+    },
+
+    /**
+     * Call to hide the alert. If the `fade` property is true, this will fade out the alert before being finally
+     * dismissed.
+     *
+     * @method hide
+     * @private
+     */
+    hide: function hide() {
+      if (this.get('fade')) {
+        _ember['default'].run.later(this, function () {
+          if (!this.get('isDestroyed')) {
+            this.set('hidden', true);
+            this.sendAction('dismissedAction');
+          }
+        }, this.get('fadeDuration'));
+      } else {
+        this.setProperties({
+          hidden: true
+        });
+        this.sendAction('dismissedAction');
+      }
+    },
+
+    init: function init() {
+      this._super.apply(this, arguments);
+      this.set('hidden', !this.get('visible'));
+    }
+  });
+});
+define('ember-bootstrap/components/bs-button-group', ['exports', 'ember', 'ember-bootstrap/mixins/size-class', 'ember-bootstrap/mixins/component-parent'], function (exports, _ember, _emberBootstrapMixinsSizeClass, _emberBootstrapMixinsComponentParent) {
+  'use strict';
+
+  var computed = _ember['default'].computed;
+  var observer = _ember['default'].observer;
+
+  /**
+   Bootstrap-style button group, that visually groups buttons, and optionally adds radio/checkbox like behaviour.
+   See http://getbootstrap.com/components/#btn-groups
+  
+   Use as a block level component with any number of [Components.Button](Components.Button.html) components as children:
+  
+   ```handlebars
+   {{#bs-button-group}}
+     {{#bs-button}}1{{/bs-button}}
+     {{#bs-button}}2{{/bs-button}}
+     {{#bs-button}}3{{/bs-button}}
+   {{/bs-button-group}}
+   ```
+  
+   ### Radio-like behaviour
+  
+   Use the `type` property set to "radio" to make the child buttons toggle like radio buttons, i.e. only one button can be active.
+   Set the `value` property of the buttons to something meaningful. The `value` property of the button group will then reflect
+   the value of the active button:
+  
+   ```handlebars
+   {{#bs-button-group value=buttonGroupValue type="radio"}}
+     {{#bs-button value='foo'}}foo{{/bs-button}}
+     {{#bs-button value='bar'}}bar{{/bs-button}}
+     {{#bs-button value='baz'}}baz{{/bs-button}}
+   {{/bs-button-group}}
+  
+   You selected: {{buttonGroupValue}}!
+   ```
+  
+   ### Checkbox-like behaviour
+  
+   Set `type` to "checkbox" to make any number of child buttons selectable. The `value` property will be an array
+   of all the values of the active buttons:
+  
+   ```handlebars
+   {{#bs-button-group value=buttonGroupValue type="checkbox"}}
+     {{#bs-button value='foo'}}foo{{/bs-button}}
+     {{#bs-button value='bar'}}bar{{/bs-button}}
+     {{#bs-button value='baz'}}baz{{/bs-button}}
+   {{/bs-button-group}}
+  
+   You selected:
+   <ul>
+   {{#each value in buttonGroupValue}}
+     <li>{{value}}</li>
+   {{/each}}
+   </ul>
+   ```
+  
+   @class ButtonGroup
+   @namespace Components
+   @extends Ember.Component
+   @uses Mixins.SizeClass
+   @public
+   */
+  exports['default'] = _ember['default'].Component.extend(_emberBootstrapMixinsComponentParent['default'], _emberBootstrapMixinsSizeClass['default'], {
+    /**
+     * @type string
+     * @property ariaRole
+     * @default 'group'
+     * @protected
+     */
+    ariaRole: 'group',
+
+    /**
+     * @property classNames
+     * @type array
+     * @default ['btn-group']
+     * @protected
+     */
+    classNames: ['btn-group'],
+
+    /**
+     * @property classNameBindings
+     * @type array
+     * @protected
+     */
+    classNameBindings: ['vertical:btn-group-vertical', 'justified:btn-group-justified'],
+
+    /**
+     * @property classTypePrefix
+     * @type String
+     * @default 'btn-group'
+     * @protected
+     */
+    classTypePrefix: 'btn-group',
+
+    /**
+     * Set to true for a vertically stacked button group, see http://getbootstrap.com/components/#btn-groups-vertical
+     *
+     * @property vertical
+     * @type boolean
+     * @default false
+     * @public
+     */
+    vertical: false,
+
+    /**
+     * Set to true for the buttons to stretch at equal sizes to span the entire width of its parent.
+     *
+     * *Important*: You have to wrap every button component in a `div class="btn-group">`:
+     *
+     * ```handlebars
+     * <div class="btn-group" role="group">
+     * {{#bs-button}}My Button{{/bs-button}}
+     * </div>
+     * ```
+     *
+     * See http://getbootstrap.com/components/#btn-groups-justified
+     *
+     * @property justified
+     * @type boolean
+     * @default false
+     * @public
+     */
+    justified: false,
+
+    /**
+     * The type of the button group specifies how child buttons behave and how the `value` property will be computed:
+     *
+     * ### null
+     * If `type` is not set (null), the button group will add no functionality besides Bootstrap styling
+     *
+     * ### radio
+     * if `type` is set to "radio", the buttons will behave like radio buttons:
+     * * the buttons will toggle (`toggle` property of the child buttons will be set to true)
+     * * only one button may be active
+     * * the `value` property of the button group will reflect the `value` property of the active button
+     *
+     * ### checkbox
+     * if `type` is set to "checkbox", the buttons will behave like checkboxes:
+     * * the buttons will toggle (`toggle` property of the child buttons will be set to true)
+     * * any number of buttons may be active
+     * * the `value` property of the button group will be an array containing the `value` properties of all active buttons
+     *
+     * @property type
+     * @type string
+     * @default null
+     * @public
+     */
+    type: null,
+
+    /**
+     * The value of the button group, computed by its child buttons.
+     * See the `type` property for how the value property is constructed.
+     *
+     * When you set the value, the corresponding buttons will be activated:
+     * * use a single value for a radio button group to activate the button with the same value
+     * * use an array of values for a checkbox button group to activate all the buttons with values contained in the array
+     *
+     * @property value
+     * @type array
+     * @public
+     */
+    value: undefined,
+
+    _syncValueToActiveButtons: observer('value', 'children.@each.value', '_inDOM', function () {
+      if (!this._inDOM) {
+        return;
+      }
+      var value = this.get('value');
+      var values = _ember['default'].A(!_ember['default'].isArray(value) ? [value] : value);
+      this.get('children').forEach(function (button) {
+        button.set('active', values.includes(button.get('value')));
+      });
+    }),
+
+    /**
+     * Child buttons that are active (pressed)
+     * @property activeChildren
+     * @type array
+     * @protected
+     */
+    activeChildren: computed.filterBy('children', 'active', true),
+
+    lastActiveChildren: null,
+    newActiveChildren: computed.setDiff('activeChildren', 'lastActiveChildren'),
+    _observeButtons: observer('activeChildren.[]', 'type', function () {
+      var type = this.get('type');
+
+      if (!this._inDOM || type !== 'radio' && type !== 'checkbox') {
+        return;
+      }
+
+      _ember['default'].run.scheduleOnce('actions', this, function () {
+        // the button that just became active
+        var value = undefined;
+
+        switch (type) {
+          case 'radio':
+            var newActive = _ember['default'].A(this.get('newActiveChildren')).objectAt(0);
+            if (newActive) {
+              value = newActive.get('value');
+            } else {
+              var lastActive = this.get('lastActiveChildren.firstObject');
+              if (lastActive) {
+                lastActive.set('active', true);
+              }
+            }
+            break;
+          case 'checkbox':
+            value = this.get('activeChildren').mapBy('value');
+            break;
+        }
+        if (typeof value !== 'undefined') {
+          this.set('value', value);
+        }
+        // remember activeChildren, used as a replacement for a before observer as they will be deprecated in the future...
+        this.set('lastActiveChildren', _ember['default'].A(this.get('activeChildren').slice()));
+      });
+    }),
+
+    _observeType: observer('type', 'children.[]', function () {
+      if (this.get('type') === 'radio' || this.get('type') === 'checkbox') {
+        // set all child buttons to toggle
+        this.get('children').forEach(function (button) {
+          button.set('toggle', true);
+        });
+      }
+    }),
+
+    init: function init() {
+      this._super();
+      this.set('lastActiveChildren', _ember['default'].A());
+    },
+
+    _inDOM: false,
+
+    didInsertElement: function didInsertElement() {
+      this.set('_inDOM', true);
+      this.get('activeChildren');
+    }
+  });
+});
+define('ember-bootstrap/components/bs-button', ['exports', 'ember', 'ember-bootstrap/mixins/type-class', 'ember-bootstrap/mixins/size-class', 'ember-bootstrap/mixins/component-child'], function (exports, _ember, _emberBootstrapMixinsTypeClass, _emberBootstrapMixinsSizeClass, _emberBootstrapMixinsComponentChild) {
+  'use strict';
+
+  var computed = _ember['default'].computed;
+  var observer = _ember['default'].observer;
+  var typeOf = _ember['default'].typeOf;
+
+  /**
+   Implements a HTML button element, with support for all [Bootstrap button CSS styles](http://getbootstrap.com/css/#buttons)
+   as well as advanced functionality such as button states.
+  
+   ### Basic Usage
+  
+   ```hbs
+   {{#bs-button type="primary" icon="glyphicon glyphicon-download"}}
+   Downloads
+   {{/bs-button}}
+   ```
+  
+   ### Actions
+  
+   Set the action property of the component to send an action to your controller. The following parameters will be sent:
+   * value: the button's value, see the `value` property
+   * event: the browsers event object
+   * callback: a function that may be called from the action handler to supply a Promise to the button component for automatic state handling
+  
+   ```hbs
+   {{#bs-button type="primary" icon="glyphicon glyphicon-download" action="download"}}
+   Download
+   {{/bs-button}}
+   ```
+  
+   ### States
+  
+   Use the `textState` property to change the label of the button. You can bind it to a controller property to set a "loading" state for example.
+   The label of the button will be taken from the `<state>Text` property.
+  
+   ```hbs
+   {{bs-button type="primary" icon="glyphicon glyphicon-download" textState=buttonState defaultText="Download" loadingText="Loading..." action="download"}}
+   ```
+  
+   ```js
+   App.ApplicationController = Ember.Controller.extend({
+     buttonState: "default"
+     actions: {
+       download: function() {
+         this.set("buttonState", "loading");
+       }
+     }
+   });
+   ```
+  
+   ### Promise support for automatic state change
+  
+   When returning a Promise for any asynchronous operation from the click closure action the button will
+   manage its `textState` property automatically, changing its value according to the state of the promise:
+   "default" > "pending" > "resolved"/"rejected"
+  
+   ```hbs
+   {{bs-button type="primary" icon="glyphicon glyphicon-download" defaultText="Download" pendingText="Loading..." resolvedText="Completed!" rejectedText="Oups!?" action=(action "download")}}
+   ```
+  
+   ```js
+   // controller.js
+  export default Ember.Controller.extend({
+     actions: {
+       download(actionParam, evt) {
+         return new Ember.RSVP.Promise(...);
+       }
+     }
+   });
+   ```
+  
+   @class Button
+   @namespace Components
+   @extends Ember.Component
+   @uses Mixins.TypeClass
+   @uses Mixins.SizeClass
+   @public
+   */
+  exports['default'] = _ember['default'].Component.extend(_emberBootstrapMixinsComponentChild['default'], _emberBootstrapMixinsTypeClass['default'], _emberBootstrapMixinsSizeClass['default'], {
+    tagName: 'button',
+    classNames: ['btn'],
+    classNameBindings: ['active', 'block:btn-block'],
+
+    /**
+     * @property classTypePrefix
+     * @type String
+     * @default 'btn'
+     * @protected
+     */
+    classTypePrefix: 'btn',
+
+    attributeBindings: ['disabled', 'buttonType:type'],
+
+    /**
+     * Default label of the button. Not need if used as a block component
+     *
+     * @property defaultText
+     * @type string
+     * @public
+     */
+    defaultText: null,
+
+    /**
+     * Property to disable the button
+     *
+     * @property disabled
+     * @type boolean
+     * @default false
+     * @public
+     */
+    disabled: false,
+
+    /**
+     * Set the type of the button, either 'button' or 'submit'
+     *
+     * @property buttonType
+     * @type String
+     * @default 'button'
+     * @public
+     */
+    buttonType: 'button',
+
+    /**
+     * Set the 'active' class to apply active/pressed CSS styling
+     *
+     * @property active
+     * @type boolean
+     * @default false
+     * @public
+     */
+    active: false,
+
+    /**
+     * Property for block level buttons
+     *
+     * See the [Bootstrap docs](http://getbootstrap.com/css/#buttons-sizes)
+     * @property block
+     * @type boolean
+     * @default false
+     * @public
+     */
+    block: false,
+
+    /**
+     * If toggle property is true, clicking the button will toggle the active state
+     *
+     * @property toggle
+     * @type boolean
+     * @default false
+     * @public
+     */
+    toggle: false,
+
+    /**
+     * If button is active and this is set, the icon property will match this property
+     *
+     * @property iconActive
+     * @type String
+     * @public
+     */
+    iconActive: null,
+
+    /**
+     * If button is inactive and this is set, the icon property will match this property
+     *
+     * @property iconInactive
+     * @type String
+     * @public
+     */
+    iconInactive: null,
+
+    /**
+     * Class(es) (e.g. glyphicons or font awesome) to use as a button icon
+     * This will render a <i class="{{icon}}"></i> element in front of the button's label
+     *
+     * @property icon
+     * @type String
+     * @readonly
+     * @protected
+     */
+    icon: computed('active', function () {
+      if (this.get('active')) {
+        return this.get('iconActive');
+      } else {
+        return this.get('iconInactive');
+      }
+    }),
+
+    /**
+     * Supply a value that will be associated with this button. This will be send
+     * as a parameter of the default action triggered when clicking the button
+     *
+     * @property value
+     * @type any
+     * @public
+     */
+    value: null,
+
+    /**
+     * State of the button. The button's label (if not used as a block component) will be set to the
+     * `<state>Text` property.
+     * This property will automatically be set when using a click action that supplies the callback with an promise
+     *
+     * @property textState
+     * @type String
+     * @default 'default'
+     * @protected
+     */
+    textState: 'default',
+
+    /**
+     * Set this to true to reset the state. A typical use case is to bind this attribute with ember-data isDirty flag.
+     *
+     * @property reset
+     * @type boolean
+     * @public
+     */
+    reset: null,
+
+    /**
+     * This will reset the state property to 'default', and with that the button's label to defaultText
+     *
+     * @method resetState
+     * @protected
+     */
+    resetState: function resetState() {
+      this.set('textState', 'default');
+    },
+
+    resetObserver: observer('reset', function () {
+      if (this.get('reset')) {
+        _ember['default'].run.scheduleOnce('actions', this, function () {
+          this.set('textState', 'default');
+        });
+      }
+    }),
+
+    text: computed('textState', 'defaultText', 'pendingText', 'resolvedText', 'rejectedText', function () {
+      return this.getWithDefault(this.get('textState') + 'Text', this.get('defaultText'));
+    }),
+
+    /**
+     * Click handler. This will send the default "action" action, with the following parameters:
+     * * value of the button (that is the value of the "value" property)
+     * * original event object of the click event
+     * * callback: call that with a promise object, and the buttons state will automatically set to "pending", "resolved" and/or "rejected"
+     *
+     * When using closure actions just return the promise instead of calling the above mentioned callback.
+     *
+     * @method click
+     * @protected
+     * @param evt
+     */
+    click: function click(evt) {
+      if (this.get('toggle')) {
+        this.toggleProperty('active');
+      }
+      var that = this;
+
+      function handleButtonPromise(promise) {
+        if (promise) {
+          that.set('textState', 'pending');
+          promise.then(function () {
+            if (!that.get('isDestroyed')) {
+              that.set('textState', 'resolved');
+            }
+          }, function () {
+            if (!that.get('isDestroyed')) {
+              that.set('textState', 'rejected');
+            }
+          });
+        }
+      }
+
+      var action = this.get('action');
+      if (typeOf(action) === 'function') {
+        var promise = action(this.get('value'), evt, handleButtonPromise);
+        if (promise && promise.then) {
+          handleButtonPromise(promise);
+        }
+      } else {
+        // continue to support string actions for now...
+        this.sendAction('action', this.get('value'), evt, handleButtonPromise);
+      }
+    },
+
+    init: function init() {
+      this._super.apply(this, arguments);
+      this.get('reset');
+    }
+
+  });
+});
+define('ember-bootstrap/components/bs-collapse', ['exports', 'ember'], function (exports, _ember) {
+  'use strict';
+
+  var computed = _ember['default'].computed;
+  var observer = _ember['default'].observer;
+
+  /**
+   An Ember component that mimics the behaviour of Bootstrap's collapse.js plugin, see http://getbootstrap.com/javascript/#collapse
+  
+   ```hbs
+   {{#bs-collapse collapsed=collapsed}}
+    <div class="well">
+      <h2>Collapse</h2>
+      <p>This is collapsible content</p>
+    </div>
+   {{/bs-collapse}}
+   ```
+  
+   @class Collapse
+   @namespace Components
+   @extends Ember.Component
+   @public
+   */
+  exports['default'] = _ember['default'].Component.extend({
+
+    classNameBindings: ['collapse', 'in', 'collapsing'],
+    attributeBindings: ['style'],
+
+    /**
+     * Collapsed/expanded state
+     *
+     * @property collapsed
+     * @type boolean
+     * @default true
+     * @public
+     */
+    collapsed: true,
+
+    /**
+     * True if this item is expanded
+     *
+     * @property active
+     * @protected
+     */
+    active: false,
+
+    collapse: computed.not('transitioning'),
+    collapsing: computed.alias('transitioning'),
+    'in': computed.and('collapse', 'active'),
+
+    /**
+     * true if the component is currently transitioning
+     *
+     * @property transitioning
+     * @type boolean
+     * @protected
+     */
+    transitioning: false,
+
+    /**
+     * @property collapseSize
+     * @type number
+     * @protected
+     */
+    collapseSize: null,
+
+    /**
+     * The size of the element when collapsed. Defaults to 0.
+     *
+     * @property collapsedSize
+     * @type number
+     * @default 0
+     * @public
+     */
+    collapsedSize: 0,
+
+    /**
+     * The size of the element when expanded. When null the value is calculated automatically to fit the containing elements.
+     *
+     * @property expandedSize
+     * @type number
+     * @default null
+     * @public
+     */
+    expandedSize: null,
+
+    /**
+     * Usually the size (height) of the element is only set while transitioning, and reseted afterwards. Set to true to always set a size.
+     *
+     * @property resetSizeWhenNotCollapsing
+     * @type boolean
+     * @default true
+     * @private
+     */
+    resetSizeWhenNotCollapsing: true,
+
+    /**
+     * The direction (height/width) of the collapse animation.
+     * When setting this to 'width' you should also define custom CSS transitions for the width property, as the Bootstrap
+     * CSS does only support collapsible elements for the height direction.
+     *
+     * @property collapseDimension
+     * @type string
+     * @default 'height'
+     * @public
+     */
+    collapseDimension: 'height',
+
+    style: computed('collapseSize', function () {
+      var size = this.get('collapseSize');
+      var dimension = this.get('collapseDimension');
+      if (_ember['default'].isEmpty(size)) {
+        return _ember['default'].String.htmlSafe('');
+      }
+      return _ember['default'].String.htmlSafe(dimension + ': ' + size + 'px');
+    }),
+
+    /**
+     * Triggers the show transition
+     *
+     * @method show
+     * @protected
+     */
+    show: function show() {
+      var complete = function complete() {
+        this.set('transitioning', false);
+        if (this.get('resetSizeWhenNotCollapsing')) {
+          this.set('collapseSize', null);
+        }
+        this.sendAction('didShow');
+      };
+
+      this.sendAction('willShow');
+
+      this.setProperties({
+        transitioning: true,
+        collapseSize: this.get('collapsedSize'),
+        active: true
+      });
+
+      if (!_ember['default'].$.support.transition) {
+        return complete.call(this);
+      }
+
+      this.$().one('bsTransitionEnd', _ember['default'].run.bind(this, complete))
+      // @todo: make duration configurable
+      .emulateTransitionEnd(350);
+
+      _ember['default'].run.next(this, function () {
+        if (!this.get('isDestroyed')) {
+          this.set('collapseSize', this.getExpandedSize('show'));
+        }
+      });
+    },
+
+    /**
+     * Get the size of the element when expanded
+     *
+     * @method getExpandedSize
+     * @param $action
+     * @return {Number}
+     * @private
+     */
+    getExpandedSize: function getExpandedSize($action) {
+      var expandedSize = this.get('expandedSize');
+      if (_ember['default'].isPresent(expandedSize)) {
+        return expandedSize;
+      }
+
+      var collapseElement = this.$();
+      var prefix = $action === 'show' ? 'scroll' : 'offset';
+      var measureProperty = _ember['default'].String.camelize(prefix + '-' + this.get('collapseDimension'));
+      return collapseElement[0][measureProperty];
+    },
+
+    /**
+     * Triggers the hide transition
+     *
+     * @method hide
+     * @protected
+     */
+    hide: function hide() {
+
+      var complete = function complete() {
+        this.set('transitioning', false);
+        if (this.get('resetSizeWhenNotCollapsing')) {
+          this.set('collapseSize', null);
+        }
+        this.sendAction('didHide');
+      };
+
+      this.sendAction('willHide');
+
+      this.setProperties({
+        transitioning: true,
+        collapseSize: this.getExpandedSize('hide'),
+        active: false
+      });
+
+      if (!_ember['default'].$.support.transition) {
+        return complete.call(this);
+      }
+
+      this.$().one('bsTransitionEnd', _ember['default'].run.bind(this, complete))
+      // @todo: make duration configurable
+      .emulateTransitionEnd(350);
+
+      _ember['default'].run.next(this, function () {
+        if (!this.get('isDestroyed')) {
+          this.set('collapseSize', this.get('collapsedSize'));
+        }
+      });
+    },
+
+    _onCollapsedChange: observer('collapsed', function () {
+      var collapsed = this.get('collapsed');
+      var active = this.get('active');
+      if (collapsed !== active) {
+        return;
+      }
+      if (collapsed === false) {
+        this.show();
+      } else {
+        this.hide();
+      }
+    }),
+
+    _onInit: _ember['default'].on('init', function () {
+      this.set('active', !this.get('collapsed'));
+    }),
+
+    _updateCollapsedSize: observer('collapsedSize', function () {
+      if (!this.get('resetSizeWhenNotCollapsing') && this.get('collapsed') && !this.get('collapsing')) {
+        this.set('collapseSize', this.get('collapsedSize'));
+      }
+    }),
+
+    _updateExpandedSize: observer('expandedSize', function () {
+      if (!this.get('resetSizeWhenNotCollapsing') && !this.get('collapsed') && !this.get('collapsing')) {
+        this.set('collapseSize', this.get('expandedSize'));
+      }
+    })
+  });
+});
+define('ember-bootstrap/components/bs-dropdown-button', ['exports', 'ember-bootstrap/components/bs-button', 'ember-bootstrap/mixins/dropdown-toggle'], function (exports, _emberBootstrapComponentsBsButton, _emberBootstrapMixinsDropdownToggle) {
+  'use strict';
+
+  /**
+   Button component with that can act as a dropdown toggler.
+  
+   See [Components.Dropdown](Components.Dropdown.html) for examples.
+  
+   @class DropdownButton
+   @namespace Components
+   @extends Components.Button
+   @uses Mixins.DropdownToggle
+   @public
+   */
+  exports['default'] = _emberBootstrapComponentsBsButton['default'].extend(_emberBootstrapMixinsDropdownToggle['default']);
+});
+define('ember-bootstrap/components/bs-dropdown-menu', ['exports', 'ember'], function (exports, _ember) {
+  'use strict';
+
+  var computed = _ember['default'].computed;
+
+  /**
+   Component for the dropdown menu.
+  
+   See [Components.Dropdown](Components.Dropdown.html) for examples.
+  
+   @class DropdownMenu
+   @namespace Components
+   @extends Ember.Component
+   @public
+   */
+  exports['default'] = _ember['default'].Component.extend({
+
+    /**
+     * Defaults to a `<ul>` tag. Change for other types of dropdown menus.
+     *
+     * @property tagName
+     * @type string
+     * @default ul
+     * @public
+     */
+    tagName: 'ul',
+    classNames: ['dropdown-menu'],
+    classNameBindings: ['alignClass'],
+
+    /**
+     * @property ariaRole
+     * @default menu
+     * @type string
+     * @protected
+     */
+    ariaRole: 'menu',
+
+    /**
+     * Alignment of the menu, either "left" or "right"
+     *
+     * @property align
+     * @type string
+     * @default left
+     * @public
+     */
+    align: 'left',
+
+    alignClass: computed('align', function () {
+      if (this.get('align') !== 'left') {
+        return 'dropdown-menu-' + this.get('align');
+      }
+    })
+  });
+});
+define('ember-bootstrap/components/bs-dropdown-toggle', ['exports', 'ember', 'ember-bootstrap/mixins/dropdown-toggle'], function (exports, _ember, _emberBootstrapMixinsDropdownToggle) {
+  'use strict';
+
+  var computed = _ember['default'].computed;
+
+  /**
+   Anchor element that triggers the parent dropdown to open.
+   Use [Components.DropdownButton](Components.DropdownButton.html) if you want a button instead of an anchor tag.
+  
+   See [Components.Dropdown](Components.Dropdown.html) for examples.
+  
+  
+   @class DropdownToggle
+   @namespace Components
+   @extends Ember.Component
+   @uses Mixins.DropdownToggle
+   @public
+   */
+  exports['default'] = _ember['default'].Component.extend(_emberBootstrapMixinsDropdownToggle['default'], {
+    /**
+     * Defaults to a `<a>` tag. Change for other types of dropdown toggles.
+     *
+     * @property tagName
+     * @type string
+     * @default a
+     * @public
+     */
+    tagName: 'a',
+
+    attributeBindings: ['href'],
+
+    /**
+     * Computed property to generate a `href="#"` attribute when `tagName` is "a".
+     *
+     * @property href
+     * @type string
+     * @readonly
+     * @protected
+     */
+    href: computed('tagName', function () {
+      if (this.get('tagName').toUpperCase() === 'A') {
+        return '#';
+      }
+    }),
+
+    click: function click(e) {
+      e.preventDefault();
+      this.sendAction();
+    }
+
+  });
+});
+define('ember-bootstrap/components/bs-dropdown', ['exports', 'ember', 'ember-bootstrap/components/bs-dropdown-button', 'ember-bootstrap/mixins/component-parent'], function (exports, _ember, _emberBootstrapComponentsBsDropdownButton, _emberBootstrapMixinsComponentParent) {
+  'use strict';
+
+  var computed = _ember['default'].computed;
+  var observer = _ember['default'].observer;
+
+  /**
+   Bootstrap style dropdown menus, consisting of a toggle element, and the dropdown menu itself.
+   See http://getbootstrap.com/components/#dropdowns
+  
+   Use this component together with two sub components, a dropdown toggle (`Components.DropdownToggle` or
+   `Components.DropdownButton` component) and a dropdown menu (`Components.DropdownMenu`) component:
+  
+   ```hbs
+   <nav class="navbar navbar-default navbar-static">
+     <div class="container-fluid">
+       <ul class="nav navbar-nav">
+         {{#bs-dropdown tagName="li"}}
+           {{#bs-dropdown-toggle}}Dropdown <span class="caret"></span>{{/bs-dropdown-toggle}}
+           {{#bs-dropdown-menu}}
+             <li>{{#link-to "index"}}Something{{/link-to}}</li>
+             <li>{{#link-to "index"}}Something different{{/link-to}}</li>
+           {{/bs-dropdown-menu}}
+         {{/bs-dropdown}}
+       </ul>
+     </div>
+   </nav>
+   ```
+  
+   ### Button dropdowns
+  
+   To use a button as the dropdown toggle element (see http://getbootstrap.com/components/#btn-dropdowns), use the
+   `Components.DropdownButton` component as the toggle:
+  
+   ```hbs
+   {{#bs-dropdown}}
+     {{#bs-dropdown-button}}Dropdown <span class="caret"></span>{{/bs-dropdown-button}}
+     {{#bs-dropdown-menu}}
+       <li>{{#link-to "index"}}Something{{/link-to}}</li>
+       <li>{{#link-to "index"}}Something different{{/link-to}}</li>
+     {{/bs-dropdown-menu}}
+   {{/bs-dropdown}}
+   ```
+  
+   It has all the functionality of a `Components.Button` with additional dropdown support.
+  
+   ### Split button dropdowns
+  
+   To have a regular button with a dropdown button as in http://getbootstrap.com/components/#btn-dropdowns-split, use a
+   `Components.Button` component and a `Components.DropdownButton`:
+  
+   ```hbs
+   {{#bs-dropdown}}
+     {{#bs-button}}Dropdown{{/bs-button}}
+     {{#bs-dropdown-button}}Dropdown <span class="caret"></span>{{/bs-dropdown-button}}
+     {{#bs-dropdown-menu}}
+       <li>{{#link-to "index"}}Something{{/link-to}}</li>
+       <li>{{#link-to "index"}}Something different{{/link-to}}</li>
+     {{/bs-dropdown-menu}}
+   {{/bs-dropdown}}
+   ```
+  
+   ### Dropup style
+  
+   Set the `direction` property to "up" to switch to a "dropup" style:
+  
+   ```hbs
+   {{#bs-dropdown direction="up"}}
+     ...
+   {{/bs-dropdown}}
+   ```
+  
+   @class Dropdown
+   @namespace Components
+   @extends Ember.Component
+   @public
+   */
+  exports['default'] = _ember['default'].Component.extend(_emberBootstrapMixinsComponentParent['default'], {
+    classNameBindings: ['open', 'containerClass'],
+
+    /**
+     * This property reflects the state of the dropdown, whether it is open or closed.
+     *
+     * @property open
+     * @default false
+     * @type boolean
+     * @public
+     */
+    open: false,
+
+    /**
+     * By default clicking on an open dropdown menu will close it. Set this property to false for the menu to stay open.
+     *
+     * @property closeOnMenuClick
+     * @default true
+     * @type boolean
+     * @public
+     */
+    closeOnMenuClick: true,
+
+    /**
+     * jQuery click event name, namespaced to this component's instance to prevent interference between multiple dropdowns.
+     *
+     * @property clickEventName
+     * @type string
+     * @private
+     */
+    clickEventName: undefined,
+
+    /**
+     * By default the dropdown menu will expand downwards. Set to 'up' to expand upwards.
+     *
+     * @property direction
+     * @type string
+     * @default 'down'
+     * @public
+     */
+    direction: 'down',
+
+    /**
+     * A computed property to generate the suiting class for the dropdown container, either "dropdown", "dropup" or "btn-group".
+     *
+     * @property containerClass
+     * @type string
+     * @readonly
+     * @private
+     */
+    containerClass: computed('toggleType', 'direction', function () {
+      if (this.get('toggleType') === 'button') {
+        return this.get('direction') === 'up' ? 'btn-group dropup' : 'btn-group';
+      } else {
+        return this.get('direction') === 'up' ? 'dropup' : 'dropdown';
+      }
+    }),
+
+    /**
+     * This property is "button" if the toggle element is an instance of [Components.DropdownButton](Components.DropdownButton.html), otherwise "toggle".
+     *
+     * @property toggleType
+     * @type string
+     * @readonly
+     * @protected
+     */
+    toggleType: computed('children.[]', function () {
+      if (this.get('children').any(function (view) {
+        return view instanceof _emberBootstrapComponentsBsDropdownButton['default'];
+      })) {
+        return 'button';
+      }
+      return 'toggle';
+    }),
+
+    actions: {
+      toggleDropdown: function toggleDropdown() {
+        this.toggleProperty('open');
+      },
+
+      openDropdown: function openDropdown() {
+        this.set('open', true);
+      },
+
+      closeDropdown: function closeDropdown() {
+        this.set('open', false);
+      }
+    },
+
+    handleClickEvents: observer('open', function () {
+      if (this.get('open')) {
+        _ember['default'].$(document).on(this.clickEventName, _ember['default'].run.bind(this, this.closeOnClickHandler));
+      } else {
+        _ember['default'].$(document).off(this.clickEventName);
+      }
+    }),
+
+    willDestroyElement: function willDestroyElement() {
+      this._super();
+      _ember['default'].$(document).off(this.clickEventName);
+    },
+
+    init: function init() {
+      this._super();
+      // click event name that is namespaced to our component instance, so multiple dropdowns do not interfere
+      // with each other
+      this.clickEventName = 'click.' + this.get('elementId');
+    },
+
+    /**
+     * Handler for click events to close the dropdown
+     *
+     * @method closeOnClickHandler
+     * @param e
+     * @protected
+     */
+    closeOnClickHandler: function closeOnClickHandler(e) {
+      var $target = _ember['default'].$(e.target);
+      if (!this.get('isDestroyed') && $target.closest(this.$().find('.dropdown-toggle')).length === 0 && ($target.closest(this.$().find('.dropdown-menu')).length === 0 || this.get('closeOnMenuClick'))) {
+        this.set('open', false);
+      }
+    }
+  });
+});
+define('ember-bootstrap/components/bs-form-element', ['exports', 'ember', 'ember-bootstrap/components/bs-form-group', 'ember-bootstrap/components/bs-form', 'ember-bootstrap/mixins/component-child'], function (exports, _ember, _emberBootstrapComponentsBsFormGroup, _emberBootstrapComponentsBsForm, _emberBootstrapMixinsComponentChild) {
+  'use strict';
+
+  var computed = _ember['default'].computed;
+  var defineProperty = _ember['default'].defineProperty;
+  var isArray = _ember['default'].isArray;
+  var observer = _ember['default'].observer;
+  var on = _ember['default'].on;
+  var run = _ember['default'].run;
+  var warn = _ember['default'].warn;
+
+  var nonTextFieldControlTypes = _ember['default'].A(['checkbox', 'select', 'textarea']);
+
+  /**
+   Sub class of `Components.FormGroup` that adds automatic form layout markup and form validation features.
+  
+   ### Form layout
+  
+   The appropriate Bootstrap markup for the given `formLayout` and `controlType` is automatically generated to easily
+   create forms without coding the default Bootstrap form markup by hand:
+  
+   ```hbs
+   {{#bs-form formLayout="horizontal" action="submit"}}
+     {{bs-form-element controlType="email" label="Email" placeholder="Email" value=email}}
+     {{bs-form-element controlType="password" label="Password" placeholder="Password" value=password}}
+     {{bs-form-element controlType="checkbox" label="Remember me" value=rememberMe}}
+     {{bs-button defaultText="Submit" type="primary" buttonType="submit"}}
+   {{/bs-form}}
+   ```
+  
+   ### Form validation
+  
+   In the following example the control elements of the three form elements value will be bound to the properties
+   (given by `property`) of the form's `model`, which in this case is its controller (see `model=this`):
+  
+   ```hbs
+   {{#bs-form formLayout="horizontal" model=this action="submit"}}
+     {{bs-form-element controlType="email" label="Email" placeholder="Email" property="email"}}
+     {{bs-form-element controlType="password" label="Password" placeholder="Password" property="password"}}
+     {{bs-form-element controlType="checkbox" label="Remember me" property="rememberMe"}}
+     {{bs-button defaultText="Submit" type="primary" buttonType="submit"}}
+   {{/bs-form}}
+   ```
+  
+   By using this indirection in comparison to directly binding the `value` property, you get the benefit of automatic
+   form validation, given that your `model` has a supported means of validating itself.
+   See [Components.Form](Components.Form.html) for details on how to enable form validation.
+  
+   In the example above the `model` was our controller itself, so the control elements were bound to the appropriate
+   properties of our controller. A controller implementing validations on those properties could look like this:
+  
+   ```js
+   import Ember from 'ember';
+   import EmberValidations from 'ember-validations';
+  
+   export default Ember.Controller.extend(EmberValidations,{
+     email: null,
+     password: null,
+     rememberMe: false,
+     validations: {
+       email: {
+         presence: true,
+         format: {
+           with: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/
+         }
+       },
+       password: {
+         presence: true,
+         length: { minimum: 6, maximum: 10}
+       },
+       comments: {
+         length: { minimum: 5, maximum: 20}
+       }
+     }
+   });
+   ```
+  
+   If the `showValidation` property is `true` (which is automatically the case if a `focusOut` event is captured from the
+   control element or the containing `Components.Form` was submitted with its `model` failing validation) and there are
+   validation errors for the `model`'s `property`, the appropriate Bootstrap validation markup (see
+   http://getbootstrap.com/css/#forms-control-validation) is applied:
+  
+   * `validation` is set to 'error', which will set the `has-error` CSS class
+   * the `errorIcon` feedback icon is displayed if `controlType` is a text field
+   * the validation messages are displayed as Bootstrap `help-block`s
+  
+   The same applies for warning messages, if the used validation library supports this. (Currently only
+   [ember-cp-validations](https://github.com/offirgolan/ember-cp-validations))
+  
+   As soon as the validation is successful again...
+  
+   * `validation` is set to 'success', which will set the `has-success` CSS class
+   * the `successIcon` feedback icon is displayed if `controlType` is a text field
+   * the validation messages are removed
+  
+   ### Custom controls
+  
+   Apart from the standard built-in browser controls (see the `controlType` property), you can use any custom control simply
+   by invoking the component with a block template. Use whatever control you might want, for example a select-2 component
+   (from the [ember-select-2 addon](https://istefo.github.io/ember-select-2)):
+  
+   ```hbs
+   {{#bs-form formLayout="horizontal" model=this action="submit"}}
+     {{#bs-form-element label="Select-2" property="gender" useIcons=false as |value id validationState|}}
+       {{select-2 id=id content=genderChoices optionLabelPath="label" value=value searchEnabled=false}}
+     {{/bs-form-element}}
+   {{/bs-form}}
+   ```
+  
+   If your custom control does not render an input element, you should set `useIcons` to `false` since bootstrap only supports
+   feedback icons with textual `<input class="form-control">` elements.
+  
+   @class FormElement
+   @namespace Components
+   @extends Components.FormGroup
+   @public
+   */
+  exports['default'] = _emberBootstrapComponentsBsFormGroup['default'].extend(_emberBootstrapMixinsComponentChild['default'], {
+    classNameBindings: ['disabled:is-disabled', 'required:is-required', 'isValidating'],
+
+    /**
+     * Text to display within a `<label>` tag.
+     *
+     * You should include a label for every form input cause otherwise screen readers
+     * will have trouble with your forms. Use `invisibleLabel` property if you want
+     * to hide them.
+     *
+     * @property label
+     * @type string
+     * @public
+     */
+    label: null,
+
+    /**
+     * Controls label visibilty by adding 'sr-only' class.
+     *
+     * @property invisibleLabel
+     * @type boolean
+     * @public
+     */
+    invisibleLabel: false,
+
+    /**
+     * The type of the control widget.
+     * Supported types:
+     *
+     * * 'text'
+     * * 'checkbox'
+     * * 'select' (deprecated)
+     * * 'textarea'
+     * * any other type will use an input tag with the `controlType` value as the type attribute (for e.g. HTML5 input
+     * types like 'email'), and the same layout as the 'text' type
+     *
+     * @property controlType
+     * @type string
+     * @public
+     */
+    controlType: 'text',
+
+    /**
+     * The value of the control element is bound to this property. You can bind it to some controller property to
+     * get/set the control element's value:
+     *
+     * ```hbs
+     * {{bs-form-element controlType="email" label="Email" placeholder="Email" value=email}}
+     * ```
+     *
+     * Note: you loose the ability to validate this form element by directly binding to its value. It is recommended
+     * to use the `property` feature instead.
+     *
+     *
+     * @property value
+     * @public
+     */
+    value: null,
+
+    /**
+     The property name of the form element's `model` (by default the `model` of its parent `Components.Form`) that this
+     form element should represent. The control element's value will automatically be bound to the model property's
+     value.
+      Using this property enables form validation on this element.
+      @property property
+     @type string
+     @public
+     */
+    property: null,
+
+    /**
+     * Control element's HTML5 placeholder attribute
+     *
+     * @property placeholder
+     * @type string
+     * @public
+     */
+    placeholder: null,
+
+    /**
+     * Control element's HTML5 disabled attribute
+     *
+     * @property disabled
+     * @type boolean
+     * @public
+     */
+    disabled: false,
+
+    /**
+     * Control element's HTML5 required attribute
+     *
+     * @property required
+     * @type boolean
+     * @public
+     */
+    required: false,
+
+    /**
+     * Control element's HTML5 autofocus attribute
+     *
+     * @property autofocus
+     * @type boolean
+     * @public
+     */
+    autofocus: false,
+
+    /**
+     * Control element's name attribute
+     *
+     * @property name
+     * @type string
+     * @public
+     */
+    name: null,
+
+    /**
+     * An array of objects containing the selection of choices for multiple choice style form controls, e.g. select
+     * boxes.
+     *
+     * ```hbs
+     * {{bs-form-element controlType="select" choices=countries choiceLabelProperty="name" choiceValueProperty="id" label="Country" value=selectedCountry}}
+     * ```
+     *
+     * Be sure to also set the `choiceValueProperty` and `choiceLabelProperty` properties.
+     *
+     * @property choices
+     * @type array
+     * @public
+     */
+    choices: _ember['default'].A(),
+
+    /**
+     * The property of the `choices` array of objects, containing the value of the choice, e.g. the select box option.
+     *
+     * @property choiceValueProperty
+     * @type string
+     * @public
+     */
+    choiceValueProperty: null,
+
+    /**
+     * The property of the `choices` array of objects, containing the label of the choice, e.g. the select box option.
+     *
+     * @property choiceLabelProperty
+     * @type string
+     * @public
+     */
+    choiceLabelProperty: null,
+
+    /**
+     * Textarea's rows attribute (ignored for other `controlType`s)
+     *
+     * @property rows
+     * @type number
+     * @default 5
+     * @public
+     */
+    rows: 5,
+
+    /**
+     * Textarea's cols attribute (ignored for other `controlType`s)
+     *
+     * @property cols
+     * @type number
+     * @public
+     */
+    cols: null,
+
+    /**
+     * The model used for validation. Defaults to the parent `Components.Form`'s `model`
+     *
+     * @property model
+     * @public
+     */
+    model: computed.reads('form.model'),
+
+    /**
+     * The array of error messages from the `model`'s validation.
+     *
+     * @property errors
+     * @type array
+     * @protected
+     */
+    errors: null,
+
+    /**
+     * @property hasErrors
+     * @type boolean
+     * @readonly
+     * @protected
+     */
+    hasErrors: computed.gt('errors.length', 0),
+
+    /**
+     * The array of warning messages from the `model`'s validation.
+     *
+     * @property errors
+     * @type array
+     * @protected
+     */
+    warnings: null,
+
+    /**
+     * @property hasWarnings
+     * @type boolean
+     * @readonly
+     * @protected
+     */
+    hasWarnings: computed.gt('warnings.length', 0),
+
+    /**
+     * The array of validation messages (either errors or warnings) rom the `model`'s validation.
+     *
+     * @property validationMessages
+     * @type array
+     * @protected
+     */
+    validationMessages: computed('hasErrors', 'hasWarnings', 'errors.[]', 'warnings.[]', function () {
+      if (this.get('hasErrors')) {
+        return this.get('errors');
+      }
+      if (this.get('hasWarnings')) {
+        return this.get('warnings');
+      }
+      return null;
+    }),
+
+    /**
+     * @property hasValidationMessages
+     * @type boolean
+     * @readonly
+     * @protected
+     */
+    hasValidationMessages: computed.gt('validationMessages.length', 0),
+
+    /**
+     * @property hasValidator
+     * @type boolean
+     * @readonly
+     * @protected
+     */
+    hasValidator: computed.notEmpty('model.validate'),
+
+    /**
+     * Set a validating state for async validations
+     *
+     * @property isValidating
+     * @type boolean
+     * @default false
+     * @public
+     */
+    isValidating: false,
+
+    /**
+     * If `true` form validation markup is rendered (requires a validatable `model`).
+     *
+     * @property showValidation
+     * @type boolean
+     * @default false
+     * @public
+     */
+    showValidation: false,
+
+    /**
+     * @property showValidationMessages
+     * @type boolean
+     * @readonly
+     * @protected
+     */
+    showValidationMessages: computed.and('showValidation', 'hasValidationMessages'),
+
+    /**
+     * Event or list of events which enable form validation markup rendering.
+     * Supported events: ['focusOut', 'change']
+     *
+     * @property showValidationOn
+     * @type string|array
+     * @default ['focusOut']
+     * @public
+     */
+    showValidationOn: ['focusOut'],
+
+    /**
+     * @property _showValidationOn
+     * @type array
+     * @readonly
+     * @private
+     */
+    _showValidationOn: computed('showValidationOn', function () {
+      var showValidationOn = this.get('showValidationOn');
+
+      if (isArray(showValidationOn)) {
+        return showValidationOn;
+      }
+
+      if (typeof showValidationOn.toString === 'function') {
+        return [showValidationOn];
+      }
+
+      warn('showValidationOn must be a String or an Array');
+      return [];
+    }),
+
+    /**
+     * @method showValidationOnHandler
+     * @private
+     */
+    showValidationOnHandler: function showValidationOnHandler(event) {
+      if (this.get('_showValidationOn').indexOf(event) !== -1) {
+        this.set('showValidation', true);
+      }
+    },
+
+    /**
+     * @property showErrors
+     * @type boolean
+     * @readonly
+     * @deprecated
+     * @protected
+     */
+    showErrors: computed.deprecatingAlias('showValidationMessages'),
+
+    /**
+     * The validation ("error" or "success") or null if no validation is to be shown. Automatically computed from the
+     * models validation state.
+     *
+     * @property validation
+     * @readonly
+     * @type string
+     * @protected
+     */
+    validation: computed('hasErrors', 'hasWarnings', 'hasValidator', 'showValidation', 'isValidating', 'disabled', function () {
+      if (!this.get('showValidation') || !this.get('hasValidator') || this.get('isValidating') || this.get('disabled')) {
+        return null;
+      }
+      return this.get('hasErrors') ? 'error' : this.get('hasWarnings') ? 'warning' : 'success';
+    }),
+
+    /**
+     * @property hasLabel
+     * @type boolean
+     * @readonly
+     * @protected
+     */
+    hasLabel: computed.notEmpty('label'),
+
+    /**
+     * True for text field `controlType`s
+     *
+     * @property useIcons
+     * @type boolean
+     * @readonly
+     * @public
+     */
+    useIcons: computed('controlType', function () {
+      return !nonTextFieldControlTypes.includes(this.get('controlType'));
+    }),
+
+    /**
+     * The form layout used for the markup generation (see http://getbootstrap.com/css/#forms):
+     *
+     * * 'horizontal'
+     * * 'vertical'
+     * * 'inline'
+     *
+     * Defaults to the parent `form`'s `formLayout` property.
+     *
+     * @property formLayout
+     * @type string
+     * @public
+     */
+    formLayout: computed.alias('form.formLayout'),
+
+    /**
+     * @property isVertical
+     * @type boolean
+     * @readonly
+     * @protected
+     */
+    isVertical: computed.equal('formLayout', 'vertical'),
+
+    /**
+     * @property isHorizontal
+     * @type boolean
+     * @readonly
+     * @protected
+     */
+    isHorizontal: computed.equal('formLayout', 'horizontal'),
+
+    /**
+     * @property isInline
+     * @type boolean
+     * @readonly
+     * @protected
+     */
+    isInline: computed.equal('formLayout', 'inline'),
+
+    /**
+     * The Bootstrap grid class for form labels within a horizontal layout form. Defaults to the value of the same
+     * property of the parent form. The corresponding grid class for form controls is automatically computed.
+     *
+     * @property horizontalLabelGridClass
+     * @type string
+     * @default 'col-md-4'
+     * @public
+     */
+    horizontalLabelGridClass: computed.oneWay('form.horizontalLabelGridClass'),
+
+    /**
+     * Computed property that specifies the Bootstrap grid class for form controls within a horizontal layout form.
+     *
+     * @property horizontalInputGridClass
+     * @type string
+     * @readonly
+     * @protected
+     */
+    horizontalInputGridClass: computed('horizontalLabelGridClass', function () {
+      var parts = this.get('horizontalLabelGridClass').split('-');
+      _ember['default'].assert('horizontalInputGridClass must match format bootstrap grid column class', parts.length === 3);
+      parts[2] = 12 - parts[2];
+      return parts.join('-');
+    }),
+
+    /**
+     * Computed property that specifies the Bootstrap offset grid class for form controls within a horizontal layout
+     * form, that have no label.
+     *
+     * @property horizontalInputOffsetGridClass
+     * @type string
+     * @readonly
+     * @protected
+     */
+    horizontalInputOffsetGridClass: computed('horizontalLabelGridClass', function () {
+      var parts = this.get('horizontalLabelGridClass').split('-');
+      parts.splice(2, 0, 'offset');
+      return parts.join('-');
+    }),
+
+    /**
+     * ID for input field and the corresponding label's "for" attribute
+     *
+     * @property formElementId
+     * @type string
+     * @private
+     */
+    formElementId: computed('elementId', function () {
+      var elementId = this.get('elementId');
+      return elementId + '-field';
+    }),
+
+    /**
+     * Reference to the parent `Components.Form` class.
+     *
+     * @property form
+     * @protected
+     */
+    form: computed(function () {
+      return this.nearestOfType(_emberBootstrapComponentsBsForm['default']);
+    }),
+
+    formElementTemplate: computed('formLayout', 'controlType', function () {
+      var formLayout = this.getWithDefault('formLayout', 'vertical');
+      var inputLayout = undefined;
+      var controlType = this.get('controlType');
+
+      switch (true) {
+        case nonTextFieldControlTypes.includes(controlType):
+          inputLayout = controlType;
+          break;
+        default:
+          inputLayout = 'default';
+      }
+
+      return 'components/form-element/' + formLayout + '/' + inputLayout;
+    }),
+
+    /**
+     * Setup validation properties. This method acts as a hook for external validation
+     * libraries to overwrite. In case of failed validations the `errors` property should contain an array of error messages.
+     *
+     * @method setupValidations
+     * @protected
+     */
+    setupValidations: _ember['default'].K,
+
+    /**
+     * Listen for focusOut events from the control element to automatically set `showValidation` to true to enable
+     * form validation markup rendering if `showValidationsOn` contains `focusOut`.
+     *
+     * @event focusOut
+     * @private
+     */
+    focusOut: function focusOut() {
+      this.showValidationOnHandler('focusOut');
+    },
+
+    /**
+     * Listen for change events from the control element to automatically set `showValidation` to true to enable
+     * form validation markup rendering if `showValidationsOn` contains `change`.
+     *
+     * @event change
+     * @private
+     */
+    change: function change() {
+      this.showValidationOnHandler('change');
+    },
+
+    init: function init() {
+      this._super();
+      if (!_ember['default'].isBlank(this.get('property'))) {
+        defineProperty(this, 'value', computed.alias('model.' + this.get('property')));
+        this.setupValidations();
+      }
+    },
+
+    /*
+     * adjust feedback icon position
+     *
+     * Bootstrap documentation:
+     *  Manual positioning of feedback icons is required for [...] input groups
+     *  with an add-on on the right. [...] For input groups, adjust the right
+     *  value to an appropriate pixel value depending on the width of your addon.
+     */
+    adjustFeedbackIcons: on('didInsertElement', observer('hasFeedback', 'formLayout', function () {
+      var _this = this;
+
+      run.scheduleOnce('afterRender', function () {
+        // validation state icons are only shown if form element has feedback
+        if (_this.get('hasFeedback') && !_this.get('isDestroying')) {
+          // form group element has
+          _this.$()
+          // an input-group
+          .has('.input-group')
+          // an addon or button on right si de
+          .has('.input-group input + .input-group-addon, .input-group input + .input-group-btn')
+          // an icon showing validation state
+          .has('.form-control-feedback').each(function (i, formGroups) {
+            // clear existing adjustment
+            _this.$('.form-control-feedback').css('right', '');
+            var feedbackIcon = _this.$('.form-control-feedback', formGroups);
+            var defaultPositionString = feedbackIcon.css('right');
+            _ember['default'].assert(defaultPositionString.substr(-2) === 'px', '.form-control-feedback css right units other than px are not supported');
+            var defaultPosition = parseInt(defaultPositionString.substr(0, defaultPositionString.length - 2));
+            // Bootstrap documentation:
+            //  We do not support multiple add-ons (.input-group-addon or .input-group-btn) on a single side.
+            // therefore we could rely on having only one input-group-addon or input-group-btn
+            var inputGroupWidth = _this.$('input + .input-group-addon, input + .input-group-btn', formGroups).outerWidth();
+            var adjustedPosition = defaultPosition + inputGroupWidth;
+
+            feedbackIcon.css('right', adjustedPosition);
+          });
+        }
+      });
+    }))
+  });
+});
+define('ember-bootstrap/components/bs-form-group', ['exports', 'ember', 'ember-bootstrap/config'], function (exports, _ember, _emberBootstrapConfig) {
+  'use strict';
+
+  var computed = _ember['default'].computed;
+
+  /**
+   This component renders a `<div class="form-group">` element, with support for validation states and feedback icons.
+   Use as a block level component:
+  
+   ```hbs
+   {{#bs-form-group validation=firstNameValidation}}
+     <label class="control-label">First name</label>
+     {{bs-input type="text" value=firstname}}
+   {{/bs-form-group}}
+   ```
+  
+   If the `validation` property is set to some state (usually Bootstrap's predefined states "success",
+   "warning" or "error"), the appropriate styles will be added, together with a feedback icon.
+   See http://getbootstrap.com/css/#forms-control-validation
+  
+   @class FormGroup
+   @namespace Components
+   @extends Ember.Component
+   @public
+   */
+  exports['default'] = _ember['default'].Component.extend({
+
+    classNames: ['form-group'],
+    classNameBindings: ['validationClass', 'hasFeedback'],
+
+    /**
+     * Whether to show validation state icons.
+     * See http://getbootstrap.com/css/#forms-control-validation
+     *
+     * @property useIcons
+     * @type boolean
+     * @default true
+     * @public
+     */
+    useIcons: true,
+
+    /**
+     * Computed property which is true if the form group is in a validation state
+     *
+     * @property hasValidation
+     * @type boolean
+     * @public
+     * @readonly
+     */
+    hasValidation: computed.notEmpty('validation'),
+
+    /**
+     * Computed property which is true if the form group is showing a validation icon
+     *
+     * @property hasFeedback
+     * @type boolean
+     * @public
+     * @readonly
+     */
+    hasFeedback: computed.and('hasValidation', 'useIcons', 'hasIconForValidationState'),
+
+    /**
+     * The icon classes to be used for a feedback icon in a "success" validation state.
+     * Defaults to the usual glyphicon classes. This is ignored, and no feedback icon is
+     * rendered if `useIcons` is false.
+     *
+     * You can change this globally by setting the `formValidationSuccessIcon` property of
+     * the ember-bootstrap configuration in your config/environment.js file. If your are
+     * using FontAwesome for example:
+     *
+     * ```js
+     * ENV['ember-bootstrap'] = {
+       *   formValidationSuccessIcon: 'fa fa-check'
+       * }
+     * ```
+     *
+     * @property successIcon
+     * @type string
+     * @default 'glyphicon glyphicon-ok'
+     * @public
+     */
+    successIcon: _emberBootstrapConfig['default'].formValidationSuccessIcon,
+
+    /**
+     * The icon classes to be used for a feedback icon in a "error" validation state.
+     * Defaults to the usual glyphicon classes. This is ignored, and no feedback icon is
+     * rendered if `useIcons` is false.
+     *
+     * You can change this globally by setting the `formValidationErrorIcon` property of
+     * the ember-bootstrap configuration in your config/environment.js file. If your are
+     * using FontAwesome for example:
+     *
+     * ```js
+     * ENV['ember-bootstrap'] = {
+       *   formValidationErrorIcon: 'fa fa-times'
+       * }
+     * ```
+     *
+     * @property errorIcon
+     * @type string
+     * @public
+     */
+    errorIcon: _emberBootstrapConfig['default'].formValidationErrorIcon,
+
+    /**
+     * The icon classes to be used for a feedback icon in a "warning" validation state.
+     * Defaults to the usual glyphicon classes. This is ignored, and no feedback icon is
+     * rendered if `useIcons` is false.
+     *
+     * You can change this globally by setting the `formValidationWarningIcon` property of
+     * the ember-bootstrap configuration in your config/environment.js file. If your are
+     * using FontAwesome for example:
+     *
+     * ```js
+     * ENV['ember-bootstrap'] = {
+       *   formValidationWarningIcon: 'fa fa-warning'
+       * }
+     * ```
+     *
+     * @property warningIcon
+     * @type string
+     * @public
+     */
+    warningIcon: _emberBootstrapConfig['default'].formValidationWarningIcon,
+
+    /**
+     * The icon classes to be used for a feedback icon in a "info" validation state.
+     * Defaults to the usual glyphicon classes. This is ignored, and no feedback icon is
+     * rendered if `useIcons` is false.
+     *
+     * You can change this globally by setting the `formValidationInfoIcon` property of
+     * the ember-bootstrap configuration in your config/environment.js file. If your are
+     * using FontAwesome for example:
+     *
+     * ```js
+     * ENV['ember-bootstrap'] = {
+       *   formValidationInfoIcon: 'fa fa-info-circle
+       * }
+     * ```
+     *
+     * The "info" validation state is not supported in Bootstrap CSS, but can be easily added
+     * using the following LESS style:
+     * ```less
+     * .has-info {
+       *   .form-control-validation(@state-info-text; @state-info-text; @state-info-bg);
+       * }
+     * ```
+     *
+     * @property infoIcon
+     * @type string
+     * @public
+     */
+    infoIcon: _emberBootstrapConfig['default'].formValidationInfoIcon,
+
+    iconName: computed('validation', function () {
+      var validation = this.get('validation') || 'success';
+      return this.get(validation + 'Icon');
+    }),
+
+    hasIconForValidationState: computed.notEmpty('iconName'),
+
+    /**
+     * Set to a validation state to render the form-group with a validation style.
+     * See http://getbootstrap.com/css/#forms-control-validation
+     *
+     * The default states of "success", "warning" and "error" are supported by Bootstrap out-of-the-box.
+     * But you can use custom states as well. This will set a has-<state> class, and (if `useIcons`is true)
+     * a feedback whose class is taken from the <state>Icon property
+     *
+     * @property validation
+     * @type string
+     * @public
+     */
+    validation: null,
+
+    validationClass: computed('validation', function () {
+      var validation = this.get('validation');
+      if (!_ember['default'].isBlank(validation)) {
+        return 'has-' + this.get('validation');
+      }
+    })
+  });
+});
+define('ember-bootstrap/components/bs-form', ['exports', 'ember', 'ember-bootstrap/components/bs-form-element', 'ember-bootstrap/mixins/component-parent'], function (exports, _ember, _emberBootstrapComponentsBsFormElement, _emberBootstrapMixinsComponentParent) {
+  'use strict';
+
+  var computed = _ember['default'].computed;
+
+  /**
+    Render a form with the appropriate Bootstrap layout class (see `formLayout`).
+    Allows setting a `model` that nested `Components.FormElement`s can access, and that can provide form validation (see below)
+  
+    You can use whatever markup you like within the form:
+  
+   ```handlebars
+     {{#bs-form action="submit"}}
+       {{#bs-form-group validation=firstNameValidation}}
+         <label class="control-label">First name</label>
+         {{bs-input type="text" value=firstname}}
+      {{/bs-form-group}}
+    {{/bs-form}}
+    ```
+  
+    However to benefit from features such as automatic form markup, validations and validation markup, use `Components.FormElement`
+    as nested components. See below for an example.
+  
+    ### Submitting the form
+  
+    When the form is submitted (e.g. by clicking a submit button), the event will be intercepted and the default action
+    will be sent to the controller.
+    In case the form supports validation (see "Form validation" below), the "before" action is called (which allows you to
+    do e.g. model data normalization), then the available  validation rules are evaluated, and if those fail, the "invalid"
+    action is sent instead of the default "action".
+  
+    ### Use with Components.FormElement
+  
+    When using `Components.FormElement`s with their `property` set to property names of the form's validation enabled
+    `model`, you gain some additional powerful features:
+    * the appropriate Bootstrap markup for the given `formLayout` and the form element's `controlType` is automatically generated
+    * markup for validation states and error messages is generated based on the model's validation (if available), when submitting the form
+    with an invalid validation, or when focusing out of invalid inputs
+  
+    ```handlebars
+    {{#bs-form formLayout="horizontal" model=this action="submit"}}
+      {{bs-form-element controlType="email" label="Email" placeholder="Email" property="email"}}
+      {{bs-form-element controlType="password" label="Password" placeholder="Password" property="password"}}
+      {{bs-form-element controlType="checkbox" label="Remember me" property="rememberMe"}}
+      {{bs-button defaultText="Submit" type="primary" buttonType="submit"}}
+    {{/bs-form}}
+    ```
+  
+    See the [Components.FormElement](Components.FormElement.html) API docs for further information.
+  
+    ### Form validation
+  
+    All version of ember-bootstrap beginning from 0.7.0 do not come with built-in support for validation engines anymore.
+    Instead support is added usually by additional Ember addons, for example:
+  
+    * [ember-bootstrap-validations](https://github.com/kaliber5/ember-bootstrap-validations): adds support for [ember-validations](https://github.com/DockYard/ember-validations)
+    * [ember-bootstrap-cp-validations](https://github.com/offirgolan/ember-bootstrap-cp-validations): adds support for [ember-cp-validations](https://github.com/offirgolan/ember-cp-validations)
+    * [ember-bootstrap-changeset-validations](https://github.com/kaliber5/ember-bootstrap-changeset-validations): adds support for [ember-changeset](https://github.com/poteto/ember-changeset)
+  
+    To add your own validation support, you have to:
+  
+    * extend this component, setting `hasValidator` to true if validations are available (by means of a computed property for example), and implementing the `validate` method
+    * extend the [Components.FormElement](Components.FormElement.html) component and implement the `setupValidations` hook or simply override the `errors` property to add the validation error messages to be displayed
+  
+    When validation fails, the appropriate Bootstrap markup is added automatically, i.e. the error classes are applied and
+    the validation messages are shown for each form element. In case the validation library supports it, also warning messages
+    are shown. See the [Components.FormElement](Components.FormElement.html) documentation for further details.
+  
+    See the above mentioned addons for examples.
+  
+  
+    @class Form
+    @namespace Components
+    @extends Ember.Component
+    @public
+   */
+  exports['default'] = _ember['default'].Component.extend(_emberBootstrapMixinsComponentParent['default'], {
+    tagName: 'form',
+    classNameBindings: ['layoutClass'],
+    attributeBindings: ['_novalidate:novalidate'],
+    ariaRole: 'form',
+
+    /**
+     * Bootstrap form class name (computed)
+     *
+     * @property layoutClass
+     * @type string
+     * @readonly
+     * @protected
+     *
+     */
+    layoutClass: computed('formLayout', function () {
+      var layout = this.get('formLayout');
+      return layout === 'vertical' ? 'form' : 'form-' + layout;
+    }),
+
+    /**
+     * Set a model that this form should represent. This serves several purposes:
+     *
+     * * child `Components.FormElement`s can access and bind to this model by their `property`
+     * * when the model supports validation by using the [ember-validations](https://github.com/dockyard/ember-validations) mixin,
+     * child `Components.FormElement`s will look at the validation information of their `property` and render their form group accordingly.
+     * Moreover the form's `submit` event handler will validate the model and deny submitting if the model is not validated successfully.
+     *
+     * @property model
+     * @type Ember.Object
+     * @public
+     */
+    model: null,
+
+    /**
+     * Set the layout of the form to either "vertical", "horizontal" or "inline". See http://getbootstrap.com/css/#forms-inline and http://getbootstrap.com/css/#forms-horizontal
+     *
+     * @property formLayout
+     * @type string
+     * @public
+     */
+    formLayout: 'vertical',
+
+    /**
+     * Check if validating the model is supported. This needs to be implemented by another addon.
+     *
+     * @property hasValidator
+     * @type boolean
+     * @readonly
+     * @protected
+     */
+    hasValidator: false,
+
+    /**
+     * The Bootstrap grid class for form labels. This is used by the `Components.FormElement` class as a default for the
+     * whole form.
+     *
+     * @property horizontalLabelGridClass
+     * @type string
+     * @default 'col-md-4'
+     * @public
+     */
+    horizontalLabelGridClass: 'col-md-4',
+
+    /**
+     * If set to true pressing enter will submit the form, even if no submit button is present
+     *
+     * @property submitOnEnter
+     * @type boolean
+     * @default false
+     * @public
+     */
+    submitOnEnter: false,
+
+    /**
+     * If set to true novalidate attribute is present on form element
+     *
+     * @property novalidate
+     * @type boolean
+     * @default null
+     * @public
+     */
+    novalidate: false,
+
+    _novalidate: computed('novalidate', function () {
+      return this.get('novalidate') === true ? '' : undefined;
+    }),
+
+    /**
+     * An array of `Components.FormElement`s that are children of this form.
+     *
+     * @property childFormElements
+     * @type Array
+     * @readonly
+     * @protected
+     */
+    childFormElements: computed.filter('children', function (view) {
+      return view instanceof _emberBootstrapComponentsBsFormElement['default'];
+    }),
+
+    /**
+     * Validate hook which will return a promise that will either resolve if the model is valid
+     * or reject if it's not. This should be overridden to add validation support.
+     *
+     * @param Object model
+     * @return {Promise}
+     * @public
+     */
+    validate: function validate() /* model */{
+      _ember['default'].deprecate('[ember-bootstrap] Validation support has been moved to 3rd party addons.\n' + 'ember-validations: https://github.com/kaliber5/ember-bootstrap-validations\n' + 'ember-cp-validations: https://github.com/offirgolan/ember-bootstrap-cp-validations\n', false, {
+        id: 'ember-bootstrap.form.validate',
+        url: 'http://kaliber5.github.io/ember-bootstrap/api/classes/Components.Form.html'
+      });
+    },
+
+    /**
+     * A handler called before the form is validated (if possible) and submitted.
+     *
+     * @event before
+     * @param Object model  The form's `model`
+     * @public
+     */
+
+    /**
+     * A handler called when submit has been triggered and the model has passed all validations (if present).
+     *
+     * @event action
+     * @param Object model  The form's `model`
+     * @param Object result The returned result from the validate method, if validation is available
+     * @public
+     */
+
+    /**
+     * A handler called when validation of the model has failed.
+     *
+     * @event invalid
+     * @param Object error
+     * @public
+     */
+
+    /**
+     * Submit handler that will send the default action ("action") to the controller when submitting the form.
+     *
+     * If there is a supplied `model` that supports validation (`hasValidator`) the model will be validated before, and
+     * only if validation is successful the default action will be sent. Otherwise an "invalid" action will be sent, and
+     * all the `showValidation` property of all child `Components.FormElement`s will be set to true, so error state and
+     * messages will be shown automatically.
+     *
+     * @method submit
+     * @private
+     */
+    submit: function submit(e) {
+      var _this = this;
+
+      if (e) {
+        e.preventDefault();
+      }
+      var model = this.get('model');
+
+      this.sendAction('before', model);
+
+      if (!this.get('hasValidator')) {
+        return this.sendAction('action', model);
+      } else {
+        var validationPromise = this.validate(this.get('model'));
+        if (validationPromise && validationPromise instanceof _ember['default'].RSVP.Promise) {
+          validationPromise.then(function (r) {
+            return _this.sendAction('action', model, r);
+          }, function (err) {
+            _this.get('childFormElements').setEach('showValidation', true);
+            return _this.sendAction('invalid', err);
+          });
+        }
+      }
+    },
+
+    keyPress: function keyPress(e) {
+      var code = e.keyCode || e.which;
+      if (code === 13 && this.get('submitOnEnter')) {
+        this.$().submit();
+      }
+    }
+  });
+});
+define('ember-bootstrap/components/bs-input', ['exports', 'ember'], function (exports, _ember) {
+  'use strict';
+
+  /**
+   Extends Ember.TextField to add Bootstrap's 'form-control' class.
+  
+   @class Input
+   @namespace Components
+   @extends Ember.TextField
+   @public
+   */
+  exports['default'] = _ember['default'].TextField.extend({
+    classNames: ['form-control']
+  });
+});
+define('ember-bootstrap/components/bs-modal-body', ['exports', 'ember'], function (exports, _ember) {
+  'use strict';
+
+  /**
+  
+   Modal body element used within [Components.Modal](Components.Modal.html) components. See there for examples.
+  
+   @class ModalBody
+   @namespace Components
+   @extends Ember.Component
+   @public
+   */
+  exports['default'] = _ember['default'].Component.extend({
+    classNames: ['modal-body']
+  });
+});
+define('ember-bootstrap/components/bs-modal-dialog', ['exports', 'ember'], function (exports, _ember) {
+  'use strict';
+
+  var computed = _ember['default'].computed;
+
+  /**
+    Internal component for modal's markup and event handling. Should not be used directly.
+  
+    @class ModalDialog
+    @namespace Components
+    @extends Ember.Component
+    @private
+   */
+  exports['default'] = _ember['default'].Component.extend({
+    classNames: ['modal'],
+    classNameBindings: ['fade', 'in'],
+    attributeBindings: ['tabindex'],
+    ariaRole: 'dialog',
+    tabindex: '-1',
+
+    /**
+     * The title of the modal, visible in the modal header. Is ignored if `header` is false.
+     *
+     * @property title
+     * @type string
+     * @public
+     */
+    title: null,
+
+    /**
+     * Display a close button (x icon) in the corner of the modal header.
+     *
+     * @property closeButton
+     * @type boolean
+     * @default true
+     * @public
+     */
+    closeButton: true,
+
+    /**
+     * Set to false to disable fade animations.
+     *
+     * @property fade
+     * @type boolean
+     * @default true
+     * @public
+     */
+    fade: true,
+
+    /**
+     * Used to apply Bootstrap's "in" class
+     *
+     * @property in
+     * @type boolean
+     * @default false
+     * @private
+     */
+    'in': false,
+
+    /**
+     * Closes the modal when escape key is pressed.
+     *
+     * @property keyboard
+     * @type boolean
+     * @default true
+     * @public
+     */
+    keyboard: true,
+
+    /**
+     * Generate a modal header component automatically. Set to false to disable. In this case you would want to include an
+     * instance of [Components.ModalHeader](Components.ModalHeader.html) in the components block template
+     *
+     * @property header
+     * @type boolean
+     * @default true
+     * @public
+     */
+    header: true,
+
+    /**
+     * Generate a modal body component automatically. Set to false to disable. In this case you would want to include an
+     * instance of [Components.ModalBody](Components.ModalBody.html) in the components block template.
+     *
+     * Always set this to false if `header` and/or `footer` is false!
+     *
+     * @property body
+     * @type boolean
+     * @default true
+     * @public
+     */
+    body: true,
+
+    /**
+     * Generate a modal footer component automatically. Set to false to disable. In this case you would want to include an
+     * instance of [Components.ModalFooter](Components.ModalFooter.html) in the components block template
+     *
+     * @property footer
+     * @type boolean
+     * @default true
+     * @public
+     */
+    footer: true,
+
+    /**
+     * Property for size styling, set to null (default), 'lg' or 'sm'
+     *
+     * Also see the [Bootstrap docs](http://getbootstrap.com/javascript/#modals-sizes)
+     *
+     * @property size
+     * @type String
+     * @public
+     */
+    size: null,
+
+    /**
+     * If true clicking on the backdrop will close the modal.
+     *
+     * @property backdropClose
+     * @type boolean
+     * @default true
+     * @public
+     */
+    backdropClose: true,
+
+    /**
+     * Name of the size class
+     *
+     * @property sizeClass
+     * @type string
+     * @private
+     */
+    sizeClass: computed('size', function () {
+      var size = this.get('size');
+      return _ember['default'].isBlank(size) ? null : 'modal-' + size;
+    }),
+
+    keyDown: function keyDown(e) {
+      var code = e.keyCode || e.which;
+      if (code === 27 && this.get('keyboard')) {
+        this.sendAction('close');
+      }
+    },
+
+    click: function click(e) {
+      if (e.target !== e.currentTarget || !this.get('backdropClose')) {
+        return;
+      }
+      this.sendAction('close');
+    }
+
+  });
+});
+define('ember-bootstrap/components/bs-modal-footer', ['exports', 'ember', 'ember-bootstrap/mixins/modal-closer'], function (exports, _ember, _emberBootstrapMixinsModalCloser) {
+  'use strict';
+
+  var computed = _ember['default'].computed;
+
+  /**
+  
+   Modal footer element used within [Components.Modal](Components.Modal.html) components. See there for examples.
+  
+   @class ModalFooter
+   @namespace Components
+   @extends Ember.Component
+   @public
+   */
+  exports['default'] = _ember['default'].Component.extend(_emberBootstrapMixinsModalCloser['default'], {
+    tagName: 'form',
+    classNames: ['modal-footer'],
+
+    /**
+     * The title of the default close button. Will be ignored (i.e. no close button) if you provide your own block
+     * template.
+     *
+     * @property closeTitle
+     * @type string
+     * @default 'Ok'
+     * @public
+     */
+    closeTitle: 'Ok',
+
+    /**
+     * The title of the submit button (primary button). Will be ignored (i.e. no button) if set to null or if you provide
+     * your own block template.
+     *
+     * @property submitTitle
+     * @type string
+     * @default null
+     * @public
+     */
+    submitTitle: null,
+
+    hasSubmitButton: computed.notEmpty('submitTitle'),
+
+    /**
+     * Set to true to disable the submit button. If you bind this to some property that indicates if submitting is allowed
+     * (form validation for example) this can be used to prevent the user from pressing the submit button.
+     *
+     * @property submitDisabled
+     * @type boolean
+     * @default false
+     * @public
+     */
+    submitDisabled: false,
+
+    /**
+     * The action to send to the parent modal component when the modal footer's form is submitted
+     *
+     * @property submitAction
+     * @type string
+     * @default 'submit'
+     * @private
+     */
+    submitAction: 'submit',
+
+    submit: function submit(e) {
+      e.preventDefault();
+      // send to parent bs-modal component
+      this.sendAction('submitAction');
+    }
+
+  });
+});
+define('ember-bootstrap/components/bs-modal-header', ['exports', 'ember', 'ember-bootstrap/mixins/modal-closer'], function (exports, _ember, _emberBootstrapMixinsModalCloser) {
+  'use strict';
+
+  /**
+  
+   Modal header element used within [Components.Modal](Components.Modal.html) components. See there for examples.
+  
+   @class ModalHeader
+   @namespace Components
+   @extends Ember.Component
+   @public
+   */
+  exports['default'] = _ember['default'].Component.extend(_emberBootstrapMixinsModalCloser['default'], {
+    classNames: ['modal-header'],
+
+    /**
+     * Show a close button (x icon)
+     *
+     * @property closeButton
+     * @type boolean
+     * @default true
+     * @public
+     */
+    closeButton: true,
+
+    /**
+     * The title to display in the modal header
+     *
+     * @property title
+     * @type string
+     * @default null
+     * @public
+     */
+    title: null
+
+  });
+});
+define('ember-bootstrap/components/bs-modal', ['exports', 'ember'], function (exports, _ember) {
+  'use strict';
+
+  var computed = _ember['default'].computed;
+  var observer = _ember['default'].observer;
+
+  var Modal = {};
+
+  Modal.TRANSITION_DURATION = 300;
+  Modal.BACKDROP_TRANSITION_DURATION = 150;
+
+  var observeOpen = function observeOpen() {
+    if (this.get('open')) {
+      this.show();
+    } else {
+      this.hide();
+    }
+  };
+
+  /**
+  
+   Component for creating [Bootstrap modals](http://getbootstrap.com/javascript/#modals). Creating a simple modal is easy:
+  
+   ```hbs
+   {{#bs-modal title="Simple Dialog"}}
+     Hello world!
+   {{/bs-modal}}
+   ```
+  
+   This will automatically create the appropriate markup, with a modal header containing the title, and a footer containing
+   a default "Ok" button, that will close the modal automatically (unless you set `autoClose` to false).
+  
+   A modal created this way will be visible at once. You can use the `{{#if ...}}` helper to hide all modal elements form
+   the DOM until needed. Or you can bind the `open` property to trigger showing and hiding the modal:
+  
+   ```hbs
+   {{#bs-modal open=openModal title="Simple Dialog"}}
+     Hello world!
+   {{/bs-modal}}
+   ```
+  
+   ### Custom Markup
+  
+   To customize your modal markup you can use the following sub components:
+  
+   [Components.ModalBody](Components.ModalBody.html)
+   [Components.ModalHeader](Components.ModalHeader.html)
+   [Components.ModalFooter](Components.ModalFooter.html)
+  
+   In the example above, these are generated for you automatically. Whenever you use one of these by yourself you should
+   set the appropriate property (`body`, `footer`, `header`) to false to prevent their automatic generation. Note that
+   in any case where you use a custom sub component, you must also use a custom [Components.ModalBody](Components.ModalBody.html)!
+  
+   A common use case is to customize the buttons in the footer. Most often you will have a cancel button that closes the
+   model without action, and a submit button that triggers some action. The footer component supports this case by letting
+   you customize the button titles, the rest (triggering close or submit actions) automatically set up:
+  
+   ```hbs
+   {{#bs-modal body=false footer=false title="Attention" submitAction=(action "submit")}}
+     {{#bs-modal-body}}Are you sure?{{/bs-modal-body}}
+     {{bs-modal-footer closeTitle="Cancel" submitTitle="Ok"}}
+   {{/bs-modal}}
+   ```
+  
+   If you further want to customize your modal elements, you can supply custom templates for your footer and header, as in
+   the following example:
+  
+   ```hbs
+   {{#bs-modal body=false footer=false header=false submitAction=(action "submit")}}
+     {{#bs-modal-header}}
+       <h4 class="modal-title"><i class="glyphicon glyphicon-alert"></i> Alert</h4>
+     {{/bs-modal-header}}
+     {{#bs-modal-body}}Are you absolutely sure you want to do that???{{/bs-modal-body}}
+     {{#bs-modal-footer as |footer|}}
+       {{#bs-button action=(action "close" target=footer) type="danger"}}Oh no, forget it!{{/bs-button}}
+       {{#bs-button buttonType="submit" type="success"}}Yeah!{{/bs-button}}
+     {{/bs-modal-footer}}
+   {{/bs-modal}}
+   ```
+  
+   Note the use of the action helper of the close button that triggers the close action on the modal footer component
+   instead of on the controller, which will bubble up to the modal component and close the modal.
+  
+   ### Modals with forms
+  
+   There is a special case when you have a form inside your modals body: you probably do not want to have a submit button
+   within your form but instead in your modal footer. Hover pressing the submit button outside of your form would not
+   trigger the form data to be submitted. In the example below this would not trigger the submit action of the form, an
+   thus bypass the form validation feature of the form component.
+  
+   ```hbs
+   {{#bs-modal title="Form Example" body=false footer=false}}
+     {{#bs-modal-body}}
+       {{#bs-form action=(action "submit") model=this}}
+         {{bs-form-element controlType="text" label="first name" property="firstname"}}
+         {{bs-form-element controlType="text" label="last name" property="lastname"}}
+       {{/bs-form}}
+     {{/bs-modal-body}}
+     {{bs-modal-footer closeTitle=(t "contact.label.cancel") submitTitle=(t "contact.label.ok")}}
+   {{/bs-modal}}
+   ```
+  
+   The modal component supports this common case by triggering the submit event programmatically on the body's form if
+   present whenever the footer's submit button is pressed, so the example above will work as expected.
+  
+   ### Auto-focus
+  
+   In order to allow key handling to function, the modal's root element is given focus once the modal is shown. If your
+   modal contains an element such as a text input and you would like it to be given focus rather than the modal element,
+   then give it the HTML5 autofocus attribute:
+  
+   ```hbs
+   {{#bs-modal title="Form Example" body=false footer=false}}
+     {{#bs-modal-body}}
+       {{#bs-form action=(action "submit") model=this}}
+         {{bs-form-element controlType="text" label="first name" property="firstname" autofocus=true}}
+         {{bs-form-element controlType="text" label="last name" property="lastname"}}
+       {{/bs-form}}
+     {{/bs-modal-body}}
+     {{bs-modal-footer closeTitle=(t "contact.label.cancel") submitTitle=(t "contact.label.ok")}}
+   {{/bs-modal}}
+   ```
+  
+  
+   ### Modals inside wormhole
+  
+   Modals make use of the [ember-wormhole](https://github.com/yapplabs/ember-wormhole) addon, which will be installed
+   automatically alongside ember-bootstrap. This is used to allow the modal to be placed in deeply nested
+   components/templates where it belongs to logically, but to have the actual DOM elements within a special container
+   element, which is a child of ember's root element. This will make sure that modals always overlay the whole app, and
+   are not effected by parent elements with `overflow: hidden` for example.
+  
+   If you want the modal to render in place, rather than being wormholed, you can set renderInPlace=true.
+  
+   @class Modal
+   @namespace Components
+   @extends Ember.Component
+   @public
+   */
+  exports['default'] = _ember['default'].Component.extend({
+
+    /**
+     * Visibility of the modal. Toggle to to show/hide with CSS transitions.
+     *
+     * @property open
+     * @type boolean
+     * @default true
+     * @public
+     */
+    open: true,
+
+    /**
+     * The title of the modal, visible in the modal header. Is ignored if `header` is false.
+     *
+     * @property title
+     * @type string
+     * @public
+     */
+    title: null,
+
+    /**
+     * Display a close button (x icon) in the corner of the modal header.
+     *
+     * @property closeButton
+     * @type boolean
+     * @default true
+     * @public
+     */
+    closeButton: true,
+
+    /**
+     * Set to false to disable fade animations.
+     *
+     * @property fade
+     * @type boolean
+     * @default true
+     * @public
+     */
+    fade: true,
+
+    /**
+     * @property notFade
+     * @type boolean
+     * @private
+     */
+    notFade: computed.not('fade'),
+
+    /**
+     * Used to apply Bootstrap's "in" class
+     *
+     * @property in
+     * @type boolean
+     * @default false
+     * @private
+     */
+    'in': computed.and('open', 'notFade'),
+
+    /**
+     * Use a semi-transparent modal background to hide the rest of the page.
+     *
+     * @property backdrop
+     * @type boolean
+     * @default true
+     * @public
+     */
+    backdrop: true,
+
+    /**
+     * @property showBackdrop
+     * @type boolean
+     * @default false
+     * @private
+     */
+    showBackdrop: computed.and('open', 'backdrop'),
+
+    /**
+     * Closes the modal when escape key is pressed.
+     *
+     * @property keyboard
+     * @type boolean
+     * @default true
+     * @public
+     */
+    keyboard: true,
+
+    /**
+     * If true clicking a close button will hide the modal automatically.
+     * If you want to handle hiding the modal by yourself, you can set this to false and use the closeAction to
+     * implement your custom logic.
+     *
+     * @property autoClose
+     * @type boolean
+     * @default true
+     * @public
+     */
+    autoClose: true,
+
+    /**
+     * Generate a modal header component automatically. Set to false to disable. In this case you would want to include an
+     * instance of [Components.ModalHeader](Components.ModalHeader.html) in the components block template
+     *
+     * @property header
+     * @type boolean
+     * @default true
+     * @public
+     */
+    header: true,
+
+    /**
+     * Generate a modal body component automatically. Set to false to disable. In this case you would want to include an
+     * instance of [Components.ModalBody](Components.ModalBody.html) in the components block template.
+     *
+     * Always set this to false if `header` and/or `footer` is false!
+     *
+     * @property body
+     * @type boolean
+     * @default true
+     * @public
+     */
+    body: true,
+
+    /**
+     * Generate a modal footer component automatically. Set to false to disable. In this case you would want to include an
+     * instance of [Components.ModalFooter](Components.ModalFooter.html) in the components block template
+     *
+     * @property footer
+     * @type boolean
+     * @default true
+     * @public
+     */
+    footer: true,
+
+    /**
+     * The id of the `.modal` element.
+     *
+     * @property modalId
+     * @type string
+     * @readonly
+     * @private
+     */
+    modalId: computed('elementId', function () {
+      return this.get('elementId') + '-modal';
+    }),
+
+    /**
+     * The jQuery object of the `.modal` element.
+     *
+     * @property modalElement
+     * @type object
+     * @readonly
+     * @private
+     */
+    modalElement: computed('modalId', function () {
+      return _ember['default'].$('#' + this.get('modalId'));
+    }).volatile(),
+
+    /**
+     * The id of the backdrop element.
+     *
+     * @property backdropId
+     * @type string
+     * @readonly
+     * @private
+     */
+    backdropId: computed('elementId', function () {
+      return this.get('elementId') + '-backdrop';
+    }),
+
+    /**
+     * The jQuery object of the backdrop element.
+     *
+     * @property backdropElement
+     * @type object
+     * @readonly
+     * @private
+     */
+    backdropElement: computed('backdropId', function () {
+      return _ember['default'].$('#' + this.get('backdropId'));
+    }).volatile(),
+
+    /**
+     * Use CSS transitions when showing/hiding the modal?
+     *
+     * @property usesTransition
+     * @type boolean
+     * @readonly
+     * @private
+     */
+    usesTransition: computed('fade', function () {
+      return _ember['default'].$.support.transition && this.get('fade');
+    }),
+
+    /**
+     * Property for size styling, set to null (default), 'lg' or 'sm'
+     *
+     * Also see the [Bootstrap docs](http://getbootstrap.com/javascript/#modals-sizes)
+     *
+     * @property size
+     * @type String
+     * @public
+     */
+    size: null,
+
+    /**
+     * If true clicking on the backdrop will close the modal.
+     *
+     * @property backdropClose
+     * @type boolean
+     * @default true
+     * @public
+     */
+    backdropClose: true,
+
+    /**
+     * If true component will render in place, rather than be wormholed.
+     *
+     * @property renderInPlace
+     * @type boolean
+     * @default false
+     * @public
+     */
+    renderInPlace: false,
+
+    /**
+     * @property _renderInPlace
+     * @type boolean
+     * @private
+     */
+    _renderInPlace: computed('renderInPlace', function () {
+      return this.get('renderInPlace') || typeof _ember['default'].$ !== 'function' || _ember['default'].$('#ember-bootstrap-modal-container').length === 0;
+    }),
+
+    /**
+     * The action to be sent when the modal footer's submit button (if present) is pressed.
+     * Note that if your modal body contains a form (e.g. [Components.Form](Components.Form.html){{/crossLink}}) this action will
+     * not be triggered. Instead a submit event will be triggered on the form itself. See the class description for an
+     * example.
+     *
+     * @property submitAction
+     * @type string
+     * @default null
+     * @public
+     */
+    submitAction: null,
+
+    /**
+     * The action to be sent when the modal is closing.
+     * This will be triggered by pressing the modal header's close button (x button) or the modal footer's close button.
+     * Note that this will happen before the modal is hidden from the DOM, as the fade transitions will still need some
+     * time to finish. Use the `closedAction` if you need the modal to be hidden when the action triggers.
+     *
+     * You can set `autoClose` to false to prevent closing the modal automatically, and do that in your closeAction by
+     * setting `open` to false.
+     *
+     * @property closeAction
+     * @type string
+     * @default null
+     * @public
+     */
+    closeAction: null,
+
+    /**
+     * The action to be sent after the modal has been completely hidden (including the CSS transition).
+     *
+     * @property closedAction
+     * @type string
+     * @default null
+     * @public
+     */
+    closedAction: null,
+
+    /**
+     * The action to be sent when the modal is opening.
+     * This will be triggered immediately after the modal is shown (so it's safe to access the DOM for
+     * size calculations and the like). This means that if fade=true, it will be shown in between the
+     * backdrop animation and the fade animation.
+     *
+     * @property openAction
+     * @type string
+     * @default null
+     * @public
+     */
+    openAction: null,
+
+    /**
+     * The action to be sent after the modal has been completely shown (including the CSS transition).
+     *
+     * @property openedAction
+     * @type string
+     * @default null
+     * @public
+     */
+    openedAction: null,
+
+    actions: {
+      close: function close() {
+        if (this.get('autoClose')) {
+          this.set('open', false);
+        }
+        this.sendAction('closeAction');
+      },
+      submit: function submit() {
+        var form = this.get('modalElement').find('.modal-body form');
+        if (form.length > 0) {
+          // trigger submit event on body form
+          form.trigger('submit');
+        } else {
+          // if we have no form, we send a submit action
+          this.sendAction('submitAction');
+        }
+      }
+    },
+
+    _observeOpen: observer('open', observeOpen),
+
+    /**
+     * Give the modal (or its autofocus element) focus
+     *
+     * @method takeFocus
+     * @private
+     */
+    takeFocus: function takeFocus() {
+      var focusElement = this.get('modalElement').find('[autofocus]').first();
+      if (focusElement.length === 0) {
+        focusElement = this.get('modalElement');
+      }
+      if (focusElement.length > 0) {
+        focusElement.focus();
+      }
+    },
+
+    /**
+     * Show the modal
+     *
+     * @method show
+     * @private
+     */
+    show: function show() {
+
+      this.checkScrollbar();
+      this.setScrollbar();
+
+      _ember['default'].$('body').addClass('modal-open');
+
+      this.resize();
+
+      var callback = function callback() {
+        if (this.get('isDestroyed')) {
+          return;
+        }
+
+        this.get('modalElement').show().scrollTop(0);
+
+        this.handleUpdate();
+        this.set('in', true);
+        this.sendAction('openAction');
+
+        if (this.get('usesTransition')) {
+          this.get('modalElement').one('bsTransitionEnd', _ember['default'].run.bind(this, function () {
+            this.takeFocus();
+            this.sendAction('openedAction');
+          })).emulateTransitionEnd(Modal.TRANSITION_DURATION);
+        } else {
+          this.takeFocus();
+          this.sendAction('openedAction');
+        }
+      };
+      this.handleBackdrop(callback);
+    },
+
+    /**
+     * Hide the modal
+     *
+     * @method hide
+     * @private
+     */
+    hide: function hide() {
+      this.resize();
+      this.set('in', false);
+
+      if (this.get('usesTransition')) {
+        this.get('modalElement').one('bsTransitionEnd', _ember['default'].run.bind(this, this.hideModal)).emulateTransitionEnd(Modal.TRANSITION_DURATION);
+      } else {
+        this.hideModal();
+      }
+    },
+
+    /**
+     * Clean up after modal is hidden and call closedAction
+     *
+     * @method hideModal
+     * @private
+     */
+    hideModal: function hideModal() {
+      var _this = this;
+
+      if (this.get('isDestroyed')) {
+        return;
+      }
+
+      this.get('modalElement').hide();
+      this.handleBackdrop(function () {
+        _ember['default'].$('body').removeClass('modal-open');
+        _this.resetAdjustments();
+        _this.resetScrollbar();
+        _this.sendAction('closedAction');
+      });
+    },
+
+    /**
+     * SHow/hide the backdrop
+     *
+     * @method handleBackdrop
+     * @param callback
+     * @private
+     */
+    handleBackdrop: function handleBackdrop(callback) {
+      var doAnimate = this.get('usesTransition');
+
+      if (this.get('open') && this.get('backdrop')) {
+        this.set('showBackdrop', true);
+
+        if (!callback) {
+          return;
+        }
+
+        if (doAnimate) {
+          _ember['default'].run.schedule('afterRender', this, function () {
+            var $backdrop = this.get('backdropElement');
+            _ember['default'].assert('Backdrop element should be in DOM', $backdrop && $backdrop.length > 0);
+            $backdrop.one('bsTransitionEnd', _ember['default'].run.bind(this, callback)).emulateTransitionEnd(Modal.BACKDROP_TRANSITION_DURATION);
+          });
+        } else {
+          callback.call(this);
+        }
+      } else if (!this.get('open') && this.get('backdrop')) {
+        var $backdrop = this.get('backdropElement');
+        _ember['default'].assert('Backdrop element should be in DOM', $backdrop && $backdrop.length > 0);
+
+        var callbackRemove = function callbackRemove() {
+          this.set('showBackdrop', false);
+          if (callback) {
+            callback.call(this);
+          }
+        };
+        if (doAnimate) {
+          $backdrop.one('bsTransitionEnd', _ember['default'].run.bind(this, callbackRemove)).emulateTransitionEnd(Modal.BACKDROP_TRANSITION_DURATION);
+        } else {
+          callbackRemove.call(this);
+        }
+      } else if (callback) {
+        _ember['default'].run.next(this, callback);
+      }
+    },
+
+    /**
+     * Attach/Detach resize event listeners
+     *
+     * @method resize
+     * @private
+     */
+    resize: function resize() {
+      if (this.get('open')) {
+        _ember['default'].$(window).on('resize.bs.modal', _ember['default'].run.bind(this, this.handleUpdate));
+      } else {
+        _ember['default'].$(window).off('resize.bs.modal');
+      }
+    },
+
+    /**
+     * @method handleUpdate
+     * @private
+     */
+    handleUpdate: function handleUpdate() {
+      this.adjustDialog();
+    },
+
+    /**
+     * @method adjustDialog
+     * @private
+     */
+    adjustDialog: function adjustDialog() {
+      var modalIsOverflowing = this.get('modalElement')[0].scrollHeight > document.documentElement.clientHeight;
+      this.get('modalElement').css({
+        paddingLeft: !this.bodyIsOverflowing && modalIsOverflowing ? this.get('scrollbarWidth') : '',
+        paddingRight: this.bodyIsOverflowing && !modalIsOverflowing ? this.get('scrollbarWidth') : ''
+      });
+    },
+
+    /**
+     * @method resetAdjustments
+     * @private
+     */
+    resetAdjustments: function resetAdjustments() {
+      this.get('modalElement').css({
+        paddingLeft: '',
+        paddingRight: ''
+      });
+    },
+
+    /**
+     * @method checkScrollbar
+     * @private
+     */
+    checkScrollbar: function checkScrollbar() {
+      var fullWindowWidth = window.innerWidth;
+      if (!fullWindowWidth) {
+        // workaround for missing window.innerWidth in IE8
+        var documentElementRect = document.documentElement.getBoundingClientRect();
+        fullWindowWidth = documentElementRect.right - Math.abs(documentElementRect.left);
+      }
+
+      this.bodyIsOverflowing = document.body.clientWidth < fullWindowWidth;
+    },
+
+    /**
+     * @method setScrollbar
+     * @private
+     */
+    setScrollbar: function setScrollbar() {
+      var bodyPad = parseInt(_ember['default'].$('body').css('padding-right') || 0, 10);
+      this.originalBodyPad = document.body.style.paddingRight || '';
+      if (this.bodyIsOverflowing) {
+        _ember['default'].$('body').css('padding-right', bodyPad + this.get('scrollbarWidth'));
+      }
+    },
+
+    /**
+     * @method resetScrollbar
+     * @private
+     */
+    resetScrollbar: function resetScrollbar() {
+      _ember['default'].$('body').css('padding-right', this.originalBodyPad);
+    },
+
+    /**
+     * @property scrollbarWidth
+     * @type number
+     * @readonly
+     * @private
+     */
+    scrollbarWidth: computed(function () {
+      var scrollDiv = document.createElement('div');
+      scrollDiv.className = 'modal-scrollbar-measure';
+      this.get('modalElement').after(scrollDiv);
+      var scrollbarWidth = scrollDiv.offsetWidth - scrollDiv.clientWidth;
+      _ember['default'].$(scrollDiv).remove();
+      return scrollbarWidth;
+    }),
+
+    didInsertElement: function didInsertElement() {
+      if (this.get('open')) {
+        this.show();
+      }
+    },
+
+    willDestroyElement: function willDestroyElement() {
+      _ember['default'].$(window).off('resize.bs.modal');
+      _ember['default'].$('body').removeClass('modal-open');
+      this.resetScrollbar();
+    }
+
+  });
+});
+define('ember-bootstrap/components/bs-nav-item', ['exports', 'ember', 'ember-bootstrap/templates/components/bs-nav-item', 'ember-bootstrap/mixins/component-parent'], function (exports, _ember, _emberBootstrapTemplatesComponentsBsNavItem, _emberBootstrapMixinsComponentParent) {
+  'use strict';
+
+  var computed = _ember['default'].computed;
+  var LinkComponent = _ember['default'].LinkComponent;
+
+  /**
+  
+   Component for each item within a [Components.Nav](Components.Nav.html) component. Have a look there for examples.
+  
+   @class NavItem
+   @namespace Components
+   @extends Ember.Component
+   @uses Mixins.ComponentParent
+   @public
+   */
+  exports['default'] = _ember['default'].Component.extend(_emberBootstrapMixinsComponentParent['default'], {
+    layout: _emberBootstrapTemplatesComponentsBsNavItem['default'],
+    classNameBindings: ['disabled', 'active'],
+    tagName: 'li',
+    ariaRole: 'presentation',
+
+    /**
+     * Render the nav item as disabled (see [Bootstrap docs](http://getbootstrap.com/components/#nav-disabled-links)).
+     * By default it will look at any nested `link-to` components and make itself disabled if there is a disabled link.
+     * See the [link-to API](http://emberjs.com/api/classes/Ember.Templates.helpers.html#toc_disabling-the-code-link-to-code-component)
+     *
+     * @property disabled
+     * @type boolean
+     * @public
+     */
+    disabled: computed.gt('disabledChildLinks.length', 0),
+
+    /**
+     * Render the nav item as active.
+     * By default it will look at any nested `link-to` components and make itself active if there is an active link
+     * (i.e. the link points to the current route).
+     * See the [link-to API](http://emberjs.com/api/classes/Ember.Templates.helpers.html#toc_handling-current-route)
+     *
+     * @property active
+     * @type boolean
+     * @public
+     */
+    active: computed.gt('activeChildLinks.length', 0),
+
+    /**
+     * Collection of all `Ember.LinkComponent`s that are children
+     *
+     * @property childLinks
+     * @private
+     */
+    childLinks: computed.filter('children', function (view) {
+      return view instanceof LinkComponent;
+    }),
+
+    activeChildLinks: computed.filterBy('childLinks', 'active'),
+    disabledChildLinks: computed.filterBy('childLinks', 'disabled')
+  });
+});
+define('ember-bootstrap/components/bs-nav', ['exports', 'ember', 'ember-bootstrap/templates/components/bs-nav'], function (exports, _ember, _emberBootstrapTemplatesComponentsBsNav) {
+  'use strict';
+
+  var isPresent = _ember['default'].isPresent;
+
+  /**
+  
+   Component to generate [bootstrap navs](http://getbootstrap.com/components/#nav)
+  
+   ### Usage
+  
+   Use in combination with the [Components.NavItem](Components.NavItem.html) component:
+  
+   ```hbs
+   {{#bs-nav type="pills"}}
+     {{#bs-nav-item}}
+        {{#link-to "foo"}}Foo{{/link-to}}
+     {{/bs-nav-item}}
+     {{#bs-nav-item}}
+       {{#link-to "bar"}}Bar{{/link-to}}
+     {{/bs-nav-item}}
+   {{/bs-nav}}
+   ```
+  
+   ### Nav styles
+  
+   The component supports the default bootstrap nav styling options "pills" and "tabs" through the `type`
+   property, as well as the `justified` and `stacked` properties.
+  
+   ### Active items
+  
+   Bootstrap expects to have the `active` class on the `<li>` element that should be the active (highlighted)
+   navigation item. To achieve that just use the `link-to` helper as usual. If the link is active, i.e
+   it points to the current route, the `bs-nav-item` component will detect that and apply the `active` class
+   automatically. The same applies for the `disabled` state.
+  
+   ### Dropdowns
+  
+   Use the [Components.Dropdown](Components.Dropdown.html) component with a `tagName` of "li" to integrate a dropdown into your nav:
+  
+   ```hbs
+   {{#bs-nav type="pills"}}
+     {{#bs-nav-item}}{{#link-to "index"}}Home{{/link-to}}{{/bs-nav-item}}
+     {{#bs-dropdown tagName="li"}}
+       {{#bs-dropdown-toggle}}Dropdown <span class="caret"></span>{{/bs-dropdown-toggle}}
+       {{#bs-dropdown-menu}}
+         <li>{{#link-to "foo"}}Foo{{/link-to}}</li>
+         <li>{{#link-to "bar"}}Bar{{/link-to}}</li>
+       {{/bs-dropdown-menu}}
+     {{/bs-dropdown}}
+   {{/bs-nav}}
+   ```
+  
+   @class Nav
+   @namespace Components
+   @extends Ember.Component
+   @public
+  
+   */
+  exports['default'] = _ember['default'].Component.extend({
+    layout: _emberBootstrapTemplatesComponentsBsNav['default'],
+
+    tagName: 'ul',
+    classNames: ['nav'],
+
+    classNameBindings: ['typeClass', 'justified:nav-justified', 'stacked:nav-stacked'],
+
+    typeClass: _ember['default'].computed('type', function () {
+      var type = this.get('type');
+      if (isPresent(type)) {
+        return 'nav-' + type;
+      }
+    }),
+
+    /**
+     * Special type of nav, either "pills" or "tabs"
+     *
+     * @property type
+     * @type String
+     * @default null
+     * @public
+     */
+    type: null,
+
+    /**
+     * Make the nav justified, see [bootstrap docs](http://getbootstrap.com/components/#nav-justified)
+     *
+     * @property justified
+     * @type boolean
+     * @default false
+     * @public
+     */
+    justified: false,
+
+    /**
+     * Make the nav pills stacked, see [bootstrap docs](http://getbootstrap.com/components/#nav-pills)
+     *
+     * @property stacked
+     * @type boolean
+     * @default false
+     * @public
+     */
+    stacked: false
+  });
+});
+define('ember-bootstrap/components/bs-navbar-content', ['exports', 'ember', 'ember-bootstrap/components/bs-collapse', 'ember-bootstrap/components/bs-navbar', 'ember-bootstrap/templates/components/bs-navbar-content'], function (exports, _ember, _emberBootstrapComponentsBsCollapse, _emberBootstrapComponentsBsNavbar, _emberBootstrapTemplatesComponentsBsNavbarContent) {
+  'use strict';
+
+  /**
+   * Component to wrap the collapsible content of a [Components.Navbar](Components.Navbar.html) component.
+   * Have a look there for examples.
+   *
+   * @class NavbarContent
+   * @namespace Components
+   * @extends Components.Collapse
+   * @public
+   */
+  exports['default'] = _emberBootstrapComponentsBsCollapse['default'].extend({
+    layout: _emberBootstrapTemplatesComponentsBsNavbarContent['default'],
+
+    classNames: ['navbar-collapse'],
+
+    navbar: _ember['default'].computed(function () {
+      return this.nearestOfType(_emberBootstrapComponentsBsNavbar['default']);
+    }),
+
+    collapsed: _ember['default'].computed.reads('navbar.collapsed')
+  });
+});
+define('ember-bootstrap/components/bs-navbar-nav', ['exports', 'ember-bootstrap/components/bs-nav', 'ember-bootstrap/templates/components/bs-navbar-nav'], function (exports, _emberBootstrapComponentsBsNav, _emberBootstrapTemplatesComponentsBsNavbarNav) {
+  'use strict';
+
+  /**
+   * Component for the `.nav` element within a [Components.Navbar](Components.Navbar.html)
+   * component. Have a look there for examples.
+   *
+   * Per [the bootstrap docs](http://getbootstrap.com/components/#navbar),
+   * justified navbar nav links are not supported.
+   *
+   * @class NavbarNav
+   * @namespace Components
+   * @extends Components.Nav
+   * @public
+   */
+  exports['default'] = _emberBootstrapComponentsBsNav['default'].extend({
+    layout: _emberBootstrapTemplatesComponentsBsNavbarNav['default'],
+
+    classNames: ['navbar-nav'],
+
+    didReceiveAttrs: function didReceiveAttrs() {
+      this._super.apply(this, arguments);
+      this.set('justified', false);
+    }
+  });
+});
+define('ember-bootstrap/components/bs-navbar-toggle', ['exports', 'ember', 'ember-bootstrap/components/bs-button', 'ember-bootstrap/components/bs-navbar', 'ember-bootstrap/templates/components/bs-navbar-toggle'], function (exports, _ember, _emberBootstrapComponentsBsButton, _emberBootstrapComponentsBsNavbar, _emberBootstrapTemplatesComponentsBsNavbarToggle) {
+  'use strict';
+
+  /**
+   * Component to implement the responsive menu toggle behavior in a [Components.Navbar](Components.Navbar.html)
+   * component. Have a look there for examples.
+   *
+   * The button `toggle` property will always be set to `true` in this component.
+   *
+   * @class NavbarToggle
+   * @namespace Components
+   * @extends Components.Button
+   * @public
+   */
+  exports['default'] = _emberBootstrapComponentsBsButton['default'].extend({
+    layout: _emberBootstrapTemplatesComponentsBsNavbarToggle['default'],
+
+    classNames: ['navbar-toggle', 'collapsed'],
+
+    targetObject: _ember['default'].computed(function () {
+      return this.nearestOfType(_emberBootstrapComponentsBsNavbar['default']);
+    }).volatile(),
+
+    action: 'toggleNavbar',
+
+    actions: {
+      toggleNavbar: function toggleNavbar() {
+        this.sendAction();
+      }
+    },
+
+    didReceiveAttrs: function didReceiveAttrs() {
+      this._super.apply(this, arguments);
+      this.set('toggle', true);
+    }
+  });
+});
+define('ember-bootstrap/components/bs-navbar', ['exports', 'ember', 'ember-bootstrap/mixins/type-class', 'ember-bootstrap/templates/components/bs-navbar'], function (exports, _ember, _emberBootstrapMixinsTypeClass, _emberBootstrapTemplatesComponentsBsNavbar) {
+  'use strict';
+
+  /**
+   Component to generate [bootstrap navbars](http://getbootstrap.com/components/#navbar).
+  
+   ### Usage
+  
+   Used in combination with the following components:
+  
+   - [Components.NavbarContent](Components.NavbarContent.html)
+   - [Components.NavbarToggle](Components.NavbarToggle.html)
+   - [Components.NavbarNav](Components.NavbarNav.html)
+   - [Components.NavItem](Components.NavItem.html)
+  
+   ```hbs
+   {{#bs-navbar}}
+     <div class="navbar-header">
+       {{#bs-navbar-toggle}}
+         <span class="sr-only">Toggle navigation</span>
+         <span class="icon-bar"></span>
+         <span class="icon-bar"></span>
+         <span class="icon-bar"></span>
+       {{/bs-navbar-toggle}}
+       <a class="navbar-brand" href="#">Brand</a>
+     </div>
+     {{#bs-navbar-content}}
+       {{#bs-navbar-nav}}
+         {{#bs-nav-item}}{{#link-to "alert"}}Alert{{/link-to}}{{/bs-nav-item}}
+         {{#bs-nav-item}}{{#link-to "button"}}Buttons{{/link-to}}{{/bs-nav-item}}
+         {{#bs-nav-item}}{{#link-to "dropdown"}}Dropdown{{/link-to}}{{/bs-nav-item}}
+         {{#bs-nav-item}}{{#link-to "forms"}}Forms{{/link-to}}{{/bs-nav-item}}
+         {{#bs-nav-item}}{{#link-to "accordion"}}Accordion{{/link-to}}{{/bs-nav-item}}
+         {{#bs-nav-item}}{{#link-to "collapse"}}Collapse{{/link-to}}{{/bs-nav-item}}
+         {{#bs-nav-item}}{{#link-to "modal"}}Modals{{/link-to}}{{/bs-nav-item}}
+         {{#bs-nav-item}}{{#link-to "progress"}}Progress bars{{/link-to}}{{/bs-nav-item}}
+         {{#bs-nav-item}}{{#link-to "navs"}}Navs{{/link-to}}{{/bs-nav-item}}
+         {{#bs-nav-item}}{{#link-to "navbars"}}Navbars{{/link-to}}{{/bs-nav-item}}
+       {{/bs-navbar-nav}}
+     {{/bs-navbar-content}}
+   {{/bs-navbar}}
+   ```
+  
+   ### Navbar styles
+  
+   The component supports the default bootstrap navbar styling options "default" and "inverse" through the `type`
+   property. Bootstrap navbars [do not currently support justified nav links](http://getbootstrap.com/components/#navbar-default),
+   so those are explicitly disallowed.
+  
+   Other bootstrap navbar variations, such as forms, buttons, etc. can be supported through direct use of
+   bootstrap styles applied through the `class` attribute on the components.
+  
+   @class Navbar
+   @namespace Components
+   @extends Ember.Component
+   @uses Mixins.TypeClass
+   @public
+  
+   */
+  exports['default'] = _ember['default'].Component.extend(_emberBootstrapMixinsTypeClass['default'], {
+    layout: _emberBootstrapTemplatesComponentsBsNavbar['default'],
+
+    tagName: 'nav',
+    classNames: ['navbar'],
+    classNameBindings: ['positionClass'],
+
+    classTypePrefix: 'navbar',
+
+    /**
+     * Manages the state for the responsive menu between the toggle and the content.
+     *
+     * @property collapsed
+     * @type boolean
+     * @default true
+     * @protected
+     */
+    collapsed: true,
+
+    /**
+     * Controls whether the wrapping div is a fluid container or not.
+     *
+     * @property fluid
+     * @type boolean
+     * @default true
+     * @public
+     */
+    fluid: true,
+
+    /**
+     * Specifies the position classes for the navbar, currently supporting none, "fixed-top", "fixed-bottom", and "static-top".
+     * See the [bootstrap docs](http://getbootstrap.com/components/#navbar-fixed-top) for details.
+     *
+     * @property position
+     * @type String
+     * @default null
+     * @public
+     */
+    position: null,
+
+    positionClass: _ember['default'].computed('position', function () {
+      var position = this.get('position');
+      var validPositions = ['fixed-top', 'fixed-bottom', 'static-top'];
+
+      if (validPositions.indexOf(position) === -1) {
+        return null;
+      }
+
+      return 'navbar-' + position;
+    }),
+
+    actions: {
+      toggleNavbar: function toggleNavbar() {
+        this.toggleProperty('collapsed');
+      }
+    }
+  });
+});
+define('ember-bootstrap/components/bs-progress-bar', ['exports', 'ember', 'ember-bootstrap/mixins/type-class'], function (exports, _ember, _emberBootstrapMixinsTypeClass) {
+  'use strict';
+
+  var computed = _ember['default'].computed;
+
+  /**
+  
+   Component to display a Bootstrap progress bar, see http://getbootstrap.com/components/#progress.
+  
+   ### Usage
+  
+   Always wrap the progress bar in a [Components.Progress](Components.Progress.html) component. Use the `value`
+   property to control the progress bar's width. To apply the different styling options supplied by Bootstrap, use the
+   appropriate properties like `type`, `showLabel`, `striped` or `animate`.
+  
+   ```hbs
+   {{#bs-progress}}
+     {{bs-progress-bar value=progressValue minValue=0 maxValue=10 showLabel=true type="danger"}}
+   {{/bs-progress}}
+   ```
+  
+   ### Stacked
+  
+   You can place multiple progress bar components in a single [Components.Progress](Components.Progress.html) to
+   create a stack of progress bars as seen in http://getbootstrap.com/components/#progress-stacked.
+  
+   ```hbs
+   {{#bs-progress}}
+     {{bs-progress-bar value=progressValue1 type="success"}}
+     {{bs-progress-bar value=progressValue2 type="warning"}}
+     {{bs-progress-bar value=progressValue3 type="danger"}}
+   {{/bs-progress}}
+   ```
+  
+   @class ProgressBar
+   @namespace Components
+   @extends Ember.Component
+   @uses Mixins.TypeClass
+   @public
+   */
+  exports['default'] = _ember['default'].Component.extend(_emberBootstrapMixinsTypeClass['default'], {
+    classNames: ['progress-bar'],
+    classNameBindings: ['progressBarStriped', 'active'],
+
+    attributeBindings: ['style', 'ariaValuenow', 'ariaValuemin', 'ariaValuemax'],
+
+    /**
+     * @property classTypePrefix
+     * @type String
+     * @default 'progress-bar'
+     * @protected
+     */
+    classTypePrefix: 'progress-bar',
+
+    /**
+     * The lower limit of the value range
+     *
+     * @property minValue
+     * @type number
+     * @default 0
+     * @public
+     */
+    minValue: 0,
+
+    /**
+     * The upper limit of the value range
+     *
+     * @property maxValue
+     * @type number
+     * @default 100
+     * @public
+     */
+    maxValue: 100,
+
+    /**
+     * The value the progress bar should represent
+     *
+     * @property value
+     * @type number
+     * @default 0
+     * @public
+     */
+    value: 0,
+
+    /**
+     If true a label will be shown inside the progress bar.
+      By default it will be the percentage corresponding to the `value` property, rounded to `roundDigits` digits.
+     You can customize it by using the component with a block template, which the component yields the percentage
+     value to:
+      ```hbs
+     {{#bs-progress}}
+       {{#bs-progress-bar value=progressValue as |percent|}}{{progressValue}} ({{percent}}%){{/bs-progress-bar}}
+     {{/bs-progress}}
+     ```
+      @property showLabel
+     @type boolean
+     @default false
+     @public
+     */
+    showLabel: false,
+
+    /**
+     * Create a striped effect, see http://getbootstrap.com/components/#progress-striped
+     *
+     * @property striped
+     * @type boolean
+     * @default false
+     * @public
+     */
+    striped: false,
+
+    /**
+     * Animate the stripes, see http://getbootstrap.com/components/#progress-animated
+     *
+     * @property animate
+     * @type boolean
+     * @default false
+     * @public
+     */
+    animate: false,
+
+    /**
+     * Specify to how many digits the progress bar label should be rounded.
+     *
+     * @property roundDigits
+     * @type number
+     * @default 0
+     * @public
+     */
+    roundDigits: 0,
+
+    progressBarStriped: computed.alias('striped'),
+    active: computed.alias('animate'),
+
+    ariaValuenow: computed.alias('value'),
+    ariaValuemin: computed.alias('minValue'),
+    ariaValuemax: computed.alias('maxValue'),
+
+    /**
+     * The percentage of `value`
+     *
+     * @property percent
+     * @type number
+     * @protected
+     * @readonly
+     */
+    percent: computed('value', 'minValue', 'maxValue', function () {
+      var value = parseFloat(this.get('value'));
+      var minValue = parseFloat(this.get('minValue'));
+      var maxValue = parseFloat(this.get('maxValue'));
+
+      return Math.min(Math.max((value - minValue) / (maxValue - minValue), 0), 1) * 100;
+    }),
+
+    /**
+     * The percentage of `value`, rounded to `roundDigits` digits
+     *
+     * @property percentRounded
+     * @type number
+     * @protected
+     * @readonly
+     */
+    percentRounded: computed('percent', 'roundDigits', function () {
+      var roundFactor = Math.pow(10, this.get('roundDigits'));
+      return Math.round(this.get('percent') * roundFactor) / roundFactor;
+    }),
+
+    /**
+     * @property style
+     * @type string
+     * @private
+     * @readonly
+     */
+    style: computed('percent', function () {
+      var percent = this.get('percent');
+      return new _ember['default'].String.htmlSafe('width: ' + percent + '%');
+    })
+
+  });
+});
+define('ember-bootstrap/components/bs-progress', ['exports', 'ember'], function (exports, _ember) {
+  'use strict';
+
+  /**
+   Use to group one (or more) [Components.ProgressBar](Components.ProgressBar.html) components inside it.
+  
+   @class Progress
+   @namespace Components
+   @extends Ember.Component
+   @public
+   */
+  exports['default'] = _ember['default'].Component.extend({
+    classNames: ['progress']
+  });
+});
+define('ember-bootstrap/components/bs-select', ['exports', 'ember'], function (exports, _ember) {
+  'use strict';
+
+  /**
+   Selectbox component.
+  
+   #### Deprecated ####
+  
+   Usage of this component is deprecated. Please use one of the better alternatives for select boxes in Ember, as one of
+   those: https://www.emberaddons.com/?query=select%20component.
+  
+   If you use it with a FormElement component as in `{{bs-form-element controlType="select" ... }}`, then see the section
+   on custom Controls in [Components.FormElement](Components.FormElement.html) to learn how to replace this with an external
+   select component.
+  
+   @class Select
+   @namespace Components
+   @extends Ember.Component
+   @deprecated
+   @public
+   */
+  exports['default'] = _ember['default'].Component.extend({
+    tagName: 'select',
+    classNames: ['form-control'],
+
+    attributeBindings: ['disabled', 'required'],
+    disabled: false,
+    required: false,
+
+    content: null,
+    prompt: null,
+    optionValuePath: 'id',
+    optionLabelPath: 'title',
+    action: _ember['default'].K, // action to fire on change
+
+    value: null,
+
+    init: function init() {
+      this._super.apply(this, arguments);
+
+      _ember['default'].deprecate('bs-select is deprecated and will be removed in the future. Please use a dedicated addon for select box components', false, {
+        url: 'http://kaliber5.github.io/ember-bootstrap/api/classes/Components.Select.html',
+        until: '0.8.0',
+        id: 'ember-bootstrap.component.select'
+      });
+
+      if (!this.get('content')) {
+        this.set('content', []);
+      }
+    },
+
+    change: function change() {
+      var selectEl = this.$().get(0);
+      var selectedIndex = selectEl.selectedIndex;
+
+      var content = this.get('content');
+
+      // decrement index by 1 if we have a prompt
+      var hasPrompt = !!this.get('prompt');
+      var contentIndex = hasPrompt ? selectedIndex - 1 : selectedIndex;
+
+      var selection = content[contentIndex];
+
+      // set the local, shadowed selection to avoid leaking
+      // changes to `selection` out via 2-way binding
+      this.set('value', selection);
+
+      var changeCallback = this.get('action');
+      changeCallback(selection);
+    }
+  });
+});
+define('ember-bootstrap/components/bs-tab-pane', ['exports', 'ember', 'ember-bootstrap/templates/components/bs-tab-pane', 'ember-bootstrap/mixins/component-child', 'ember-bootstrap/components/bs-tab'], function (exports, _ember, _emberBootstrapTemplatesComponentsBsTabPane, _emberBootstrapMixinsComponentChild, _emberBootstrapComponentsBsTab) {
+  'use strict';
+
+  var computed = _ember['default'].computed;
+  var observer = _ember['default'].observer;
+
+  /**
+   The tab pane of a tab component.
+   See [Components.Tab](Components.Tab.html) for examples.
+  
+   @class TabPane
+   @namespace Components
+   @extends Ember.Component
+   @uses Mixins.ComponentChild
+   @public
+   */
+  exports['default'] = _ember['default'].Component.extend(_emberBootstrapMixinsComponentChild['default'], {
+    layout: _emberBootstrapTemplatesComponentsBsTabPane['default'],
+    classNameBindings: ['active', 'fade', 'in'],
+    classNames: ['tab-pane'],
+    ariaRole: 'tabpanel',
+
+    /**
+     * True if this pane is active (visible)
+     *
+     * @property isActive
+     * @type boolean
+     * @protected
+     */
+    isActive: computed('tab.activeId', 'elementId', function () {
+      return this.get('tab.activeId') === this.get('elementId');
+    }),
+
+    /**
+     * Used to apply Bootstrap's "active" class
+     *
+     * @property active
+     * @type boolean
+     * @default false
+     * @protected
+     */
+    active: false,
+
+    /**
+     * Used to apply Bootstrap's "in" class
+     *
+     * @property in
+     * @type boolean
+     * @default false
+     * @protected
+     */
+    'in': false,
+
+    /**
+     * Use CSS transitions when showing/hiding the pane?
+     *
+     * @property usesTransition
+     * @type boolean
+     * @readonly
+     * @protected
+     */
+    usesTransition: computed('fade', function () {
+      return _ember['default'].$.support.transition && this.get('fade');
+    }),
+
+    /**
+     * The parent [Components.Tab](Components.Tab.html) instance.
+     *
+     * @property tab
+     * @type {Components.Tab}
+     * @protected
+     */
+    tab: computed(function () {
+      return this.nearestOfType(_emberBootstrapComponentsBsTab['default']);
+    }),
+
+    /**
+     * The title for this tab pane. This is used by the `bs-tab` component to automatically generate
+     * the tab navigation.
+     * See the [Components.Tab](Components.Tab.html) for examples.
+     *
+     * @property title
+     * @type string
+     * @default null
+     * @public
+     */
+    title: null,
+
+    /**
+     * An optional group title used by the `bs-tab` component to group all panes with the same group title
+     * under a common drop down in the tab navigation.
+     * See the [Components.Tab](Components.Tab.html) for examples.
+     *
+     * @property groupTitle
+     * @type string
+     * @default null
+     * @public
+     */
+    groupTitle: null,
+
+    /**
+     * Use fade animation when switching tabs.
+     *
+     * @property fade
+     * @type boolean
+     * @readonly
+     * @protected
+     */
+    fade: computed.readOnly('tab.fade'),
+
+    /**
+     * The duration of the fade out animation
+     *
+     * @property fadeDuration
+     * @type integer
+     * @readonly
+     * @protected
+     */
+    fadeDuration: computed.readOnly('tab.fadeDuration'),
+
+    /**
+     * Show the pane
+     *
+     * @method show
+     * @protected
+     */
+    show: function show() {
+      if (this.get('usesTransition')) {
+        this.$().one('bsTransitionEnd', _ember['default'].run.bind(this, function () {
+          if (!this.get('isDestroyed')) {
+            this.setProperties({
+              active: true,
+              'in': true
+            });
+          }
+        })).emulateTransitionEnd(this.get('fadeDuration'));
+      } else {
+        this.set('active', true);
+      }
+    },
+
+    /**
+     * Hide the pane
+     *
+     * @method hide
+     * @protected
+     */
+    hide: function hide() {
+      if (this.get('usesTransition')) {
+        this.$().one('bsTransitionEnd', _ember['default'].run.bind(this, function () {
+          if (!this.get('isDestroyed')) {
+            this.set('active', false);
+          }
+        })).emulateTransitionEnd(this.get('fadeDuration'));
+        this.set('in', false);
+      } else {
+        this.set('active', false);
+      }
+    },
+
+    _showHide: observer('isActive', function () {
+      if (this.get('isActive')) {
+        this.show();
+      } else {
+        this.hide();
+      }
+    }),
+
+    init: function init() {
+      this._super.apply(this, arguments);
+      _ember['default'].run.scheduleOnce('afterRender', this, function () {
+        // isActive comes from parent component, so only available after render...
+        this.set('active', this.get('isActive'));
+        this.set('in', this.get('isActive') && this.get('fade'));
+      });
+    }
+
+  });
+});
+define('ember-bootstrap/components/bs-tab', ['exports', 'ember', 'ember-bootstrap/templates/components/bs-tab', 'ember-bootstrap/mixins/component-parent', 'ember-bootstrap/components/bs-tab-pane'], function (exports, _ember, _emberBootstrapTemplatesComponentsBsTab, _emberBootstrapMixinsComponentParent, _emberBootstrapComponentsBsTabPane) {
+  'use strict';
+
+  var computed = _ember['default'].computed;
+  var isPresent = _ember['default'].isPresent;
+  var A = _ember['default'].A;
+
+  /**
+   Tab component for dynamic tab functionality that mimics the behaviour of Bootstrap's tab.js plugin,
+   see http://getbootstrap.com/javascript/#tabs
+  
+   ### Usage
+  
+   Just nest any number of [Components.TabPane](Components.TabPane.html) components that hold the tab content.
+   The tab navigation is automatically generated from the tab panes' `title` property:
+  
+   ```hbs
+   {{#bs-tab type=type.id}}
+     {{#bs-tab-pane title="Tab 1"}}
+       <p>...</p>
+     {{/bs-tab-pane}}
+     {{#bs-tab-pane title="Tab 2"}}
+       <p>...</p>
+     {{/bs-tab-pane}}
+   {{/bs-tab}}
+   ```
+  
+   ### Groupable (dropdown) tabs
+  
+   Bootstrap's support for dropdown menus as tab navigation is mimiced by the use of the `groupTitle` property.
+   All panes with the same `groupTitle` will be put inside the menu of a [Components.Dropdown](Components.Dropdown.html)
+   component with `groupTitle` being the dropdown's title:
+  
+   ```hbs
+   {{#bs-tab type=type.id}}
+      {{#bs-tab-pane title="Tab 1"}}
+        <p>...</p>
+      {{/bs-tab-pane}}
+      {{#bs-tab-pane title="Tab 2"}}
+        <p>...</p>
+      {{/bs-tab-pane}}
+      {{#bs-tab-pane title="Tab 3" groupTitle="Dropdown"}}
+        <p>...</p>
+      {{/bs-tab-pane}}
+      {{#bs-tab-pane title="Tab 4" groupTitle="Dropdown"}}
+        <p>...</p>
+      {{/bs-tab-pane}}
+   {{/bs-tab}}
+   ```
+  
+   ### Custom tabs
+  
+   When having the tab pane's `title` as the tab navigation title is not sufficient, for example because you want to
+   integrate some other dynamic content, maybe even other components in the tab navigation item, then you have to setup
+   your navigation by yourself.
+  
+   Set `customTabs` to true to deactivate the automatic tab navigation generation. Then setup your navigation, probably
+   using a [Components.Nav](Components.Nav.html) component. The tab component yields the `activeId` property as well as
+   its `select` action, which you would have to use to manually set the `active` state of the navigation items and to
+   trigger the selection of the different tab panes, using their ids:
+  
+   ```hbs
+   {{#bs-tab customTabs=true as |activeId select|}}
+      {{#bs-nav type="tabs"}}
+          {{#bs-nav-item active=(bs-eq activeId "pane1")}}<a href="#pane1" role="tab" {{action select "pane1"}}>Tab 1</a>{{/bs-nav-item}}
+          {{#bs-nav-item active=(bs-eq activeId "pane2")}}<a href="#pane1" role="tab" {{action select "pane2"}}>Tab 2 <span class="badge">{{badge}}</span></a>{{/bs-nav-item}}
+      {{/bs-nav}}
+  
+      <div class="tab-content">
+      {{#bs-tab-pane elementId="pane1" title="Tab 1"}}
+          <p>...</p>
+      {{/bs-tab-pane}}
+      {{#bs-tab-pane elementId="pane2" title="Tab 2"}}
+          <p>...</p>
+      {{/bs-tab-pane}}
+      </div>
+   {{/bs-tab}}
+   ```
+  
+   Note that the `bs-eq` helper used in the example above is a private helper, which is not guaranteed to be available for
+   the future. Better use the corresponding `eq` helper of the
+   [ember-truth-helpers](https://github.com/jmurphyau/ember-truth-helpers) addon for example!
+  
+   ### Routable tabs
+  
+   The tab component purpose is to have panes of content, that are all in DOM at the same time and that are activated and
+   deactivated dynamically, just as the  original Bootstrap implementation.
+  
+   If you want to have the content delivered through individual sub routes, just use
+   the [Components.Nav](Components.Nav.html) component and an `{{outlet}}` that show the nested routes' content:
+  
+   ```hbs
+   <div>
+     {{#bs-nav type="tabs"}}
+       {{#bs-nav-item}}{{#link-to "tabs.index"}}Tab 1{{/link-to}}{{/bs-nav-item}}
+       {{#bs-nav-item}}{{#link-to "tabs.other"}}Tab 2{{/link-to}}{{/bs-nav-item}}
+     {{/bs-nav}}
+     {{outlet}}
+   </div>
+   ```
+  
+   @class Tab
+   @namespace Components
+   @extends Ember.Component
+   @uses Mixins.ComponentParent
+   @public
+   */
+  exports['default'] = _ember['default'].Component.extend(_emberBootstrapMixinsComponentParent['default'], {
+    layout: _emberBootstrapTemplatesComponentsBsTab['default'],
+
+    /**
+     * Type of nav, either "pills" or "tabs"
+     *
+     * @property type
+     * @type String
+     * @default 'tabs'
+     * @public
+     */
+    type: 'tabs',
+
+    /**
+     * By default the tabs will be automatically generated using the available [TabPane](Components.TabPane.html)
+     * components. If set to true, you can deactivate this and setup the tabs manually. See the example above.
+     *
+     * @property customTabs
+     * @type boolean
+     * @default false
+     * @public
+     */
+    customTabs: false,
+
+    /**
+     * The id (`elementId`) of the active [TabPane](Components.TabPane.html).
+     * By default the first tab will be active, but this can be changed by setting this property
+     *
+     * ```hbs
+     * {{#bs-tab activeId="pane2"}}
+     *   {{#bs-tab-pane id="pane1" title="Tab 1"}}
+     *      ...
+     *   {{/bs-tab-pane}}
+     *   {{#bs-tab-pane id="pane1" title="Tab 1"}}
+     *     ...
+     *   {{/bs-tab-pane}}
+     * {{/bs-tab}}
+     * ```
+     *
+     * @property activeId
+     * @type string
+     * @public
+     */
+    activeId: computed.oneWay('childPanes.firstObject.elementId'),
+
+    /**
+     * Set to false to disable the fade animation when switching tabs.
+     *
+     * @property fade
+     * @type boolean
+     * @default true
+     * @public
+     */
+    fade: true,
+
+    /**
+     * The duration of the fade animation
+     *
+     * @property fadeDuration
+     * @type integer
+     * @default 150
+     * @public
+     */
+    fadeDuration: 150,
+
+    /**
+     * action is called when switching the active tab, with the new and previous pane id
+     *
+     * @event action
+     * @public
+     */
+    action: null,
+
+    /**
+     * All `TabPane` child components
+     *
+     * @property childPanes
+     * @type array
+     * @readonly
+     * @private
+     */
+    childPanes: computed.filter('children', function (view) {
+      return view instanceof _emberBootstrapComponentsBsTabPane['default'];
+    }),
+
+    /**
+     * Array of objects that define the tab structure
+     *
+     * @property navItems
+     * @type array
+     * @readonly
+     * @private
+     */
+    navItems: computed('childPanes.@each.{elementId,title,group}', function () {
+      var items = A();
+      this.get('childPanes').forEach(function (pane) {
+        var groupTitle = pane.get('groupTitle');
+        var item = pane.getProperties('elementId', 'title');
+        if (isPresent(groupTitle)) {
+          var group = items.findBy('groupTitle', groupTitle);
+          if (group) {
+            group.children.push(item);
+            group.childIds.push(item.elementId);
+          } else {
+            items.push({
+              isGroup: true,
+              groupTitle: groupTitle,
+              children: A([item]),
+              childIds: A([item.elementId])
+            });
+          }
+        } else {
+          items.push(item);
+        }
+      });
+      return items;
+    }),
+
+    actions: {
+      select: function select(id) {
+        var previous = this.get('activeId');
+        this.set('activeId', id);
+        this.sendAction('action', id, previous);
+      }
+    }
+  });
+});
+define('ember-bootstrap/components/bs-textarea', ['exports', 'ember'], function (exports, _ember) {
+  'use strict';
+
+  /**
+   Extends Ember.TextArea to add Bootstrap's 'form-control' class.
+  
+   @class Textarea
+   @namespace Components
+   @extends Ember.TextArea
+   @public
+   */
+  exports['default'] = _ember['default'].TextArea.extend({
+    classNames: ['form-control']
+  });
+});
+define('ember-bootstrap/config', ['exports', 'ember'], function (exports, _ember) {
+  'use strict';
+
+  var Config = _ember['default'].Object.extend();
+
+  Config.reopenClass({
+    formValidationSuccessIcon: 'glyphicon glyphicon-ok',
+    formValidationErrorIcon: 'glyphicon glyphicon-remove',
+    formValidationWarningIcon: 'glyphicon glyphicon-warning-sign',
+    formValidationInfoIcon: 'glyphicon glyphicon-info-sign',
+    insertEmberWormholeElementToDom: true,
+
+    load: function load() {
+      var config = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
+      for (var property in config) {
+        if (this.hasOwnProperty(property) && typeof this[property] !== 'function') {
+          this[property] = config[property];
+        }
+      }
+    }
+  });
+
+  exports['default'] = Config;
+});
+define('ember-bootstrap/helpers/bs-contains', ['exports', 'ember'], function (exports, _ember) {
+  'use strict';
+
+  exports.bsContains = bsContains;
+
+  var isArray = _ember['default'].isArray;
+  var A = _ember['default'].A;
+
+  function bsContains(params /*, hash*/) {
+    return isArray(params[0]) ? A(params[0]).includes(params[1]) : false;
+  }
+
+  exports['default'] = _ember['default'].Helper.helper(bsContains);
+});
+define('ember-bootstrap/helpers/bs-eq', ['exports', 'ember'], function (exports, _ember) {
+  'use strict';
+
+  exports.eq = eq;
+
+  function eq(params) {
+    return params[0] === params[1];
+  }
+
+  exports['default'] = _ember['default'].Helper.helper(eq);
+});
+define('ember-bootstrap/helpers/bs-not', ['exports', 'ember'], function (exports, _ember) {
+  'use strict';
+
+  exports.not = not;
+
+  function not(params /*, hash*/) {
+    return !params[0];
+  }
+
+  exports['default'] = _ember['default'].Helper.helper(not);
+});
+define('ember-bootstrap/helpers/bs-read-path', ['exports', 'ember'], function (exports, _ember) {
+  'use strict';
+
+  exports.readPath = readPath;
+
+  function readPath(params /*, hash*/) {
+    return _ember['default'].get(params[0], params[1]);
+  }
+
+  exports['default'] = _ember['default'].Helper.helper(readPath);
+});
+define('ember-bootstrap/initializers/bootstrap-linkto', ['exports', 'ember', 'ember-bootstrap/mixins/component-child'], function (exports, _ember, _emberBootstrapMixinsComponentChild) {
+  'use strict';
+
+  exports.initialize = initialize;
+
+  var LinkComponent = _ember['default'].LinkComponent;
+
+  function initialize() /* application */{
+    if (!_emberBootstrapMixinsComponentChild['default'].detect(LinkComponent)) {
+      LinkComponent.reopen(_emberBootstrapMixinsComponentChild['default']);
+    }
+  }
+
+  exports['default'] = {
+    name: 'bootstrap-linkto',
+    initialize: initialize
+  };
+});
+define('ember-bootstrap/initializers/modals-container', ['exports', 'ember-bootstrap/config'], function (exports, _emberBootstrapConfig) {
+  'use strict';
+
+  /*globals document */
+  var hasDOM = typeof document !== 'undefined';
+
+  function appendContainerElement(rootElementId, id) {
+    if (!hasDOM) {
+      return;
+    }
+
+    var rootEl = document.querySelector(rootElementId);
+    var modalContainerEl = document.createElement('div');
+    modalContainerEl.id = id;
+    rootEl.appendChild(modalContainerEl);
+  }
+
+  function initialize() {
+    if (!_emberBootstrapConfig['default'].insertEmberWormholeElementToDom) {
+      return;
+    }
+    var application = arguments[1] || arguments[0];
+    var modalContainerElId = 'ember-bootstrap-modal-container';
+    appendContainerElement(application.rootElement, modalContainerElId);
+  }
+
+  exports['default'] = {
+    name: 'modals-container',
+    initialize: initialize
+  };
+});
+define('ember-bootstrap/mixins/component-child', ['exports', 'ember', 'ember-bootstrap/mixins/component-parent'], function (exports, _ember, _emberBootstrapMixinsComponentParent) {
+  'use strict';
+
+  /**
+   * Mixin for components that act as a child component in a parent-child relationship of components
+   *
+   * @class ComponentChild
+   * @namespace Mixins
+   * @public
+   */
+  exports['default'] = _ember['default'].Mixin.create({
+
+    /**
+     * flag to check if component has already been rendered, for the `_willRender` event handler
+     * @property _didInsert
+     * @type boolean
+     * @private
+     */
+    _didInsert: false,
+
+    /**
+     * Register ourself as a child at the parent component
+     * We use the `willRender` event here to also support the fastboot environment, where there is no `didInsertElement`
+     *
+     * @method _willRender
+     * @private
+     */
+    _willRender: _ember['default'].on('willRender', function () {
+      if (!this._didInsert) {
+        this._didInsert = true;
+        var _parent = this.nearestOfType(_emberBootstrapMixinsComponentParent['default']);
+        if (_parent) {
+          _parent.registerChild(this);
+          this.set('_parent', _parent);
+        }
+      }
+    }),
+
+    /**
+     * stores the parent in didInsertElement hook as a work-a-round for
+     * https://github.com/emberjs/ember.js/issues/12080
+     *
+     * @property _parent
+     * @private
+     */
+    _parent: null,
+
+    /**
+     * Unregister form the parent component
+     *
+     * @method _willDestroyElement
+     * @private
+     */
+    _willDestroyElement: _ember['default'].on('willDestroyElement', function () {
+      var parent = this.nearestOfType(_emberBootstrapMixinsComponentParent['default']) || this.get('_parent');
+      if (parent) {
+        parent.removeChild(this);
+      }
+    })
+  });
+});
+define('ember-bootstrap/mixins/component-parent', ['exports', 'ember'], function (exports, _ember) {
+  'use strict';
+
+  /**
+   * Mixin for components that act as a parent component in a parent-child relationship of components
+   *
+   * @class ComponentParent
+   * @namespace Mixins
+   * @public
+   */
+  exports['default'] = _ember['default'].Mixin.create({
+
+    /**
+     * Array of registered child components
+     *
+     * @property children
+     * @type array
+     * @protected
+     */
+    children: null,
+
+    _onInit: _ember['default'].on('init', function () {
+      this.set('children', _ember['default'].A());
+    }),
+
+    /**
+     * Register a component as a child of this parent
+     *
+     * @method registerChild
+     * @param child
+     * @public
+     */
+    registerChild: function registerChild(child) {
+      _ember['default'].run.schedule('sync', this, function () {
+        this.get('children').addObject(child);
+      });
+    },
+
+    /**
+     * Remove the child component from this parent component
+     *
+     * @method removeChild
+     * @param child
+     * @public
+     */
+    removeChild: function removeChild(child) {
+      this.get('children').removeObject(child);
+    }
+  });
+});
+define('ember-bootstrap/mixins/dropdown-toggle', ['exports', 'ember', 'ember-bootstrap/mixins/component-child'], function (exports, _ember, _emberBootstrapMixinsComponentChild) {
+  'use strict';
+
+  /**
+   * Mixin for components that act as dropdown toggles.
+   *
+   * @class DropdownToggle
+   * @namespace Mixins
+   * @public
+   */
+  exports['default'] = _ember['default'].Mixin.create(_emberBootstrapMixinsComponentChild['default'], {
+    classNames: ['dropdown-toggle'],
+
+    /**
+     * @property ariaRole
+     * @default button
+     * @type string
+     * @protected
+     */
+    ariaRole: 'button',
+
+    targetObject: _ember['default'].computed.alias('parentView'),
+
+    /**
+     * The default action is set to "toggleDropdown" on the parent {{#crossLink "Components.Dropdown"}}{{/crossLink}}
+     *
+     * @property action
+     * @default toggleDropdown
+     * @type string
+     * @protected
+     */
+    action: 'toggleDropdown'
+  });
+});
+define('ember-bootstrap/mixins/modal-closer', ['exports', 'ember', 'ember-bootstrap/components/bs-modal'], function (exports, _ember, _emberBootstrapComponentsBsModal) {
+  'use strict';
+
+  /**
+   * @class ModalCloser
+   * @namespace Mixins
+   * @public
+   */
+  exports['default'] = _ember['default'].Mixin.create({
+    targetObject: _ember['default'].computed(function () {
+      return this.nearestOfType(_emberBootstrapComponentsBsModal['default']);
+    }).volatile(),
+
+    action: 'close',
+
+    actions: {
+      close: function close() {
+        this.sendAction();
+      }
+    }
+  });
+});
+define('ember-bootstrap/mixins/size-class', ['exports', 'ember'], function (exports, _ember) {
+  'use strict';
+
+  /**
+   * Mixin to set the appropriate class for components with different sizes.
+   *
+   *
+   * @class SizeClass
+   * @namespace Mixins
+   * @public
+   */
+  exports['default'] = _ember['default'].Mixin.create({
+    /**
+     * Prefix for the size class, e.g. "btn" for button size classes ("btn-lg", "btn-sm" etc.)
+     *
+     * @property classTypePrefix
+     * @type string
+     * @required
+     * @protected
+     */
+    classTypePrefix: null,
+
+    classNameBindings: ['sizeClass'],
+
+    sizeClass: _ember['default'].computed('size', function () {
+      var prefix = this.get('classTypePrefix');
+      var size = this.get('size');
+      return _ember['default'].isBlank(size) ? null : prefix + '-' + size;
+    }),
+
+    /**
+     * Property for size styling, set to 'lg', 'sm' or 'xs'
+     *
+     * Also see the [Bootstrap docs](http://getbootstrap.com/css/#buttons-sizes)
+     *
+     * @property size
+     * @type String
+     * @public
+     */
+    size: null
+  });
+});
+define('ember-bootstrap/mixins/sub-component', ['exports', 'ember'], function (exports, _ember) {
+  'use strict';
+
+  /**
+   * @class SubComponent
+   * @namespace Mixins
+   * @deprecated
+   * @private
+   */
+  exports['default'] = _ember['default'].Mixin.create({
+    targetObject: _ember['default'].computed.alias('parentView')
+  });
+});
+define('ember-bootstrap/mixins/type-class', ['exports', 'ember'], function (exports, _ember) {
+  'use strict';
+
+  /**
+   * Mixin to set the appropriate class for components with differently styled types ("success", "danger" etc.)
+   *
+   * @class TypeClass
+   * @namespace Mixins
+   * @public
+   */
+  exports['default'] = _ember['default'].Mixin.create({
+    /**
+     * Prefix for the type class, e.g. "btn" for button type classes ("btn-primary2 etc.)
+     *
+     * @property classTypePrefix
+     * @type string
+     * @required
+     * @protected
+     */
+    classTypePrefix: null,
+
+    classNameBindings: ['typeClass'],
+
+    typeClass: _ember['default'].computed('type', function () {
+      var prefix = this.get('classTypePrefix');
+      var type = this.get('type') || 'default';
+      return prefix + '-' + type;
+    }),
+
+    /**
+     * Property for type styling
+     *
+     * For the available types see the [Bootstrap docs](http://getbootstrap.com/css/#buttons-options) (use without "btn-" prefix)
+     *
+     * @property type
+     * @type String
+     * @default 'default'
+     * @public
+     */
+    type: 'default'
+  });
+});
+define("ember-bootstrap/templates/components/bs-nav-item", ["exports"], function (exports) {
+  "use strict";
+
+  exports["default"] = Ember.HTMLBars.template((function () {
+    return {
+      meta: {
+        "fragmentReason": {
+          "name": "missing-wrapper",
+          "problems": ["wrong-type"]
+        },
+        "revision": "Ember@2.6.1",
+        "loc": {
+          "source": null,
+          "start": {
+            "line": 1,
+            "column": 0
+          },
+          "end": {
+            "line": 2,
+            "column": 0
+          }
+        },
+        "moduleName": "modules/ember-bootstrap/templates/components/bs-nav-item.hbs"
+      },
+      isEmpty: false,
+      arity: 0,
+      cachedFragment: null,
+      hasRendered: false,
+      buildFragment: function buildFragment(dom) {
+        var el0 = dom.createDocumentFragment();
+        var el1 = dom.createComment("");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n");
+        dom.appendChild(el0, el1);
+        return el0;
+      },
+      buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+        var morphs = new Array(1);
+        morphs[0] = dom.createMorphAt(fragment, 0, 0, contextualElement);
+        dom.insertBoundary(fragment, 0);
+        return morphs;
+      },
+      statements: [["content", "yield", ["loc", [null, [1, 0], [1, 9]]]]],
+      locals: [],
+      templates: []
+    };
+  })());
+});
+define("ember-bootstrap/templates/components/bs-nav", ["exports"], function (exports) {
+  "use strict";
+
+  exports["default"] = Ember.HTMLBars.template((function () {
+    return {
+      meta: {
+        "fragmentReason": {
+          "name": "missing-wrapper",
+          "problems": ["wrong-type"]
+        },
+        "revision": "Ember@2.6.1",
+        "loc": {
+          "source": null,
+          "start": {
+            "line": 1,
+            "column": 0
+          },
+          "end": {
+            "line": 2,
+            "column": 0
+          }
+        },
+        "moduleName": "modules/ember-bootstrap/templates/components/bs-nav.hbs"
+      },
+      isEmpty: false,
+      arity: 0,
+      cachedFragment: null,
+      hasRendered: false,
+      buildFragment: function buildFragment(dom) {
+        var el0 = dom.createDocumentFragment();
+        var el1 = dom.createComment("");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n");
+        dom.appendChild(el0, el1);
+        return el0;
+      },
+      buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+        var morphs = new Array(1);
+        morphs[0] = dom.createMorphAt(fragment, 0, 0, contextualElement);
+        dom.insertBoundary(fragment, 0);
+        return morphs;
+      },
+      statements: [["content", "yield", ["loc", [null, [1, 0], [1, 9]]]]],
+      locals: [],
+      templates: []
+    };
+  })());
+});
+define("ember-bootstrap/templates/components/bs-navbar-content", ["exports"], function (exports) {
+  "use strict";
+
+  exports["default"] = Ember.HTMLBars.template((function () {
+    return {
+      meta: {
+        "fragmentReason": {
+          "name": "missing-wrapper",
+          "problems": ["wrong-type"]
+        },
+        "revision": "Ember@2.6.1",
+        "loc": {
+          "source": null,
+          "start": {
+            "line": 1,
+            "column": 0
+          },
+          "end": {
+            "line": 2,
+            "column": 0
+          }
+        },
+        "moduleName": "modules/ember-bootstrap/templates/components/bs-navbar-content.hbs"
+      },
+      isEmpty: false,
+      arity: 0,
+      cachedFragment: null,
+      hasRendered: false,
+      buildFragment: function buildFragment(dom) {
+        var el0 = dom.createDocumentFragment();
+        var el1 = dom.createComment("");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n");
+        dom.appendChild(el0, el1);
+        return el0;
+      },
+      buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+        var morphs = new Array(1);
+        morphs[0] = dom.createMorphAt(fragment, 0, 0, contextualElement);
+        dom.insertBoundary(fragment, 0);
+        return morphs;
+      },
+      statements: [["content", "yield", ["loc", [null, [1, 0], [1, 9]]]]],
+      locals: [],
+      templates: []
+    };
+  })());
+});
+define("ember-bootstrap/templates/components/bs-navbar-nav", ["exports"], function (exports) {
+  "use strict";
+
+  exports["default"] = Ember.HTMLBars.template((function () {
+    return {
+      meta: {
+        "fragmentReason": {
+          "name": "missing-wrapper",
+          "problems": ["wrong-type"]
+        },
+        "revision": "Ember@2.6.1",
+        "loc": {
+          "source": null,
+          "start": {
+            "line": 1,
+            "column": 0
+          },
+          "end": {
+            "line": 2,
+            "column": 0
+          }
+        },
+        "moduleName": "modules/ember-bootstrap/templates/components/bs-navbar-nav.hbs"
+      },
+      isEmpty: false,
+      arity: 0,
+      cachedFragment: null,
+      hasRendered: false,
+      buildFragment: function buildFragment(dom) {
+        var el0 = dom.createDocumentFragment();
+        var el1 = dom.createComment("");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n");
+        dom.appendChild(el0, el1);
+        return el0;
+      },
+      buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+        var morphs = new Array(1);
+        morphs[0] = dom.createMorphAt(fragment, 0, 0, contextualElement);
+        dom.insertBoundary(fragment, 0);
+        return morphs;
+      },
+      statements: [["content", "yield", ["loc", [null, [1, 0], [1, 9]]]]],
+      locals: [],
+      templates: []
+    };
+  })());
+});
+define("ember-bootstrap/templates/components/bs-navbar-toggle", ["exports"], function (exports) {
+  "use strict";
+
+  exports["default"] = Ember.HTMLBars.template((function () {
+    return {
+      meta: {
+        "fragmentReason": {
+          "name": "missing-wrapper",
+          "problems": ["wrong-type"]
+        },
+        "revision": "Ember@2.6.1",
+        "loc": {
+          "source": null,
+          "start": {
+            "line": 1,
+            "column": 0
+          },
+          "end": {
+            "line": 2,
+            "column": 0
+          }
+        },
+        "moduleName": "modules/ember-bootstrap/templates/components/bs-navbar-toggle.hbs"
+      },
+      isEmpty: false,
+      arity: 0,
+      cachedFragment: null,
+      hasRendered: false,
+      buildFragment: function buildFragment(dom) {
+        var el0 = dom.createDocumentFragment();
+        var el1 = dom.createComment("");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n");
+        dom.appendChild(el0, el1);
+        return el0;
+      },
+      buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+        var morphs = new Array(1);
+        morphs[0] = dom.createMorphAt(fragment, 0, 0, contextualElement);
+        dom.insertBoundary(fragment, 0);
+        return morphs;
+      },
+      statements: [["content", "yield", ["loc", [null, [1, 0], [1, 9]]]]],
+      locals: [],
+      templates: []
+    };
+  })());
+});
+define("ember-bootstrap/templates/components/bs-navbar", ["exports"], function (exports) {
+  "use strict";
+
+  exports["default"] = Ember.HTMLBars.template((function () {
+    return {
+      meta: {
+        "fragmentReason": false,
+        "revision": "Ember@2.6.1",
+        "loc": {
+          "source": null,
+          "start": {
+            "line": 1,
+            "column": 0
+          },
+          "end": {
+            "line": 4,
+            "column": 0
+          }
+        },
+        "moduleName": "modules/ember-bootstrap/templates/components/bs-navbar.hbs"
+      },
+      isEmpty: false,
+      arity: 0,
+      cachedFragment: null,
+      hasRendered: false,
+      buildFragment: function buildFragment(dom) {
+        var el0 = dom.createDocumentFragment();
+        var el1 = dom.createElement("div");
+        var el2 = dom.createTextNode("\n    ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createComment("");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n");
+        dom.appendChild(el0, el1);
+        return el0;
+      },
+      buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+        var element0 = dom.childAt(fragment, [0]);
+        var morphs = new Array(2);
+        morphs[0] = dom.createAttrMorph(element0, 'class');
+        morphs[1] = dom.createMorphAt(element0, 1, 1);
+        return morphs;
+      },
+      statements: [["attribute", "class", ["subexpr", "if", [["get", "fluid", ["loc", [null, [1, 16], [1, 21]]]], "container-fluid", "container"], [], ["loc", [null, [1, 11], [1, 53]]]]], ["content", "yield", ["loc", [null, [2, 4], [2, 13]]]]],
+      locals: [],
+      templates: []
+    };
+  })());
+});
+define("ember-bootstrap/templates/components/bs-tab-pane", ["exports"], function (exports) {
+  "use strict";
+
+  exports["default"] = Ember.HTMLBars.template((function () {
+    return {
+      meta: {
+        "fragmentReason": {
+          "name": "missing-wrapper",
+          "problems": ["wrong-type"]
+        },
+        "revision": "Ember@2.6.1",
+        "loc": {
+          "source": null,
+          "start": {
+            "line": 1,
+            "column": 0
+          },
+          "end": {
+            "line": 2,
+            "column": 0
+          }
+        },
+        "moduleName": "modules/ember-bootstrap/templates/components/bs-tab-pane.hbs"
+      },
+      isEmpty: false,
+      arity: 0,
+      cachedFragment: null,
+      hasRendered: false,
+      buildFragment: function buildFragment(dom) {
+        var el0 = dom.createDocumentFragment();
+        var el1 = dom.createComment("");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n");
+        dom.appendChild(el0, el1);
+        return el0;
+      },
+      buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+        var morphs = new Array(1);
+        morphs[0] = dom.createMorphAt(fragment, 0, 0, contextualElement);
+        dom.insertBoundary(fragment, 0);
+        return morphs;
+      },
+      statements: [["content", "yield", ["loc", [null, [1, 0], [1, 9]]]]],
+      locals: [],
+      templates: []
+    };
+  })());
+});
+define("ember-bootstrap/templates/components/bs-tab", ["exports"], function (exports) {
+  "use strict";
+
+  exports["default"] = Ember.HTMLBars.template((function () {
+    var child0 = (function () {
+      return {
+        meta: {
+          "fragmentReason": {
+            "name": "missing-wrapper",
+            "problems": ["wrong-type"]
+          },
+          "revision": "Ember@2.6.1",
+          "loc": {
+            "source": null,
+            "start": {
+              "line": 1,
+              "column": 0
+            },
+            "end": {
+              "line": 3,
+              "column": 0
+            }
+          },
+          "moduleName": "modules/ember-bootstrap/templates/components/bs-tab.hbs"
+        },
+        isEmpty: false,
+        arity: 0,
+        cachedFragment: null,
+        hasRendered: false,
+        buildFragment: function buildFragment(dom) {
+          var el0 = dom.createDocumentFragment();
+          var el1 = dom.createTextNode("  ");
+          dom.appendChild(el0, el1);
+          var el1 = dom.createComment("");
+          dom.appendChild(el0, el1);
+          var el1 = dom.createTextNode("\n");
+          dom.appendChild(el0, el1);
+          return el0;
+        },
+        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+          var morphs = new Array(1);
+          morphs[0] = dom.createMorphAt(fragment, 1, 1, contextualElement);
+          return morphs;
+        },
+        statements: [["inline", "yield", [["get", "activeId", ["loc", [null, [2, 10], [2, 18]]]], ["subexpr", "action", ["select"], [], ["loc", [null, [2, 19], [2, 36]]]]], [], ["loc", [null, [2, 2], [2, 38]]]]],
+        locals: [],
+        templates: []
+      };
+    })();
+    var child1 = (function () {
+      var child0 = (function () {
+        var child0 = (function () {
+          var child0 = (function () {
+            var child0 = (function () {
+              var child0 = (function () {
+                return {
+                  meta: {
+                    "fragmentReason": false,
+                    "revision": "Ember@2.6.1",
+                    "loc": {
+                      "source": null,
+                      "start": {
+                        "line": 8,
+                        "column": 10
+                      },
+                      "end": {
+                        "line": 8,
+                        "column": 80
+                      }
+                    },
+                    "moduleName": "modules/ember-bootstrap/templates/components/bs-tab.hbs"
+                  },
+                  isEmpty: false,
+                  arity: 0,
+                  cachedFragment: null,
+                  hasRendered: false,
+                  buildFragment: function buildFragment(dom) {
+                    var el0 = dom.createDocumentFragment();
+                    var el1 = dom.createComment("");
+                    dom.appendChild(el0, el1);
+                    var el1 = dom.createTextNode(" ");
+                    dom.appendChild(el0, el1);
+                    var el1 = dom.createElement("span");
+                    dom.setAttribute(el1, "class", "caret");
+                    dom.appendChild(el0, el1);
+                    return el0;
+                  },
+                  buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+                    var morphs = new Array(1);
+                    morphs[0] = dom.createMorphAt(fragment, 0, 0, contextualElement);
+                    dom.insertBoundary(fragment, 0);
+                    return morphs;
+                  },
+                  statements: [["content", "item.groupTitle", ["loc", [null, [8, 33], [8, 52]]]]],
+                  locals: [],
+                  templates: []
+                };
+              })();
+              var child1 = (function () {
+                var child0 = (function () {
+                  return {
+                    meta: {
+                      "fragmentReason": false,
+                      "revision": "Ember@2.6.1",
+                      "loc": {
+                        "source": null,
+                        "start": {
+                          "line": 10,
+                          "column": 12
+                        },
+                        "end": {
+                          "line": 12,
+                          "column": 12
+                        }
+                      },
+                      "moduleName": "modules/ember-bootstrap/templates/components/bs-tab.hbs"
+                    },
+                    isEmpty: false,
+                    arity: 1,
+                    cachedFragment: null,
+                    hasRendered: false,
+                    buildFragment: function buildFragment(dom) {
+                      var el0 = dom.createDocumentFragment();
+                      var el1 = dom.createTextNode("              ");
+                      dom.appendChild(el0, el1);
+                      var el1 = dom.createElement("li");
+                      var el2 = dom.createElement("a");
+                      dom.setAttribute(el2, "role", "tab");
+                      var el3 = dom.createComment("");
+                      dom.appendChild(el2, el3);
+                      dom.appendChild(el1, el2);
+                      dom.appendChild(el0, el1);
+                      var el1 = dom.createTextNode("\n");
+                      dom.appendChild(el0, el1);
+                      return el0;
+                    },
+                    buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+                      var element1 = dom.childAt(fragment, [1]);
+                      var element2 = dom.childAt(element1, [0]);
+                      var morphs = new Array(4);
+                      morphs[0] = dom.createAttrMorph(element1, 'class');
+                      morphs[1] = dom.createAttrMorph(element2, 'href');
+                      morphs[2] = dom.createElementMorph(element2);
+                      morphs[3] = dom.createMorphAt(element2, 0, 0);
+                      return morphs;
+                    },
+                    statements: [["attribute", "class", ["concat", [["subexpr", "if", [["subexpr", "bs-eq", [["get", "activeId", ["loc", [null, [11, 37], [11, 45]]]], ["get", "subItem.elementId", ["loc", [null, [11, 46], [11, 63]]]]], [], ["loc", [null, [11, 30], [11, 64]]]], "active"], [], ["loc", [null, [11, 25], [11, 75]]]]]]], ["attribute", "href", ["concat", ["#", ["get", "subItem.elementId", ["loc", [null, [11, 89], [11, 106]]]]]]], ["element", "action", ["select", ["get", "subItem.elementId", ["loc", [null, [11, 139], [11, 156]]]]], [], ["loc", [null, [11, 121], [11, 158]]]], ["content", "subItem.title", ["loc", [null, [11, 159], [11, 176]]]]],
+                    locals: ["subItem"],
+                    templates: []
+                  };
+                })();
+                return {
+                  meta: {
+                    "fragmentReason": false,
+                    "revision": "Ember@2.6.1",
+                    "loc": {
+                      "source": null,
+                      "start": {
+                        "line": 9,
+                        "column": 10
+                      },
+                      "end": {
+                        "line": 13,
+                        "column": 10
+                      }
+                    },
+                    "moduleName": "modules/ember-bootstrap/templates/components/bs-tab.hbs"
+                  },
+                  isEmpty: false,
+                  arity: 0,
+                  cachedFragment: null,
+                  hasRendered: false,
+                  buildFragment: function buildFragment(dom) {
+                    var el0 = dom.createDocumentFragment();
+                    var el1 = dom.createComment("");
+                    dom.appendChild(el0, el1);
+                    return el0;
+                  },
+                  buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+                    var morphs = new Array(1);
+                    morphs[0] = dom.createMorphAt(fragment, 0, 0, contextualElement);
+                    dom.insertBoundary(fragment, 0);
+                    dom.insertBoundary(fragment, null);
+                    return morphs;
+                  },
+                  statements: [["block", "each", [["get", "item.children", ["loc", [null, [10, 20], [10, 33]]]]], [], 0, null, ["loc", [null, [10, 12], [12, 21]]]]],
+                  locals: [],
+                  templates: [child0]
+                };
+              })();
+              return {
+                meta: {
+                  "fragmentReason": false,
+                  "revision": "Ember@2.6.1",
+                  "loc": {
+                    "source": null,
+                    "start": {
+                      "line": 7,
+                      "column": 8
+                    },
+                    "end": {
+                      "line": 14,
+                      "column": 8
+                    }
+                  },
+                  "moduleName": "modules/ember-bootstrap/templates/components/bs-tab.hbs"
+                },
+                isEmpty: false,
+                arity: 0,
+                cachedFragment: null,
+                hasRendered: false,
+                buildFragment: function buildFragment(dom) {
+                  var el0 = dom.createDocumentFragment();
+                  var el1 = dom.createTextNode("          ");
+                  dom.appendChild(el0, el1);
+                  var el1 = dom.createComment("");
+                  dom.appendChild(el0, el1);
+                  var el1 = dom.createTextNode("\n");
+                  dom.appendChild(el0, el1);
+                  var el1 = dom.createComment("");
+                  dom.appendChild(el0, el1);
+                  return el0;
+                },
+                buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+                  var morphs = new Array(2);
+                  morphs[0] = dom.createMorphAt(fragment, 1, 1, contextualElement);
+                  morphs[1] = dom.createMorphAt(fragment, 3, 3, contextualElement);
+                  dom.insertBoundary(fragment, null);
+                  return morphs;
+                },
+                statements: [["block", "bs-dropdown-toggle", [], [], 0, null, ["loc", [null, [8, 10], [8, 103]]]], ["block", "bs-dropdown-menu", [], [], 1, null, ["loc", [null, [9, 10], [13, 31]]]]],
+                locals: [],
+                templates: [child0, child1]
+              };
+            })();
+            return {
+              meta: {
+                "fragmentReason": false,
+                "revision": "Ember@2.6.1",
+                "loc": {
+                  "source": null,
+                  "start": {
+                    "line": 6,
+                    "column": 6
+                  },
+                  "end": {
+                    "line": 15,
+                    "column": 6
+                  }
+                },
+                "moduleName": "modules/ember-bootstrap/templates/components/bs-tab.hbs"
+              },
+              isEmpty: false,
+              arity: 0,
+              cachedFragment: null,
+              hasRendered: false,
+              buildFragment: function buildFragment(dom) {
+                var el0 = dom.createDocumentFragment();
+                var el1 = dom.createComment("");
+                dom.appendChild(el0, el1);
+                return el0;
+              },
+              buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+                var morphs = new Array(1);
+                morphs[0] = dom.createMorphAt(fragment, 0, 0, contextualElement);
+                dom.insertBoundary(fragment, 0);
+                dom.insertBoundary(fragment, null);
+                return morphs;
+              },
+              statements: [["block", "bs-dropdown", [], ["tagName", "li", "class", ["subexpr", "if", [["subexpr", "bs-contains", [["get", "item.childIds", ["loc", [null, [7, 59], [7, 72]]]], ["get", "activeId", ["loc", [null, [7, 73], [7, 81]]]]], [], ["loc", [null, [7, 46], [7, 82]]]], "active"], [], ["loc", [null, [7, 42], [7, 92]]]]], 0, null, ["loc", [null, [7, 8], [14, 24]]]]],
+              locals: [],
+              templates: [child0]
+            };
+          })();
+          var child1 = (function () {
+            var child0 = (function () {
+              return {
+                meta: {
+                  "fragmentReason": false,
+                  "revision": "Ember@2.6.1",
+                  "loc": {
+                    "source": null,
+                    "start": {
+                      "line": 16,
+                      "column": 8
+                    },
+                    "end": {
+                      "line": 16,
+                      "column": 157
+                    }
+                  },
+                  "moduleName": "modules/ember-bootstrap/templates/components/bs-tab.hbs"
+                },
+                isEmpty: false,
+                arity: 0,
+                cachedFragment: null,
+                hasRendered: false,
+                buildFragment: function buildFragment(dom) {
+                  var el0 = dom.createDocumentFragment();
+                  var el1 = dom.createElement("a");
+                  dom.setAttribute(el1, "role", "tab");
+                  var el2 = dom.createComment("");
+                  dom.appendChild(el1, el2);
+                  dom.appendChild(el0, el1);
+                  return el0;
+                },
+                buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+                  var element0 = dom.childAt(fragment, [0]);
+                  var morphs = new Array(3);
+                  morphs[0] = dom.createAttrMorph(element0, 'href');
+                  morphs[1] = dom.createElementMorph(element0);
+                  morphs[2] = dom.createMorphAt(element0, 0, 0);
+                  return morphs;
+                },
+                statements: [["attribute", "href", ["concat", ["#", ["get", "item.elementId", ["loc", [null, [16, 75], [16, 89]]]]]]], ["element", "action", ["select", ["get", "item.elementId", ["loc", [null, [16, 122], [16, 136]]]]], [], ["loc", [null, [16, 104], [16, 138]]]], ["content", "item.title", ["loc", [null, [16, 139], [16, 153]]]]],
+                locals: [],
+                templates: []
+              };
+            })();
+            return {
+              meta: {
+                "fragmentReason": false,
+                "revision": "Ember@2.6.1",
+                "loc": {
+                  "source": null,
+                  "start": {
+                    "line": 15,
+                    "column": 6
+                  },
+                  "end": {
+                    "line": 17,
+                    "column": 6
+                  }
+                },
+                "moduleName": "modules/ember-bootstrap/templates/components/bs-tab.hbs"
+              },
+              isEmpty: false,
+              arity: 0,
+              cachedFragment: null,
+              hasRendered: false,
+              buildFragment: function buildFragment(dom) {
+                var el0 = dom.createDocumentFragment();
+                var el1 = dom.createTextNode("        ");
+                dom.appendChild(el0, el1);
+                var el1 = dom.createComment("");
+                dom.appendChild(el0, el1);
+                var el1 = dom.createTextNode("\n");
+                dom.appendChild(el0, el1);
+                return el0;
+              },
+              buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+                var morphs = new Array(1);
+                morphs[0] = dom.createMorphAt(fragment, 1, 1, contextualElement);
+                return morphs;
+              },
+              statements: [["block", "bs-nav-item", [], ["active", ["subexpr", "bs-eq", [["get", "item.elementId", ["loc", [null, [16, 37], [16, 51]]]], ["get", "activeId", ["loc", [null, [16, 52], [16, 60]]]]], [], ["loc", [null, [16, 30], [16, 61]]]]], 0, null, ["loc", [null, [16, 8], [16, 173]]]]],
+              locals: [],
+              templates: [child0]
+            };
+          })();
+          return {
+            meta: {
+              "fragmentReason": false,
+              "revision": "Ember@2.6.1",
+              "loc": {
+                "source": null,
+                "start": {
+                  "line": 5,
+                  "column": 4
+                },
+                "end": {
+                  "line": 18,
+                  "column": 4
+                }
+              },
+              "moduleName": "modules/ember-bootstrap/templates/components/bs-tab.hbs"
+            },
+            isEmpty: false,
+            arity: 1,
+            cachedFragment: null,
+            hasRendered: false,
+            buildFragment: function buildFragment(dom) {
+              var el0 = dom.createDocumentFragment();
+              var el1 = dom.createComment("");
+              dom.appendChild(el0, el1);
+              return el0;
+            },
+            buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+              var morphs = new Array(1);
+              morphs[0] = dom.createMorphAt(fragment, 0, 0, contextualElement);
+              dom.insertBoundary(fragment, 0);
+              dom.insertBoundary(fragment, null);
+              return morphs;
+            },
+            statements: [["block", "if", [["get", "item.isGroup", ["loc", [null, [6, 12], [6, 24]]]]], [], 0, 1, ["loc", [null, [6, 6], [17, 13]]]]],
+            locals: ["item"],
+            templates: [child0, child1]
+          };
+        })();
+        return {
+          meta: {
+            "fragmentReason": false,
+            "revision": "Ember@2.6.1",
+            "loc": {
+              "source": null,
+              "start": {
+                "line": 4,
+                "column": 2
+              },
+              "end": {
+                "line": 19,
+                "column": 2
+              }
+            },
+            "moduleName": "modules/ember-bootstrap/templates/components/bs-tab.hbs"
+          },
+          isEmpty: false,
+          arity: 0,
+          cachedFragment: null,
+          hasRendered: false,
+          buildFragment: function buildFragment(dom) {
+            var el0 = dom.createDocumentFragment();
+            var el1 = dom.createComment("");
+            dom.appendChild(el0, el1);
+            return el0;
+          },
+          buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+            var morphs = new Array(1);
+            morphs[0] = dom.createMorphAt(fragment, 0, 0, contextualElement);
+            dom.insertBoundary(fragment, 0);
+            dom.insertBoundary(fragment, null);
+            return morphs;
+          },
+          statements: [["block", "each", [["get", "navItems", ["loc", [null, [5, 12], [5, 20]]]]], [], 0, null, ["loc", [null, [5, 4], [18, 13]]]]],
+          locals: [],
+          templates: [child0]
+        };
+      })();
+      return {
+        meta: {
+          "fragmentReason": false,
+          "revision": "Ember@2.6.1",
+          "loc": {
+            "source": null,
+            "start": {
+              "line": 3,
+              "column": 0
+            },
+            "end": {
+              "line": 24,
+              "column": 0
+            }
+          },
+          "moduleName": "modules/ember-bootstrap/templates/components/bs-tab.hbs"
+        },
+        isEmpty: false,
+        arity: 0,
+        cachedFragment: null,
+        hasRendered: false,
+        buildFragment: function buildFragment(dom) {
+          var el0 = dom.createDocumentFragment();
+          var el1 = dom.createComment("");
+          dom.appendChild(el0, el1);
+          var el1 = dom.createTextNode("\n  ");
+          dom.appendChild(el0, el1);
+          var el1 = dom.createElement("div");
+          dom.setAttribute(el1, "class", "tab-content");
+          var el2 = dom.createTextNode("\n    ");
+          dom.appendChild(el1, el2);
+          var el2 = dom.createComment("");
+          dom.appendChild(el1, el2);
+          var el2 = dom.createTextNode("\n  ");
+          dom.appendChild(el1, el2);
+          dom.appendChild(el0, el1);
+          var el1 = dom.createTextNode("\n");
+          dom.appendChild(el0, el1);
+          return el0;
+        },
+        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+          var morphs = new Array(2);
+          morphs[0] = dom.createMorphAt(fragment, 0, 0, contextualElement);
+          morphs[1] = dom.createMorphAt(dom.childAt(fragment, [2]), 1, 1);
+          dom.insertBoundary(fragment, 0);
+          return morphs;
+        },
+        statements: [["block", "bs-nav", [], ["type", ["subexpr", "@mut", [["get", "type", ["loc", [null, [4, 17], [4, 21]]]]], [], []]], 0, null, ["loc", [null, [4, 2], [19, 13]]]], ["inline", "yield", [["get", "activeId", ["loc", [null, [22, 12], [22, 20]]]], ["subexpr", "action", ["select"], [], ["loc", [null, [22, 21], [22, 38]]]]], [], ["loc", [null, [22, 4], [22, 40]]]]],
+        locals: [],
+        templates: [child0]
+      };
+    })();
+    return {
+      meta: {
+        "fragmentReason": {
+          "name": "missing-wrapper",
+          "problems": ["wrong-type"]
+        },
+        "revision": "Ember@2.6.1",
+        "loc": {
+          "source": null,
+          "start": {
+            "line": 1,
+            "column": 0
+          },
+          "end": {
+            "line": 24,
+            "column": 7
+          }
+        },
+        "moduleName": "modules/ember-bootstrap/templates/components/bs-tab.hbs"
+      },
+      isEmpty: false,
+      arity: 0,
+      cachedFragment: null,
+      hasRendered: false,
+      buildFragment: function buildFragment(dom) {
+        var el0 = dom.createDocumentFragment();
+        var el1 = dom.createComment("");
+        dom.appendChild(el0, el1);
+        return el0;
+      },
+      buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+        var morphs = new Array(1);
+        morphs[0] = dom.createMorphAt(fragment, 0, 0, contextualElement);
+        dom.insertBoundary(fragment, 0);
+        dom.insertBoundary(fragment, null);
+        return morphs;
+      },
+      statements: [["block", "if", [["get", "customTabs", ["loc", [null, [1, 6], [1, 16]]]]], [], 0, 1, ["loc", [null, [1, 0], [24, 7]]]]],
+      locals: [],
+      templates: [child0, child1]
+    };
+  })());
 });
 define('ember-cli-app-version/initializer-factory', ['exports', 'ember'], function (exports, _ember) {
   'use strict';
@@ -70283,7 +73436,7 @@ define('ember-data/-private/core', ['exports', 'ember', 'ember-data/version'], f
   */
 
   /**
-    All Ember Data classes, methods and functions are defined inside of this namespace.
+    All Ember Data methods and functions are defined inside of this namespace.
   
     @class DS
     @static
@@ -70295,8 +73448,7 @@ define('ember-data/-private/core', ['exports', 'ember', 'ember-data/version'], f
     @static
   */
   var DS = _ember['default'].Namespace.create({
-    VERSION: _emberDataVersion['default'],
-    name: "DS"
+    VERSION: _emberDataVersion['default']
   });
 
   if (_ember['default'].libraries) {
@@ -70357,7 +73509,7 @@ define('ember-data/-private/debug', ['exports', 'ember'], function (exports, _em
     return typeClass.detect(addedRecord.type);
   }
 
-  /*
+  /**
     Assert that `addedRecord` has a valid type so it can be added to the
     relationship of the `record`.
   
@@ -70388,7 +73540,7 @@ define('ember-data/-private/debug', ['exports', 'ember'], function (exports, _em
     assert(assertionMessage, checkPolymorphic(typeClass, addedRecord));
   }
 });
-define('ember-data/-private/ext/date', ['exports', 'ember', 'ember-data/-private/debug'], function (exports, _ember, _emberDataPrivateDebug) {
+define('ember-data/-private/ext/date', ['exports', 'ember'], function (exports, _ember) {
   /**
     @module ember-data
   */
@@ -70396,23 +73548,27 @@ define('ember-data/-private/ext/date', ['exports', 'ember', 'ember-data/-private
   'use strict';
 
   /**
-     Date.parse with progressive enhancement for ISO 8601 <https://github.com/csnover/js-iso8601>
+    Date.parse with progressive enhancement for ISO 8601 <https://github.com/csnover/js-iso8601>
   
-     © 2011 Colin Snover <http://zetafleet.com>
+    © 2011 Colin Snover <http://zetafleet.com>
   
-     Released under MIT license.
+    Released under MIT license.
   
-     @class Date
-     @namespace Ember
-     @static
-     @deprecated
+    @class Date
+    @namespace Ember
+    @static
   */
   _ember['default'].Date = _ember['default'].Date || {};
 
   var origParse = Date.parse;
   var numericKeys = [1, 4, 5, 6, 7, 10, 11];
 
-  var parseDate = function parseDate(date) {
+  /**
+    @method parse
+    @param {Date} date
+    @return {Number} timestamp
+  */
+  _ember['default'].Date.parse = function (date) {
     var timestamp, struct;
     var minutesOffset = 0;
 
@@ -70420,7 +73576,7 @@ define('ember-data/-private/ext/date', ['exports', 'ember', 'ember-data/-private
     // before falling back to any implementation-specific date parsing, so that’s what we do, even if native
     // implementations could be faster
     //              1 YYYY                2 MM       3 DD           4 HH    5 mm       6 ss        7 msec        8 Z 9 ±    10 tzHH    11 tzmm
-    if (struct = /^(\d{4}|[+\-]\d{6})(?:-(\d{2})(?:-(\d{2}))?)?(?:T(\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{3}))?)?(?:(Z)|([+\-])(\d{2})(?:(\d{2}))?)?)?$/.exec(date)) {
+    if (struct = /^(\d{4}|[+\-]\d{6})(?:-(\d{2})(?:-(\d{2}))?)?(?:T(\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{3}))?)?(?:(Z)|([+\-])(\d{2})(?::(\d{2}))?)?)?$/.exec(date)) {
       // avoid NaN timestamps caused by “undefined” values being passed to Date.UTC
       for (var i = 0, k; k = numericKeys[i]; ++i) {
         struct[k] = +struct[k] || 0;
@@ -70446,24 +73602,8 @@ define('ember-data/-private/ext/date', ['exports', 'ember', 'ember-data/-private
     return timestamp;
   };
 
-  exports.parseDate = parseDate;
-
-  _ember['default'].Date.parse = function (date) {
-    // throw deprecation
-    (0, _emberDataPrivateDebug.deprecate)('Ember.Date.parse is deprecated because Safari 5-, IE8-, and\n      Firefox 3.6- are no longer supported (see\n      https://github.com/csnover/js-iso8601 for the history of this issue).\n      Please use Date.parse instead', false, {
-      id: 'ds.ember.date.parse-deprecate',
-      until: '3.0.0'
-    });
-
-    return parseDate(date);
-  };
-
   if (_ember['default'].EXTEND_PROTOTYPES === true || _ember['default'].EXTEND_PROTOTYPES.Date) {
-    (0, _emberDataPrivateDebug.deprecate)('Overriding Date.parse with Ember.Date.parse is deprecated. Please set ENV.EmberENV.EXTEND_PROTOTYPES.Date to false in config/environment.js\n\n\n// config/environment.js\nENV = {\n  EmberENV: {\n    EXTEND_PROTOTYPES: {\n      Date: false,\n    }\n  }\n}\n', false, {
-      id: 'ds.date.parse-deprecate',
-      until: '3.0.0'
-    });
-    Date.parse = parseDate;
+    Date.parse = _ember['default'].Date.parse;
   }
 });
 define('ember-data/-private/features', ['exports', 'ember'], function (exports, _ember) {
@@ -70477,37 +73617,16 @@ define('ember-data/-private/features', ['exports', 'ember'], function (exports, 
     return (_Ember$FEATURES = _ember['default'].FEATURES).isEnabled.apply(_Ember$FEATURES, arguments);
   }
 });
-define('ember-data/-private/global', ['exports'], function (exports) {
-  /* globals global, window, self */
-
-  // originally from https://github.com/emberjs/ember.js/blob/c0bd26639f50efd6a03ee5b87035fd200e313b8e/packages/ember-environment/lib/global.js
-
-  // from lodash to catch fake globals
-  'use strict';
-
-  function checkGlobal(value) {
-    return value && value.Object === Object ? value : undefined;
-  }
-
-  // element ids can ruin global miss checks
-  function checkElementIdShadowing(value) {
-    return value && value.nodeType === undefined ? value : undefined;
-  }
-
-  // export real global
-  exports['default'] = checkGlobal(checkElementIdShadowing(typeof global === 'object' && global)) || checkGlobal(typeof self === 'object' && self) || checkGlobal(typeof window === 'object' && window) || new Function('return this')();
-  // eval outside of strict mode
-});
 define("ember-data/-private/initializers/data-adapter", ["exports", "ember-data/-private/system/debug/debug-adapter"], function (exports, _emberDataPrivateSystemDebugDebugAdapter) {
   "use strict";
 
   exports["default"] = initializeDebugAdapter;
 
-  /*
+  /**
     Configures a registry with injections on Ember applications
     for the Ember-Data store. Accepts an optional namespace argument.
   
-    @method initializeDebugAdapter
+    @method initializeStoreInjections
     @param {Ember.Registry} registry
   */
   function initializeDebugAdapter(registry) {
@@ -70519,7 +73638,7 @@ define('ember-data/-private/initializers/store-injections', ['exports'], functio
 
   exports['default'] = initializeStoreInjections;
 
-  /*
+  /**
     Configures a registry with injections on Ember applications
     for the Ember-Data store. Accepts an optional namespace argument.
   
@@ -70550,7 +73669,7 @@ define("ember-data/-private/initializers/store", ["exports", "ember-data/-privat
     }
   }
 
-  /*
+  /**
     Configures a registry for use with an Ember-Data
     store. Accepts an optional namespace argument.
   
@@ -70581,7 +73700,7 @@ define('ember-data/-private/initializers/transforms', ['exports', 'ember-data/-p
 
   exports['default'] = initializeTransforms;
 
-  /*
+  /**
     Configures a registry for use with Ember-Data
     transforms.
   
@@ -70600,11 +73719,11 @@ define('ember-data/-private/instance-initializers/initialize-store-service', ['e
 
   exports['default'] = initializeStoreService;
 
-  /*
+  /**
    Configures a registry for use with an Ember-Data
    store.
   
-   @method initializeStoreService
+   @method initializeStore
    @param {Ember.ApplicationInstance} applicationOrRegistry
    */
   function initializeStoreService(application) {
@@ -70650,7 +73769,7 @@ define('ember-data/-private/system/coerce-id', ['exports'], function (exports) {
   // corresponding record, we will not know if it is a string or a number.
 
   function coerceId(id) {
-    return id === null || id === undefined || id === '' ? null : id + '';
+    return id == null || id === '' ? null : id + '';
   }
 });
 define('ember-data/-private/system/container-proxy', ['exports', 'ember-data/-private/debug'], function (exports, _emberDataPrivateDebug) {
@@ -72311,7 +75430,6 @@ define("ember-data/-private/system/model/internal-model", ["exports", "ember", "
 
       this.record._notifyProperties(dirtyKeys);
     },
-
     /*
       @method transitionTo
       @private
@@ -72710,9 +75828,12 @@ define("ember-data/-private/system/model/internal-model", ["exports", "ember", "
       } else {
         return "<" + this.modelName + ":" + this.id + ">";
       }
-    },
+    }
+  };
 
-    referenceFor: function referenceFor(type, name) {
+  if (true) {
+
+    InternalModel.prototype.referenceFor = function (type, name) {
       var reference = this.references[name];
 
       if (!reference) {
@@ -72728,26 +75849,10 @@ define("ember-data/-private/system/model/internal-model", ["exports", "ember", "
       }
 
       return reference;
-    }
-  };
-
-  if (false) {
-    /*
-       Returns the latest truth for an attribute - the canonical value, or the
-       in-flight value.
-        @method lastAcknowledgedValue
-       @private
-    */
-    InternalModel.prototype.lastAcknowledgedValue = function lastAcknowledgedValue(key) {
-      if (key in this._inFlightAttributes) {
-        return this._inFlightAttributes[key];
-      } else {
-        return this._data[key];
-      }
     };
   }
 });
-define("ember-data/-private/system/model/model", ["exports", "ember", "ember-data/-private/debug", "ember-data/-private/system/promise-proxies", "ember-data/-private/system/model/errors", "ember-data/-private/system/debug/debug-info", "ember-data/-private/system/relationships/belongs-to", "ember-data/-private/system/relationships/has-many", "ember-data/-private/system/relationships/ext", "ember-data/-private/system/model/attr", "ember-data/-private/features"], function (exports, _ember, _emberDataPrivateDebug, _emberDataPrivateSystemPromiseProxies, _emberDataPrivateSystemModelErrors, _emberDataPrivateSystemDebugDebugInfo, _emberDataPrivateSystemRelationshipsBelongsTo, _emberDataPrivateSystemRelationshipsHasMany, _emberDataPrivateSystemRelationshipsExt, _emberDataPrivateSystemModelAttr, _emberDataPrivateFeatures) {
+define("ember-data/-private/system/model/model", ["exports", "ember", "ember-data/-private/debug", "ember-data/-private/system/promise-proxies", "ember-data/-private/system/model/errors", "ember-data/-private/features", "ember-data/-private/system/debug/debug-info", "ember-data/-private/system/relationships/belongs-to", "ember-data/-private/system/relationships/has-many", "ember-data/-private/system/relationships/ext", "ember-data/-private/system/model/attr"], function (exports, _ember, _emberDataPrivateDebug, _emberDataPrivateSystemPromiseProxies, _emberDataPrivateSystemModelErrors, _emberDataPrivateFeatures, _emberDataPrivateSystemDebugDebugInfo, _emberDataPrivateSystemRelationshipsBelongsTo, _emberDataPrivateSystemRelationshipsHasMany, _emberDataPrivateSystemRelationshipsExt, _emberDataPrivateSystemModelAttr) {
   "use strict";
 
   /**
@@ -72846,8 +75951,7 @@ define("ember-data/-private/system/model/model", ["exports", "ember", "ember-dat
         model.get('hasDirtyAttributes'); // true
       });
       ```
-       @since 1.13.0
-      @property hasDirtyAttributes
+       @property hasDirtyAttributes
       @type {Boolean}
       @readOnly
     */
@@ -73223,22 +76327,6 @@ define("ember-data/-private/system/model/model", ["exports", "ember", "ember-dat
         }
       });
       ```
-       If you pass an object on the `adapterOptions` property of the options
-      argument it will be passed to you adapter via the snapshot
-       ```js
-      record.destroyRecord({ adapterOptions: { subscribe: false } });
-      ```
-       ```app/adapters/post.js
-      import MyCustomAdapter from './custom-adapter';
-       export default MyCustomAdapter.extend({
-        deleteRecord: function(store, type, snapshot) {
-          if (snapshot.adapterOptions.subscribe) {
-            // ...
-          }
-          // ...
-        }
-      });
-      ```
        @method destroyRecord
       @param {Object} options
       @return {Promise} a promise that will be resolved when the adapter returns
@@ -73339,8 +76427,7 @@ define("ember-data/-private/system/model/model", ["exports", "ember", "ember-dat
       record.rollbackAttributes();
       record.get('name'); // 'Untitled Document'
       ```
-       @since 1.13.0
-      @method rollbackAttributes
+       @method rollbackAttributes
     */
     rollbackAttributes: function rollbackAttributes() {
       this._internalModel.rollbackAttributes();
@@ -73370,23 +76457,7 @@ define("ember-data/-private/system/model/model", ["exports", "ember", "ember-dat
         // Error callback
       });
       ```
-      If you pass an object on the `adapterOptions` property of the options
-     argument it will be passed to you adapter via the snapshot
-       ```js
-      record.save({ adapterOptions: { subscribe: false } });
-      ```
-       ```app/adapters/post.js
-      import MyCustomAdapter from './custom-adapter';
-       export default MyCustomAdapter.extend({
-        updateRecord: function(store, type, snapshot) {
-          if (snapshot.adapterOptions.subscribe) {
-            // ...
-          }
-          // ...
-        }
-      });
-      ```
-       @method save
+      @method save
       @param {Object} options
       @return {Promise} a promise that will be resolved when the adapter returns
       successfully or rejected if the adapter returns with an error.
@@ -73471,103 +76542,12 @@ define("ember-data/-private/system/model/model", ["exports", "ember", "ember-dat
       (0, _emberDataPrivateDebug.assert)("The `attr` method is not available on DS.Model, a DS.Snapshot was probably expected. Are you passing a DS.Model instead of a DS.Snapshot to your serializer?", false);
     },
 
-    /**
-      Get the reference for the specified belongsTo relationship.
-       Example
-       ```javascript
-      // models/blog.js
-      export default DS.Model.extend({
-        user: DS.belongsTo({ async: true })
-      });
-       var blog = store.push({
-        type: 'blog',
-        id: 1,
-        relationships: {
-          user: { type: 'user', id: 1 }
-        }
-      });
-      var userRef = blog.belongsTo('user');
-       // check if the user relationship is loaded
-      var isLoaded = userRef.value() !== null;
-       // get the record of the reference (null if not yet available)
-      var user = userRef.value();
-       // get the identifier of the reference
-      if (userRef.remoteType() === "id") {
-        var id = userRef.id();
-      } else if (userRef.remoteType() === "link") {
-        var link = userRef.link();
-      }
-       // load user (via store.findRecord or store.findBelongsTo)
-      userRef.load().then(...)
-       // or trigger a reload
-      userRef.reload().then(...)
-       // provide data for reference
-      userRef.push({
-        type: 'user',
-        id: 1,
-        attributes: {
-          username: "@user"
-        }
-      }).then(function(user) {
-        userRef.value() === user;
-      });
-      ```
-       @method belongsTo
-      @param {String} name of the relationship
-      @since 2.5.0
-      @return {BelongsToReference} reference for this relationship
-    */
-    belongsTo: function belongsTo(name) {
-      return this._internalModel.referenceFor('belongsTo', name);
+    belongsTo: function belongsTo() {
+      (0, _emberDataPrivateDebug.assert)("The `belongsTo` method is not available on DS.Model, a DS.Snapshot was probably expected. Are you passing a DS.Model instead of a DS.Snapshot to your serializer?", false);
     },
 
-    /**
-      Get the reference for the specified hasMany relationship.
-       Example
-       ```javascript
-      // models/blog.js
-      export default DS.Model.extend({
-        comments: DS.hasMany({ async: true })
-      });
-       var blog = store.push({
-        type: 'blog',
-        id: 1,
-        relationships: {
-          comments: {
-            data: [
-              { type: 'comment', id: 1 },
-              { type: 'comment', id: 2 }
-            ]
-          }
-        }
-      });
-      var commentsRef = blog.hasMany('comments');
-       // check if the comments are loaded already
-      var isLoaded = commentsRef.value() !== null;
-       // get the records of the reference (null if not yet available)
-      var comments = commentsRef.value();
-       // get the identifier of the reference
-      if (commentsRef.remoteType() === "ids") {
-        var ids = commentsRef.ids();
-      } else if (commentsRef.remoteType() === "link") {
-        var link = commentsRef.link();
-      }
-       // load comments (via store.findMany or store.findHasMany)
-      commentsRef.load().then(...)
-       // or trigger a reload
-      commentsRef.reload().then(...)
-       // provide data for reference
-      commentsRef.push([{ type: 'comment', id: 1 }, { type: 'comment', id: 2 }]).then(function(comments) {
-        commentsRef.value() === comments;
-      });
-      ```
-       @method hasMany
-      @param {String} name of the relationship
-      @since 2.5.0
-      @return {HasManyReference} reference for this relationship
-    */
-    hasMany: function hasMany(name) {
-      return this._internalModel.referenceFor('hasMany', name);
+    hasMany: function hasMany() {
+      (0, _emberDataPrivateDebug.assert)("The `hasMany` method is not available on DS.Model, a DS.Snapshot was probably expected. Are you passing a DS.Model instead of a DS.Snapshot to your serializer?", false);
     },
 
     setId: _ember["default"].observer('id', function () {
@@ -73642,24 +76622,105 @@ define("ember-data/-private/system/model/model", ["exports", "ember", "ember-dat
     });
   }
 
-  if (false) {
+  if (true) {
+
     Model.reopen({
+
       /**
-        Discards any unsaved changes to the given attribute.
+        Get the reference for the specified belongsTo relationship.
          Example
          ```javascript
-        record.get('name'); // 'Untitled Document'
-        record.set('name', 'Doc 1');
-        record.get('name'); // 'Doc 1'
-        record.resetAttribute('name');
-        record.get('name'); // 'Untitled Document'
-        ```
-         @method resetAttribute
-      */
-      resetAttribute: function resetAttribute(attributeName) {
-        if (attributeName in this._internalModel._attributes) {
-          this.set(attributeName, this._internalModel.lastAcknowledgedValue(attributeName));
+        // models/blog.js
+        export default DS.Model.extend({
+          user: DS.belongsTo({ async: true })
+        });
+         var blog = store.push({
+          type: 'blog',
+          id: 1,
+          relationships: {
+            user: { type: 'user', id: 1 }
+          }
+        });
+        var userRef = blog.belongsTo('user');
+         // check if the user relationship is loaded
+        var isLoaded = userRef.value() !== null;
+         // get the record of the reference (null if not yet available)
+        var user = userRef.value();
+         // get the identifier of the reference
+        if (userRef.remoteType() === "id") {
+          var id = userRef.id();
+        } else if (userRef.remoteType() === "link") {
+          var link = userRef.link();
         }
+         // load user (via store.findRecord or store.findBelongsTo)
+        userRef.load().then(...)
+         // or trigger a reload
+        userRef.reload().then(...)
+         // provide data for reference
+        userRef.push({
+          type: 'user',
+          id: 1,
+          attributes: {
+            username: "@user"
+          }
+        }).then(function(user) {
+          userRef.value() === user;
+        });
+        ```
+         @method belongsTo
+        @param {String} name of the relationship
+        @return {BelongsToReference} reference for this relationship
+      */
+      belongsTo: function belongsTo(name) {
+        return this._internalModel.referenceFor('belongsTo', name);
+      },
+
+      /**
+        Get the reference for the specified hasMany relationship.
+         Example
+         ```javascript
+        // models/blog.js
+        export default DS.Model.extend({
+          comments: DS.hasMany({ async: true })
+        });
+         var blog = store.push({
+          type: 'blog',
+          id: 1,
+          relationships: {
+            comments: {
+              data: [
+                { type: 'comment', id: 1 },
+                { type: 'comment', id: 2 }
+              ]
+            }
+          }
+        });
+        var commentsRef = blog.hasMany('comments');
+         // check if the comments are loaded already
+        var isLoaded = commentsRef.value() !== null;
+         // get the records of the reference (null if not yet available)
+        var comments = commentsRef.value();
+         // get the identifier of the reference
+        if (commentsRef.remoteType() === "ids") {
+          var ids = commentsRef.ids();
+        } else if (commentsRef.remoteType() === "link") {
+          var link = commentsRef.link();
+        }
+         // load comments (via store.findMany or store.findHasMany)
+        commentsRef.load().then(...)
+         // or trigger a reload
+        commentsRef.reload().then(...)
+         // provide data for reference
+        commentsRef.push([{ type: 'comment', id: 1 }, { type: 'comment', id: 2 }]).then(function(comments) {
+          commentsRef.value() === comments;
+        });
+        ```
+         @method hasMany
+        @param {String} name of the relationship
+        @return {HasManyReference} reference for this relationship
+      */
+      hasMany: function hasMany(name) {
+        return this._internalModel.referenceFor('hasMany', name);
       }
     });
   }
@@ -73894,7 +76955,7 @@ define('ember-data/-private/system/model/states', ['exports', 'ember', 'ember-da
   // `inFlight`: the store has handed off the record to be saved,
   //   but the adapter has not yet acknowledged success.
   // `invalid`: the record has invalid information and cannot be
-  //   sent to the adapter yet.
+  //   send to the adapter yet.
   var DirtyState = {
     initialState: 'uncommitted',
 
@@ -74414,6 +77475,7 @@ define('ember-data/-private/system/model/states', ['exports', 'ember', 'ember-da
   };
 
   function wireState(object, parent, name) {
+    /*jshint proto:true*/
     // TODO: Use Object.create and copy instead
     object = mixin(parent ? Object.create(parent) : {}, object);
     object.parentState = parent;
@@ -74440,7 +77502,7 @@ define('ember-data/-private/system/normalize-link', ['exports'], function (expor
 
   exports['default'] = _normalizeLink;
 
-  /*
+  /**
     This method normalizes a link to an "links object". If the passed link is
     already an object it's returned without any modifications.
   
@@ -74511,7 +77573,7 @@ define('ember-data/-private/system/ordered-set', ['exports', 'ember'], function 
 
     presenceSet[guid] = true;
 
-    if (idx === undefined || idx === null) {
+    if (idx === undefined || idx == null) {
       list.push(obj);
     } else {
       list.splice(idx, 0, obj);
@@ -75059,7 +78121,7 @@ define("ember-data/-private/system/record-arrays/adapter-populated-record-array"
         meta: (0, _emberDataPrivateSystemCloneNull["default"])(payload.meta)
       });
 
-      if (true) {
+      if (false) {
         this.set('links', (0, _emberDataPrivateSystemCloneNull["default"])(payload.links));
       }
 
@@ -75268,7 +78330,7 @@ define("ember-data/-private/system/record-arrays/record-array", ["exports", "emb
       var content = get(this, 'content');
       if (idx === undefined) {
         content.addObject(internalModel);
-      } else if (!content.includes(internalModel)) {
+      } else if (!content.contains(internalModel)) {
         content.insertAt(idx, internalModel);
       }
     },
@@ -75347,7 +78409,7 @@ define('ember-data/-private/system/references', ['exports', 'ember-data/-private
   exports.BelongsToReference = _emberDataPrivateSystemReferencesBelongsTo['default'];
   exports.HasManyReference = _emberDataPrivateSystemReferencesHasMany['default'];
 });
-define('ember-data/-private/system/references/belongs-to', ['exports', 'ember-data/model', 'ember', 'ember-data/-private/system/references/reference', 'ember-data/-private/features', 'ember-data/-private/debug'], function (exports, _emberDataModel, _ember, _emberDataPrivateSystemReferencesReference, _emberDataPrivateFeatures, _emberDataPrivateDebug) {
+define('ember-data/-private/system/references/belongs-to', ['exports', 'ember-data/model', 'ember', 'ember-data/-private/system/references/reference', 'ember-data/-private/debug'], function (exports, _emberDataModel, _ember, _emberDataPrivateSystemReferencesReference, _emberDataPrivateDebug) {
   'use strict';
 
   var BelongsToReference = function BelongsToReference(store, parentInternalModel, belongsToRelationship) {
@@ -75391,12 +78453,6 @@ define('ember-data/-private/system/references/belongs-to', ['exports', 'ember-da
       var record;
 
       if (data instanceof _emberDataModel['default']) {
-        if (false) {
-          (0, _emberDataPrivateDebug.deprecate)("BelongsToReference#push(DS.Model) is deprecated. Update relationship via `model.set('relationshipName', value)` instead.", false, {
-            id: 'ds.references.belongs-to.push-record',
-            until: '3.0'
-          });
-        }
         record = data;
       } else {
         record = _this.store.push(data);
@@ -75444,7 +78500,7 @@ define('ember-data/-private/system/references/belongs-to', ['exports', 'ember-da
 
   exports['default'] = BelongsToReference;
 });
-define('ember-data/-private/system/references/has-many', ['exports', 'ember', 'ember-data/-private/system/references/reference', 'ember-data/-private/debug', 'ember-data/-private/features'], function (exports, _ember, _emberDataPrivateSystemReferencesReference, _emberDataPrivateDebug, _emberDataPrivateFeatures) {
+define('ember-data/-private/system/references/has-many', ['exports', 'ember', 'ember-data/-private/system/references/reference', 'ember-data/-private/debug'], function (exports, _ember, _emberDataPrivateSystemReferencesReference, _emberDataPrivateDebug) {
   'use strict';
 
   var get = _ember['default'].get;
@@ -75492,54 +78548,20 @@ define('ember-data/-private/system/references/has-many', ['exports', 'ember', 'e
 
     return _ember['default'].RSVP.resolve(objectOrPromise).then(function (payload) {
       var array = payload;
-
-      if (false) {
-        (0, _emberDataPrivateDebug.deprecate)("HasManyReference#push(array) is deprecated. Push a JSON-API document instead.", !Array.isArray(payload), {
-          id: 'ds.references.has-many.push-array',
-          until: '3.0'
-        });
-      }
-
-      var useLegacyArrayPush = true;
       if (typeof payload === "object" && payload.data) {
         array = payload.data;
-        useLegacyArrayPush = array.length && array[0].data;
-
-        if (false) {
-          (0, _emberDataPrivateDebug.deprecate)("HasManyReference#push() expects a valid JSON-API document.", !useLegacyArrayPush, {
-            id: 'ds.references.has-many.push-invalid-json-api',
-            until: '3.0'
-          });
-        }
       }
 
-      if (!false) {
-        useLegacyArrayPush = true;
-      }
-
-      var internalModels = undefined;
-      if (useLegacyArrayPush) {
-        internalModels = array.map(function (obj) {
-          var record = _this.store.push(obj);
-
-          (0, _emberDataPrivateDebug.runInDebug)(function () {
-            var relationshipMeta = _this.hasManyRelationship.relationshipMeta;
-            (0, _emberDataPrivateDebug.assertPolymorphicType)(_this.internalModel, relationshipMeta, record._internalModel);
-          });
-
-          return record._internalModel;
-        });
-      } else {
-        var records = _this.store.push(payload);
-        internalModels = _ember['default'].A(records).mapBy('_internalModel');
+      var internalModels = array.map(function (obj) {
+        var record = _this.store.push(obj);
 
         (0, _emberDataPrivateDebug.runInDebug)(function () {
-          internalModels.forEach(function (internalModel) {
-            var relationshipMeta = _this.hasManyRelationship.relationshipMeta;
-            (0, _emberDataPrivateDebug.assertPolymorphicType)(_this.internalModel, relationshipMeta, internalModel);
-          });
+          var relationshipMeta = _this.hasManyRelationship.relationshipMeta;
+          (0, _emberDataPrivateDebug.assertPolymorphicType)(_this.internalModel, relationshipMeta, record._internalModel);
         });
-      }
+
+        return record._internalModel;
+      });
 
       _this.hasManyRelationship.computeChanges(internalModels);
 
@@ -75877,7 +78899,7 @@ define("ember-data/-private/system/relationships/ext", ["exports", "ember", "emb
 
         (0, _emberDataPrivateDebug.assert)("You specified a hasMany (" + meta.type + ") on " + meta.parentType + " but " + meta.type + " was not found.", modelName);
 
-        if (!types.includes(modelName)) {
+        if (!types.contains(modelName)) {
           (0, _emberDataPrivateDebug.assert)("Trying to sideload " + name + " on " + _this.toString() + " but the type doesn't exist.", !!modelName);
           types.push(modelName);
         }
@@ -76252,9 +79274,9 @@ define("ember-data/-private/system/relationships/ext", ["exports", "ember", "emb
       import Blog from 'app/models/blog';
        var relationshipsByName = Ember.get(Blog, 'relationshipsByName');
       relationshipsByName.get('users');
-      //=> { key: 'users', kind: 'hasMany', type: 'user', options: Object, isRelationship: true }
+      //=> { key: 'users', kind: 'hasMany', type: App.User }
       relationshipsByName.get('owner');
-      //=> { key: 'owner', kind: 'belongsTo', type: 'user', options: Object, isRelationship: true }
+      //=> { key: 'owner', kind: 'belongsTo', type: App.User }
       ```
        @property relationshipsByName
       @static
@@ -76347,14 +79369,14 @@ define("ember-data/-private/system/relationships/ext", ["exports", "ember", "emb
       var knownKey = knownSide.key;
       var knownKind = knownSide.kind;
       var inverse = this.inverseFor(knownKey, store);
-      // let key;
-      var otherKind = undefined;
+      var key = undefined,
+          otherKind = undefined;
 
       if (!inverse) {
         return knownKind === 'belongsTo' ? 'oneToNone' : 'manyToNone';
       }
 
-      // key = inverse.name;
+      key = inverse.name;
       otherKind = inverse.kind;
 
       if (otherKind === 'belongsTo') {
@@ -76385,7 +79407,7 @@ define("ember-data/-private/system/relationships/ext", ["exports", "ember", "emb
      - **kind** <span class="type">String</span> "hasMany" or "belongsTo"
      - **options** <span class="type">Object</span> the original options hash passed when the relationship was declared
      - **parentType** <span class="type">DS.Model</span> the type of the Model that owns this relationship
-     - **type** <span class="type">String</span> the type name of the related Model
+     - **type** <span class="type">DS.Model</span> the type of the related Model
        Note that in addition to a callback, you can also pass an optional target
       object that will be set as `this` on the context.
        Example
@@ -76630,7 +79652,6 @@ define("ember-data/-private/system/relationships/state/belongs-to", ["exports", 
     } else if (this.canonicalState) {
       this.removeCanonicalRecord(this.canonicalState);
     }
-    this.flushCanonicalLater();
     this.setHasData(true);
     this.setHasLoaded(true);
   };
@@ -77313,7 +80334,7 @@ define("ember-data/-private/system/relationships/state/relationship", ["exports"
     }
   };
 });
-define('ember-data/-private/system/snapshot-record-array', ['exports'], function (exports) {
+define('ember-data/-private/system/snapshot-record-array', ['exports', 'ember-data/-private/features'], function (exports, _emberDataPrivateFeatures) {
   'use strict';
 
   exports['default'] = SnapshotRecordArray;
@@ -77372,7 +80393,9 @@ define('ember-data/-private/system/snapshot-record-array', ['exports'], function
     */
     this.adapterOptions = options.adapterOptions;
 
-    this.include = options.include;
+    if (true) {
+      this.include = options.include;
+    }
   }
 
   /**
@@ -77390,16 +80413,16 @@ define('ember-data/-private/system/snapshot-record-array', ['exports'], function
     return this._snapshots;
   };
 });
-define("ember-data/-private/system/snapshot", ["exports", "ember", "ember-data/-private/system/empty-object"], function (exports, _ember, _emberDataPrivateSystemEmptyObject) {
-  "use strict";
+define('ember-data/-private/system/snapshot', ['exports', 'ember', 'ember-data/-private/system/empty-object', 'ember-data/-private/features'], function (exports, _ember, _emberDataPrivateSystemEmptyObject, _emberDataPrivateFeatures) {
+  'use strict';
 
-  exports["default"] = Snapshot;
+  exports['default'] = Snapshot;
 
   /**
     @module ember-data
   */
 
-  var get = _ember["default"].get;
+  var get = _ember['default'].get;
 
   /**
     @class Snapshot
@@ -77413,11 +80436,11 @@ define("ember-data/-private/system/snapshot", ["exports", "ember", "ember-data/-
 
     var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
-    this._attributes = new _emberDataPrivateSystemEmptyObject["default"]();
-    this._belongsToRelationships = new _emberDataPrivateSystemEmptyObject["default"]();
-    this._belongsToIds = new _emberDataPrivateSystemEmptyObject["default"]();
-    this._hasManyRelationships = new _emberDataPrivateSystemEmptyObject["default"]();
-    this._hasManyIds = new _emberDataPrivateSystemEmptyObject["default"]();
+    this._attributes = new _emberDataPrivateSystemEmptyObject['default']();
+    this._belongsToRelationships = new _emberDataPrivateSystemEmptyObject['default']();
+    this._belongsToIds = new _emberDataPrivateSystemEmptyObject['default']();
+    this._hasManyRelationships = new _emberDataPrivateSystemEmptyObject['default']();
+    this._hasManyIds = new _emberDataPrivateSystemEmptyObject['default']();
 
     var record = internalModel.getRecord();
     this.record = record;
@@ -77437,7 +80460,9 @@ define("ember-data/-private/system/snapshot", ["exports", "ember", "ember-data/-
     */
     this.adapterOptions = options.adapterOptions;
 
-    this.include = options.include;
+    if (true) {
+      this.include = options.include;
+    }
 
     this._changedAttributes = record.changedAttributes();
   }
@@ -77500,7 +80525,7 @@ define("ember-data/-private/system/snapshot", ["exports", "ember", "ember-data/-
       if (keyName in this._attributes) {
         return this._attributes[keyName];
       }
-      throw new _ember["default"].Error("Model '" + _ember["default"].inspect(this.record) + "' has no attribute named '" + keyName + "' defined.");
+      throw new _ember['default'].Error("Model '" + _ember['default'].inspect(this.record) + "' has no attribute named '" + keyName + "' defined.");
     },
 
     /**
@@ -77514,7 +80539,7 @@ define("ember-data/-private/system/snapshot", ["exports", "ember", "ember-data/-
       @return {Object} All attributes of the current snapshot
     */
     attributes: function attributes() {
-      return _ember["default"].copy(this._attributes);
+      return _ember['default'].copy(this._attributes);
     },
 
     /**
@@ -77529,12 +80554,12 @@ define("ember-data/-private/system/snapshot", ["exports", "ember", "ember-data/-
       @return {Object} All changed attributes of the current snapshot
     */
     changedAttributes: function changedAttributes() {
-      var changedAttributes = new _emberDataPrivateSystemEmptyObject["default"]();
+      var changedAttributes = new _emberDataPrivateSystemEmptyObject['default']();
       var changedAttributeKeys = Object.keys(this._changedAttributes);
 
       for (var i = 0, _length = changedAttributeKeys.length; i < _length; i++) {
         var key = changedAttributeKeys[i];
-        changedAttributes[key] = _ember["default"].copy(this._changedAttributes[key]);
+        changedAttributes[key] = _ember['default'].copy(this._changedAttributes[key]);
       }
 
       return changedAttributes;
@@ -77582,7 +80607,7 @@ define("ember-data/-private/system/snapshot", ["exports", "ember", "ember-data/-
 
       relationship = this._internalModel._relationships.get(keyName);
       if (!(relationship && relationship.relationshipMeta.kind === 'belongsTo')) {
-        throw new _ember["default"].Error("Model '" + _ember["default"].inspect(this.record) + "' has no belongsTo relationship named '" + keyName + "' defined.");
+        throw new _ember['default'].Error("Model '" + _ember['default'].inspect(this.record) + "' has no belongsTo relationship named '" + keyName + "' defined.");
       }
 
       hasData = get(relationship, 'hasData');
@@ -77646,7 +80671,7 @@ define("ember-data/-private/system/snapshot", ["exports", "ember", "ember-data/-
 
       relationship = this._internalModel._relationships.get(keyName);
       if (!(relationship && relationship.relationshipMeta.kind === 'hasMany')) {
-        throw new _ember["default"].Error("Model '" + _ember["default"].inspect(this.record) + "' has no hasMany relationship named '" + keyName + "' defined.");
+        throw new _ember['default'].Error("Model '" + _ember['default'].inspect(this.record) + "' has no hasMany relationship named '" + keyName + "' defined.");
       }
 
       hasData = get(relationship, 'hasData');
@@ -77725,7 +80750,7 @@ define('ember-data/-private/system/store', ['exports', 'ember', 'ember-data/mode
 
   'use strict';
 
-  var badIdFormatAssertion = '`id` passed to `findRecord()` has to be non-empty string or number';
+  var badIdFormatAssertion = '`id` has to be non-empty string or number';
 
   exports.badIdFormatAssertion = badIdFormatAssertion;
 
@@ -78084,7 +81109,6 @@ define('ember-data/-private/system/store', ['exports', 'ember', 'ember-data/mode
       method to find the necessary data. If the record is already present in the
       store, it depends on the reload behavior _when_ the returned promise
       resolves.
-       ### Reloading
        The reload behavior is configured either via the passed `options` hash or
       the result of the adapter's `shouldReloadRecord`.
        If `{ reload: true }` is passed or `adapter.shouldReloadRecord` evaluates
@@ -78112,7 +81136,6 @@ define('ember-data/-private/system/store', ['exports', 'ember', 'ember-data/mode
       ```
        If no reload is indicated via the abovementioned ways, then the promise
       immediately resolves with the cached version in the store.
-       ### Background Reloading
        Optionally, if `adapter.shouldBackgroundReloadRecord` evaluates to `true`,
       then a background reload is started, which updates the records' data, once
       it is available:
@@ -78148,43 +81171,8 @@ define('ember-data/-private/system/store', ['exports', 'ember', 'ember-data/mode
       // ]
        blogPost.get('revision'); // 2
       ```
-       If you would like to force or prevent background reloading, you can set a
-      boolean value for `backgroundReload` in the options object for
-      `findRecord`.
-       ```app/routes/post/edit.js
-      import Ember from 'ember';
-       export default Ember.Route.extend({
-        model: function(params) {
-          return this.store.findRecord('post', params.post_id, { backgroundReload: false });
-        }
-      });
-      ```
-      If you pass an object on the `adapterOptions` property of the options
-     argument it will be passed to you adapter via the snapshot
-       ```app/routes/post/edit.js
-      import Ember from 'ember';
-       export default Ember.Route.extend({
-        model: function(params) {
-          return this.store.findRecord('post', params.post_id, {
-            adapterOptions: { subscribe: false }
-          });
-        }
-      });
-      ```
-       ```app/adapters/post.js
-      import MyCustomAdapter from './custom-adapter';
-       export default MyCustomAdapter.extend({
-        findRecord: function(store, type, id, snapshot) {
-          if (snapshot.adapterOptions.subscribe) {
-            // ...
-          }
-          // ...
-        }
-      });
-      ```
        See [peekRecord](#method_peekRecord) to get the cached version of a record.
-       @since 1.13.0
-      @method findRecord
+       @method findRecord
       @param {String} modelName
       @param {(String|Integer)} id
       @param {Object} options
@@ -78213,21 +81201,16 @@ define('ember-data/-private/system/store', ['exports', 'ember', 'ember-data/mode
         return this.scheduleFetch(internalModel, options);
       }
 
+      // Refetch the record if the adapter thinks the record is stale
       var snapshot = internalModel.createSnapshot(options);
       var typeClass = internalModel.type;
       var adapter = this.adapterFor(typeClass.modelName);
-
-      // Refetch the record if the adapter thinks the record is stale
       if (adapter.shouldReloadRecord(this, snapshot)) {
         return this.scheduleFetch(internalModel, options);
       }
 
-      if (options.backgroundReload === false) {
-        return Promise.resolve(internalModel);
-      }
-
-      // Trigger the background refetch if backgroundReload option is passed
-      if (options.backgroundReload || adapter.shouldBackgroundReloadRecord(this, snapshot)) {
+      // Trigger the background refetch if all the previous checks fail
+      if (adapter.shouldBackgroundReloadRecord(this, snapshot)) {
         this.scheduleFetch(internalModel, options);
       }
 
@@ -78378,7 +81361,7 @@ define('ember-data/-private/system/store', ['exports', 'ember', 'ember-data/mode
         return function rejectMissingRecords(resolvedRecords) {
           resolvedRecords = _ember['default'].A(resolvedRecords);
           var missingRecords = requestedRecords.reject(function (record) {
-            return resolvedRecords.includes(record);
+            return resolvedRecords.contains(record);
           });
           if (missingRecords.length) {
             (0, _emberDataPrivateDebug.warn)('Ember Data expected to find records with the following ids in the adapter response but they were missing: ' + _ember['default'].inspect(_ember['default'].A(missingRecords).mapBy('id')), false, {
@@ -78441,38 +81424,6 @@ define('ember-data/-private/system/store', ['exports', 'ember', 'ember-data/mode
     },
 
     /**
-      Get the reference for the specified record.
-       Example
-       ```javascript
-      var userRef = store.getReference('user', 1);
-       // check if the user is loaded
-      var isLoaded = userRef.value() !== null;
-       // get the record of the reference (null if not yet available)
-      var user = userRef.value();
-       // get the identifier of the reference
-      if (userRef.remoteType() === "id") {
-      var id = userRef.id();
-      }
-       // load user (via store.find)
-      userRef.load().then(...)
-       // or trigger a reload
-      userRef.reload().then(...)
-       // provide data for reference
-      userRef.push({ id: 1, username: "@user" }).then(function(user) {
-      userRef.value() === user;
-      });
-      ```
-       @method getReference
-      @param {String} type
-      @param {String|Integer} id
-      @since 2.5.0
-      @return {RecordReference}
-    */
-    getReference: function getReference(type, id) {
-      return this._internalModelForId(type, id).recordReference;
-    },
-
-    /**
       Get a record by a given type and ID without triggering a fetch.
        This method will synchronously return the record if it is available in the store,
       otherwise it will return `null`. A record is available if it has been fetched earlier, or
@@ -78482,8 +81433,7 @@ define('ember-data/-private/system/store', ['exports', 'ember', 'ember-data/mode
       var post = store.peekRecord('post', 1);
        post.get('id'); // 1
       ```
-       @since 1.13.0
-      @method peekRecord
+       @method peekRecord
       @param {String} modelName
       @param {String|Integer} id
       @return {DS.Model|null} record
@@ -78651,8 +81601,7 @@ define('ember-data/-private/system/store', ['exports', 'ember', 'ember-data/mode
       ```
        This method returns a promise, which is resolved with a `RecordArray`
       once the server returns.
-       @since 1.13.0
-      @method query
+       @method query
       @param {String} modelName
       @param {any} query an opaque query to be used by the adapter
       @return {Promise} promise
@@ -78703,15 +81652,15 @@ define('ember-data/-private/system/store', ['exports', 'ember', 'ember-data/mode
        The request is made through the adapters' `queryRecord`:
        ```javascript
       // app/adapters/user.js
-      import DS from "ember-data";
-       export default DS.Adapter.extend({
+      import Adapter from "ember-data/adapter";
+       export default Adapter.extend({
         queryRecord(modelName, query) {
           return Ember.$.getJSON("/api/current_user");
         }
       });
       ```
        Note: the primary use case for `store.queryRecord` is when a single record
-      is queried and the `id` is not known beforehand. In all other cases
+      is queried and the `id` is not kown beforehand. In all other cases
       `store.query` and using the first item of the array is likely the preferred
       way:
        ```
@@ -78747,8 +81696,7 @@ define('ember-data/-private/system/store', ['exports', 'ember', 'ember-data/mode
         console.log(user); // null
       });
       ```
-       @since 1.13.0
-      @method queryRecord
+       @method queryRecord
       @param {String} modelName
       @param {any} query an opaque query to be used by the adapter
       @return {Promise} promise which resolves with the found record or `null`
@@ -78768,7 +81716,7 @@ define('ember-data/-private/system/store', ['exports', 'ember', 'ember-data/mode
     },
 
     /**
-      `findAll` asks the adapter's `findAll` method to find the records for the
+      `findAll` ask the adapter's `findAll` method to find the records for the
       given type, and returns a promise which will resolve with all records of
       this type present in the store, even if the adapter only returns a subset
       of them.
@@ -78783,7 +81731,6 @@ define('ember-data/-private/system/store', ['exports', 'ember', 'ember-data/mode
        _When_ the returned promise resolves depends on the reload behavior,
       configured via the passed `options` hash and the result of the adapter's
       `shouldReloadAll` method.
-       ### Reloading
        If `{ reload: true }` is passed or `adapter.shouldReloadAll` evaluates to
       `true`, then the returned promise resolves once the adapter returns data,
       regardless if there are already records in the store:
@@ -78807,8 +81754,7 @@ define('ember-data/-private/system/store', ['exports', 'ember', 'ember-data/mode
       ```
        If no reload is indicated via the abovementioned ways, then the promise
       immediately resolves with all the records currently loaded in the store.
-       ### Background Reloading
-       Optionally, if `adapter.shouldBackgroundReloadAll` evaluates to `true`,
+      Optionally, if `adapter.shouldBackgroundReloadAll` evaluates to `true`,
       then a background reload is started. Once this resolves, the array with
       which the promise resolves, is updated automatically so it contains all the
       records in the store:
@@ -78843,45 +81789,10 @@ define('ember-data/-private/system/store', ['exports', 'ember', 'ember-data/mode
       // ]
        allAuthors.getEach('id'); // ['first', 'second']
       ```
-       If you would like to force or prevent background reloading, you can set a
-      boolean value for `backgroundReload` in the options object for
-      `findAll`.
-       ```app/routes/post/edit.js
-      import Ember from 'ember';
-       export default Ember.Route.extend({
-        model: function() {
-          return this.store.findAll('post', { backgroundReload: false });
-        }
-      });
-      ```
-       If you pass an object on the `adapterOptions` property of the options
-      argument it will be passed to you adapter via the `snapshotRecordArray`
-       ```app/routes/posts.js
-      import Ember from 'ember';
-       export default Ember.Route.extend({
-        model: function(params) {
-          return this.store.findAll('post', {
-            adapterOptions: { subscribe: false }
-          });
-        }
-      });
-      ```
-       ```app/adapters/post.js
-      import MyCustomAdapter from './custom-adapter';
-       export default MyCustomAdapter.extend({
-        findAll: function(store, type, sinceToken, snapshotRecordArray) {
-          if (snapshotRecordArray.adapterOptions.subscribe) {
-            // ...
-          }
-          // ...
-        }
-      });
-      ```
-        See [peekAll](#method_peekAll) to get an array of current records in the
+       See [peekAll](#method_peekAll) to get an array of current records in the
       store, without waiting until a reload is finished.
        See [query](#method_query) to only get a subset of records from the server.
-       @since 1.13.0
-      @method findAll
+       @method findAll
       @param {String} modelName
       @param {Object} options
       @return {Promise} promise
@@ -78914,21 +81825,13 @@ define('ember-data/-private/system/store', ['exports', 'ember', 'ember-data/mode
       if (options.reload) {
         return (0, _emberDataPrivateSystemPromiseProxies.promiseArray)((0, _emberDataPrivateSystemStoreFinders._findAll)(adapter, this, typeClass, sinceToken, options));
       }
-
       var snapshotArray = array.createSnapshot(options);
-
       if (adapter.shouldReloadAll(this, snapshotArray)) {
         return (0, _emberDataPrivateSystemPromiseProxies.promiseArray)((0, _emberDataPrivateSystemStoreFinders._findAll)(adapter, this, typeClass, sinceToken, options));
       }
-
-      if (options.backgroundReload === false) {
-        return (0, _emberDataPrivateSystemPromiseProxies.promiseArray)(Promise.resolve(array));
-      }
-
-      if (options.backgroundReload || adapter.shouldBackgroundReloadAll(this, snapshotArray)) {
+      if (adapter.shouldBackgroundReloadAll(this, snapshotArray)) {
         (0, _emberDataPrivateSystemStoreFinders._findAll)(adapter, this, typeClass, sinceToken, options);
       }
-
       return (0, _emberDataPrivateSystemPromiseProxies.promiseArray)(Promise.resolve(array));
     },
 
@@ -78956,8 +81859,7 @@ define('ember-data/-private/system/store', ['exports', 'ember', 'ember-data/mode
        ```javascript
       var localPosts = store.peekAll('post');
       ```
-       @since 1.13.0
-      @method peekAll
+       @method peekAll
       @param {String} modelName
       @return {DS.RecordArray}
     */
@@ -79208,7 +82110,7 @@ define('ember-data/-private/system/store', ['exports', 'ember', 'ember-data/mode
         this._backburner.schedule('normalizeRelationships', this, '_setupRelationships', internalModel, data);
         this.updateId(internalModel, data);
       }
-      (0, _emberDataPrivateDebug.assert)('Your ' + internalModel.type.modelName + ' record was saved but it does not have an id. Please make the server provides an id in the createRecord response or you are setting the on the client side before saving the record.', internalModel.id !== null);
+
       //We first make sure the primary data has been updated
       //TODO try to move notification to the user to the end of the runloop
       internalModel.adapterDidCommit(data);
@@ -79547,7 +82449,7 @@ define('ember-data/-private/system/store', ['exports', 'ember', 'ember-data/mode
       var _this2 = this;
 
       var modelName = data.type;
-      (0, _emberDataPrivateDebug.assert)('You must include an \'id\' for ' + modelName + ' in an object passed to \'push\'', data.id !== null && data.id !== undefined && data.id !== '');
+      (0, _emberDataPrivateDebug.assert)('You must include an \'id\' for ' + modelName + ' in an object passed to \'push\'', data.id != null && data.id !== '');
       (0, _emberDataPrivateDebug.assert)('You tried to push data with a type \'' + modelName + '\' but no model could be found with that name.', this._hasModelFor(modelName));
 
       (0, _emberDataPrivateDebug.runInDebug)(function () {
@@ -79848,6 +82750,42 @@ define('ember-data/-private/system/store', ['exports', 'ember', 'ember-data/mode
     }
 
   });
+
+  if (true) {
+
+    Store.reopen({
+      /**
+        Get the reference for the specified record.
+         Example
+         ```javascript
+        var userRef = store.getReference('user', 1);
+         // check if the user is loaded
+        var isLoaded = userRef.value() !== null;
+         // get the record of the reference (null if not yet available)
+        var user = userRef.value();
+         // get the identifier of the reference
+        if (userRef.remoteType() === "id") {
+        var id = userRef.id();
+        }
+         // load user (via store.find)
+        userRef.load().then(...)
+         // or trigger a reload
+        userRef.reload().then(...)
+         // provide data for reference
+        userRef.push({ id: 1, username: "@user" }).then(function(user) {
+          userRef.value() === user;
+        });
+      ```
+       @method getReference
+      @param {String} type
+      @param {String|Integer} id
+      @return {RecordReference}
+      */
+      getReference: function getReference(type, id) {
+        return this._internalModelForId(type, id).recordReference;
+      }
+    });
+  }
 
   function deserializeRecordId(store, key, relationship, id) {
     if (isNone(id)) {
@@ -80460,8 +83398,10 @@ define('ember-data/-private/transforms/boolean', ['exports', 'ember', 'ember-dat
       var type = typeof serialized;
 
       if (true) {
-        if (isNone(serialized) && options.allowNull === true) {
-          return null;
+        if (false) {
+          if (isNone(serialized) && options.allowNull === true) {
+            return null;
+          }
         }
       }
 
@@ -80478,8 +83418,10 @@ define('ember-data/-private/transforms/boolean', ['exports', 'ember', 'ember-dat
 
     serialize: function serialize(deserialized, options) {
       if (true) {
-        if (isNone(deserialized) && options.allowNull === true) {
-          return null;
+        if (false) {
+          if (isNone(deserialized) && options.allowNull === true) {
+            return null;
+          }
         }
       }
 
@@ -80487,7 +83429,7 @@ define('ember-data/-private/transforms/boolean', ['exports', 'ember', 'ember-dat
     }
   });
 });
-define("ember-data/-private/transforms/date", ["exports", "ember-data/-private/ext/date", "ember-data/transform"], function (exports, _emberDataPrivateExtDate, _emberDataTransform) {
+define("ember-data/-private/transforms/date", ["exports", "ember", "ember-data/-private/ext/date", "ember-data/transform"], function (exports, _ember, _emberDataPrivateExtDate, _emberDataTransform) {
   "use strict";
 
   exports["default"] = _emberDataTransform["default"].extend({
@@ -80495,7 +83437,7 @@ define("ember-data/-private/transforms/date", ["exports", "ember-data/-private/e
       var type = typeof serialized;
 
       if (type === "string") {
-        return new Date((0, _emberDataPrivateExtDate.parseDate)(serialized));
+        return new Date(_ember["default"].Date.parse(serialized));
       } else if (type === "number") {
         return new Date(serialized);
       } else if (serialized === null || serialized === undefined) {
@@ -80635,7 +83577,7 @@ define('ember-data/-private/utils', ['exports', 'ember'], function (exports, _em
 
   var get = _ember['default'].get;
 
-  /*
+  /**
     Check if the passed model has a `type` attribute or a relationship named `type`.
   
     @method modelHasAttributeOrRelationshipNamedType
@@ -80804,19 +83746,21 @@ define('ember-data/adapter', ['exports', 'ember'], function (exports, _ember) {
     /**
       The `findRecord()` method is invoked when the store is asked for a record that
       has not previously been loaded. In response to `findRecord()` being called, you
-      should query your persistence layer for a record with the given ID. The `findRecord`
-      method should return a promise that will resolve to a JavaScript object that will be
+      should query your persistence layer for a record with the given ID. The `findRecord` 
+      method should return a promise that will resolve to a JavaScript object that will be 
       normalized by the serializer.
        Here is an example `findRecord` implementation:
        ```app/adapters/application.js
       import DS from 'ember-data';
        export default DS.Adapter.extend({
         findRecord: function(store, type, id, snapshot) {
+          var url = [type.modelName, id].join('/');
            return new Ember.RSVP.Promise(function(resolve, reject) {
-            Ember.$.getJSON(`/${type.modelName}/${id}`).then(function(data) {
-              resolve(data);
+            Ember.$.getJSON(url).then(function(data) {
+              Ember.run(null, resolve, data);
             }, function(jqXHR) {
-              reject(jqXHR);
+              jqXHR.then = null; // tame jQuery's ill mannered promises
+              Ember.run(null, reject, jqXHR);
             });
           });
         }
@@ -80838,12 +83782,14 @@ define('ember-data/adapter', ['exports', 'ember'], function (exports, _ember) {
       import DS from 'ember-data';
        export default DS.Adapter.extend({
         findAll: function(store, type, sinceToken) {
+          var url = type;
           var query = { since: sinceToken };
           return new Ember.RSVP.Promise(function(resolve, reject) {
-            Ember.$.getJSON(`/${type.modelName}`, query).then(function(data) {
-              resolve(data);
+            Ember.$.getJSON(url, query).then(function(data) {
+              Ember.run(null, resolve, data);
             }, function(jqXHR) {
-              reject(jqXHR);
+              jqXHR.then = null; // tame jQuery's ill mannered promises
+              Ember.run(null, reject, jqXHR);
             });
           });
         }
@@ -80865,11 +83811,13 @@ define('ember-data/adapter', ['exports', 'ember'], function (exports, _ember) {
       import DS from 'ember-data';
        export default DS.Adapter.extend({
         query: function(store, type, query) {
+          var url = type;
           return new Ember.RSVP.Promise(function(resolve, reject) {
-            Ember.$.getJSON(`/${type.modelName}`, query).then(function(data) {
-              resolve(data);
+            Ember.$.getJSON(url, query).then(function(data) {
+              Ember.run(null, resolve, data);
             }, function(jqXHR) {
-              reject(jqXHR);
+              jqXHR.then = null; // tame jQuery's ill mannered promises
+              Ember.run(null, reject, jqXHR);
             });
           });
         }
@@ -80897,11 +83845,13 @@ define('ember-data/adapter', ['exports', 'ember'], function (exports, _ember) {
       import Ember from 'ember';
        export default DS.Adapter.extend(DS.BuildURLMixin, {
         queryRecord: function(store, type, query) {
-          return new Ember.RSVP.Promise(function(resolve, reject) {
-            Ember.$.getJSON(`/${type.modelName}`, query).then(function(data) {
-              resolve(data);
+          var urlForQueryRecord = this.buildURL(type.modelName, null, null, 'queryRecord', query);
+           return new Ember.RSVP.Promise(function(resolve, reject) {
+            Ember.$.getJSON(urlForQueryRecord, query).then(function(data) {
+              Ember.run(null, resolve, data);
             }, function(jqXHR) {
-              reject(jqXHR);
+              jqXHR.then = null; // tame jQuery's ill mannered promises
+              Ember.run(null, reject, jqXHR);
             });
           });
         }
@@ -80927,13 +83877,10 @@ define('ember-data/adapter', ['exports', 'ember'], function (exports, _ember) {
        The `generateIdForRecord()` method will be invoked with the requesting store as
       the first parameter and the newly created record as the second parameter:
        ```javascript
-      import DS from 'ember-data';
-      import { v4 } from 'uuid';
-       export default DS.Adapter.extend({
-        generateIdForRecord: function(store, inputProperties) {
-          return v4();
-        }
-      });
+      generateIdForRecord: function(store, inputProperties) {
+        var uuid = App.generateUUIDWithStatisticallyLowOddsOfCollision();
+        return uuid;
+      }
       ```
        @method generateIdForRecord
       @param {DS.Store} store
@@ -80952,7 +83899,7 @@ define('ember-data/adapter', ['exports', 'ember'], function (exports, _ember) {
        export default DS.Adapter.extend({
         createRecord: function(store, type, snapshot) {
           var data = this.serialize(snapshot, { includeId: true });
-          var url = `/${type.modelName}`;
+          var url = type;
            // ...
         }
       });
@@ -80976,10 +83923,11 @@ define('ember-data/adapter', ['exports', 'ember'], function (exports, _ember) {
        export default DS.Adapter.extend({
         createRecord: function(store, type, snapshot) {
           var data = this.serialize(snapshot, { includeId: true });
+          var url = type;
            return new Ember.RSVP.Promise(function(resolve, reject) {
             Ember.$.ajax({
               type: 'POST',
-              url: `/${type.modelName}`,
+              url: url,
               dataType: 'json',
               data: data
             }).then(function(data) {
@@ -81018,10 +83966,11 @@ define('ember-data/adapter', ['exports', 'ember'], function (exports, _ember) {
         updateRecord: function(store, type, snapshot) {
           var data = this.serialize(snapshot, { includeId: true });
           var id = snapshot.id;
+          var url = [type, id].join('/');
            return new Ember.RSVP.Promise(function(resolve, reject) {
             Ember.$.ajax({
               type: 'PUT',
-              url: `/${type.modelName}/${id}`,
+              url: url,
               dataType: 'json',
               data: data
             }).then(function(data) {
@@ -81053,10 +84002,11 @@ define('ember-data/adapter', ['exports', 'ember'], function (exports, _ember) {
         deleteRecord: function(store, type, snapshot) {
           var data = this.serialize(snapshot, { includeId: true });
           var id = snapshot.id;
+          var url = [type, id].join('/');
            return new Ember.RSVP.Promise(function(resolve, reject) {
             Ember.$.ajax({
               type: 'DELETE',
-              url: `/${type.modelName}/${id}`,
+              url: url,
               dataType: 'json',
               data: data
             }).then(function(data) {
@@ -81088,29 +84038,7 @@ define('ember-data/adapter', ['exports', 'ember'], function (exports, _ember) {
     coalesceFindRequests: true,
 
     /**
-      The store will call `findMany` instead of multiple `findRecord`
-      requests to find multiple records at once if coalesceFindRequests
-      is true.
-       ```app/adapters/application.js
-      import DS from 'ember-data';
-       export default DS.Adapter.extend({
-        findMany(store, type, ids, snapshots) {
-          return new Ember.RSVP.Promise(function(resolve, reject) {
-            Ember.$.ajax({
-              type: 'GET',
-              url: `/${type.modelName}/`,
-              dataType: 'json',
-              data: { filter: { id: ids.join(',') } }
-            }).then(function(data) {
-              Ember.run(null, resolve, data);
-            }, function(jqXHR) {
-              jqXHR.then = null; // tame jQuery's ill mannered promises
-              Ember.run(null, reject, jqXHR);
-            });
-          });
-        }
-      });
-      ```
+      Find multiple records at once if coalesceFindRequests is true.
        @method findMany
       @param {DS.Store} store
       @param {DS.Model} type   the DS.Model class of the records
@@ -81163,8 +84091,7 @@ define('ember-data/adapter', ['exports', 'ember'], function (exports, _ember) {
       resolve until you fetched the latest version.
        By default this hook returns `false`, as most UIs should not block user
       interactions while waiting on data update.
-       @since 1.13.0
-      @method shouldReloadRecord
+       @method shouldReloadRecord
       @param {DS.Store} store
       @param {DS.Snapshot} snapshot
       @return {Boolean}
@@ -81204,8 +84131,7 @@ define('ember-data/adapter', ['exports', 'ember'], function (exports, _ember) {
        By default this methods returns `true` if the passed `snapshotRecordArray`
       is empty (meaning that there are no records locally available yet),
       otherwise it returns `false`.
-       @since 1.13.0
-      @method shouldReloadAll
+       @method shouldReloadAll
       @param {DS.Store} store
       @param {DS.SnapshotRecordArray} snapshotRecordArray
       @return {Boolean}
@@ -81237,8 +84163,7 @@ define('ember-data/adapter', ['exports', 'ember'], function (exports, _ember) {
       ```
        By default this hook returns `true` so the data for the record is updated
       in the background.
-       @since 1.13.0
-      @method shouldBackgroundReloadRecord
+       @method shouldBackgroundReloadRecord
       @param {DS.Store} store
       @param {DS.Snapshot} snapshot
       @return {Boolean}
@@ -81270,8 +84195,7 @@ define('ember-data/adapter', ['exports', 'ember'], function (exports, _ember) {
       ```
        By default this method returns `true`, indicating that a background reload
       should always be triggered.
-       @since 1.13.0
-      @method shouldBackgroundReloadAll
+       @method shouldBackgroundReloadAll
       @param {DS.Store} store
       @param {DS.SnapshotRecordArray} snapshotRecordArray
       @return {Boolean}
@@ -81526,7 +84450,7 @@ define('ember-data/adapters/errors', ['exports', 'ember', 'ember-data/-private/d
     return out;
   }
 });
-define('ember-data/adapters/json-api', ['exports', 'ember', 'ember-data/adapters/rest', 'ember-data/-private/features', 'ember-data/-private/debug'], function (exports, _ember, _emberDataAdaptersRest, _emberDataPrivateFeatures, _emberDataPrivateDebug) {
+define('ember-data/adapters/json-api', ['exports', 'ember', 'ember-data/adapters/rest', 'ember-data/-private/features'], function (exports, _ember, _emberDataAdaptersRest, _emberDataPrivateFeatures) {
   /**
     @module ember-data
   */
@@ -81534,7 +84458,6 @@ define('ember-data/adapters/json-api', ['exports', 'ember', 'ember-data/adapters
   'use strict';
 
   /**
-    @since 1.13.0
     @class JSONAPIAdapter
     @constructor
     @namespace DS
@@ -81616,7 +84539,7 @@ define('ember-data/adapters/json-api', ['exports', 'ember', 'ember-data/adapters
       @return {Promise} promise
     */
     findMany: function findMany(store, type, ids, snapshots) {
-      if (false && !this._hasCustomizedAjax()) {
+      if (false) {
         return this._super.apply(this, arguments);
       } else {
         var url = this.buildURL(type.modelName, ids, snapshots, 'findMany');
@@ -81643,7 +84566,7 @@ define('ember-data/adapters/json-api', ['exports', 'ember', 'ember-data/adapters
       @return {Promise} promise
     */
     updateRecord: function updateRecord(store, type, snapshot) {
-      if (false && !this._hasCustomizedAjax()) {
+      if (false) {
         return this._super.apply(this, arguments);
       } else {
         var data = {};
@@ -81656,26 +84579,6 @@ define('ember-data/adapters/json-api', ['exports', 'ember', 'ember-data/adapters
 
         return this.ajax(url, 'PATCH', { data: data });
       }
-    },
-
-    _hasCustomizedAjax: function _hasCustomizedAjax() {
-      if (this.ajax !== JSONAPIAdapter.prototype.ajax) {
-        (0, _emberDataPrivateDebug.deprecate)('JSONAPIAdapter#ajax has been deprecated please use. `methodForRequest`, `urlForRequest`, `headersForRequest` or `dataForRequest` instead.', false, {
-          id: 'ds.json-api-adapter.ajax',
-          until: '3.0.0'
-        });
-        return true;
-      }
-
-      if (this.ajaxOptions !== JSONAPIAdapter.prototype.ajaxOptions) {
-        (0, _emberDataPrivateDebug.deprecate)('JSONAPIAdapterr#ajaxOptions has been deprecated please use. `methodForRequest`, `urlForRequest`, `headersForRequest` or `dataForRequest` instead.', false, {
-          id: 'ds.json-api-adapter.ajax-options',
-          until: '3.0.0'
-        });
-        return true;
-      }
-
-      return false;
     }
   });
 
@@ -81749,8 +84652,6 @@ define('ember-data/adapters/rest', ['exports', 'ember', 'ember-data/adapter', 'e
 
   var MapWithDefault = _ember['default'].MapWithDefault;
   var get = _ember['default'].get;
-
-  var Promise = _ember['default'].RSVP.Promise;
 
   /**
     The REST adapter allows your store to communicate with an HTTP server by
@@ -82101,8 +85002,7 @@ define('ember-data/adapters/rest', ['exports', 'ember', 'ember-data/adapter', 'e
        The `findRecord` method makes an Ajax request to a URL computed by
       `buildURL`, and returns a promise for the resulting payload.
        This method performs an HTTP `GET` request with the id provided as part of the query string.
-       @since 1.13.0
-      @method findRecord
+       @method findRecord
       @param {DS.Store} store
       @param {DS.Model} type
       @param {String} id
@@ -82110,7 +85010,7 @@ define('ember-data/adapters/rest', ['exports', 'ember', 'ember-data/adapter', 'e
       @return {Promise} promise
     */
     findRecord: function findRecord(store, type, id, snapshot) {
-      if (false && !this._hasCustomizedAjax()) {
+      if (false) {
         var request = this._requestFor({
           store: store, type: type, id: id, snapshot: snapshot,
           requestType: 'findRecord'
@@ -82140,7 +85040,7 @@ define('ember-data/adapters/rest', ['exports', 'ember', 'ember-data/adapter', 'e
     findAll: function findAll(store, type, sinceToken, snapshotRecordArray) {
       var query = this.buildQuery(snapshotRecordArray);
 
-      if (false && !this._hasCustomizedAjax()) {
+      if (false) {
         var request = this._requestFor({
           store: store, type: type, sinceToken: sinceToken, query: query,
           snapshots: snapshotRecordArray,
@@ -82174,7 +85074,7 @@ define('ember-data/adapters/rest', ['exports', 'ember', 'ember-data/adapter', 'e
       @return {Promise} promise
     */
     query: function query(store, type, _query) {
-      if (false && !this._hasCustomizedAjax()) {
+      if (false) {
         var request = this._requestFor({
           store: store, type: type, query: _query,
           requestType: 'query'
@@ -82200,15 +85100,14 @@ define('ember-data/adapters/rest', ['exports', 'ember', 'ember-data/adapter', 'e
       payload.
        The `query` argument is a simple JavaScript object that will be passed directly
       to the server as parameters.
-       @since 1.13.0
-      @method queryRecord
+       @method queryRecord
       @param {DS.Store} store
       @param {DS.Model} type
       @param {Object} query
       @return {Promise} promise
     */
     queryRecord: function queryRecord(store, type, query) {
-      if (false && !this._hasCustomizedAjax()) {
+      if (false) {
         var request = this._requestFor({
           store: store, type: type, query: query,
           requestType: 'queryRecord'
@@ -82253,7 +85152,7 @@ define('ember-data/adapters/rest', ['exports', 'ember', 'ember-data/adapter', 'e
       @return {Promise} promise
     */
     findMany: function findMany(store, type, ids, snapshots) {
-      if (false && !this._hasCustomizedAjax()) {
+      if (false) {
         var request = this._requestFor({
           store: store, type: type, ids: ids, snapshots: snapshots,
           requestType: 'findMany'
@@ -82293,7 +85192,7 @@ define('ember-data/adapters/rest', ['exports', 'ember', 'ember-data/adapter', 'e
       @return {Promise} promise
     */
     findHasMany: function findHasMany(store, snapshot, url, relationship) {
-      if (false && !this._hasCustomizedAjax()) {
+      if (false) {
         var request = this._requestFor({
           store: store, snapshot: snapshot, url: url, relationship: relationship,
           requestType: 'findHasMany'
@@ -82337,7 +85236,7 @@ define('ember-data/adapters/rest', ['exports', 'ember', 'ember-data/adapter', 'e
       @return {Promise} promise
     */
     findBelongsTo: function findBelongsTo(store, snapshot, url, relationship) {
-      if (false && !this._hasCustomizedAjax()) {
+      if (false) {
         var request = this._requestFor({
           store: store, snapshot: snapshot, url: url, relationship: relationship,
           requestType: 'findBelongsTo'
@@ -82367,7 +85266,7 @@ define('ember-data/adapters/rest', ['exports', 'ember', 'ember-data/adapter', 'e
       @return {Promise} promise
     */
     createRecord: function createRecord(store, type, snapshot) {
-      if (false && !this._hasCustomizedAjax()) {
+      if (false) {
         var request = this._requestFor({
           store: store, type: type, snapshot: snapshot,
           requestType: 'createRecord'
@@ -82399,7 +85298,7 @@ define('ember-data/adapters/rest', ['exports', 'ember', 'ember-data/adapter', 'e
       @return {Promise} promise
     */
     updateRecord: function updateRecord(store, type, snapshot) {
-      if (false && !this._hasCustomizedAjax()) {
+      if (false) {
         var request = this._requestFor({
           store: store, type: type, snapshot: snapshot,
           requestType: 'updateRecord'
@@ -82429,7 +85328,7 @@ define('ember-data/adapters/rest', ['exports', 'ember', 'ember-data/adapter', 'e
       @return {Promise} promise
     */
     deleteRecord: function deleteRecord(store, type, snapshot) {
-      if (false && !this._hasCustomizedAjax()) {
+      if (false) {
         var request = this._requestFor({
           store: store, type: type, snapshot: snapshot,
           requestType: 'deleteRecord'
@@ -82447,14 +85346,10 @@ define('ember-data/adapters/rest', ['exports', 'ember', 'ember-data/adapter', 'e
       var url = this.buildURL(snapshot.modelName, snapshot.id, snapshot);
 
       var expandedURL = url.split('/');
-      // Case when the url is of the format ...something/:id
-      // We are decodeURIComponent-ing the lastSegment because if it represents
-      // the id, it has been encodeURIComponent-ified within `buildURL`. If we
-      // don't do this, then records with id having special characters are not
-      // coalesced correctly (see GH #4190 for the reported bug)
+      //Case when the url is of the format ...something/:id
       var lastSegment = expandedURL[expandedURL.length - 1];
       var id = snapshot.id;
-      if (decodeURIComponent(lastSegment) === id) {
+      if (lastSegment === id) {
         expandedURL[expandedURL.length - 1] = "";
       } else if (endsWith(lastSegment, '?id=' + id)) {
         //Case when the url is of the format ...something?id=:id
@@ -82547,8 +85442,7 @@ define('ember-data/adapters/rest', ['exports', 'ember', 'ember-data/adapter', 'e
       `DS.InvalidError` the store will attempt to normalize the error data
       returned from the server using the serializer's `extractErrors`
       method.
-       @since 1.13.0
-      @method handleResponse
+       @method handleResponse
       @param  {Number} status
       @param  {Object} headers
       @param  {Object} payload
@@ -82588,8 +85482,7 @@ define('ember-data/adapters/rest', ['exports', 'ember', 'ember-data/adapter', 'e
     /**
       Default `handleResponse` implementation uses this hook to decide if the
       response is a success.
-       @since 1.13.0
-      @method isSuccess
+       @method isSuccess
       @param  {Number} status
       @param  {Object} headers
       @param  {Object} payload
@@ -82602,8 +85495,7 @@ define('ember-data/adapters/rest', ['exports', 'ember', 'ember-data/adapter', 'e
     /**
       Default `handleResponse` implementation uses this hook to decide if the
       response is a an invalid error.
-       @since 1.13.0
-      @method isInvalid
+       @method isInvalid
       @param  {Number} status
       @param  {Object} headers
       @param  {Object} payload
@@ -82641,29 +85533,42 @@ define('ember-data/adapters/rest', ['exports', 'ember', 'ember-data/adapter', 'e
         method: type
       };
 
-      return new Promise(function (resolve, reject) {
+      return new _ember['default'].RSVP.Promise(function (resolve, reject) {
         var hash = adapter.ajaxOptions(url, type, options);
 
         hash.success = function (payload, textStatus, jqXHR) {
-          try {
-            var response = ajaxSuccess(adapter, jqXHR, payload, requestData);
+
+          var response = adapter.handleResponse(jqXHR.status, (0, _emberDataPrivateUtilsParseResponseHeaders['default'])(jqXHR.getAllResponseHeaders()), payload, requestData);
+
+          if (response && response.isAdapterError) {
+            _ember['default'].run.join(null, reject, response);
+          } else {
             _ember['default'].run.join(null, resolve, response);
-          } catch (error) {
-            _ember['default'].run.join(null, reject, error);
           }
         };
 
         hash.error = function (jqXHR, textStatus, errorThrown) {
-          try {
-            var responseData = {
-              textStatus: textStatus,
-              errorThrown: errorThrown
-            };
-            var error = ajaxError(adapter, jqXHR, requestData, responseData);
-            _ember['default'].run.join(null, reject, error);
-          } catch (error) {
-            _ember['default'].run.join(null, reject, error);
+          (0, _emberDataPrivateDebug.runInDebug)(function () {
+            var message = 'The server returned an empty string for ' + type + ' ' + url + ', which cannot be parsed into a valid JSON. Return either null or {}.';
+            var validJSONString = !(textStatus === "parsererror" && jqXHR.responseText === "");
+            (0, _emberDataPrivateDebug.warn)(message, validJSONString, {
+              id: 'ds.adapter.returned-empty-string-as-JSON'
+            });
+          });
+
+          var error = undefined;
+
+          if (errorThrown instanceof Error) {
+            error = errorThrown;
+          } else if (textStatus === 'timeout') {
+            error = new _emberDataAdaptersErrors.TimeoutError();
+          } else if (textStatus === 'abort') {
+            error = new _emberDataAdaptersErrors.AbortError();
+          } else {
+            error = adapter.handleResponse(jqXHR.status, (0, _emberDataPrivateUtilsParseResponseHeaders['default'])(jqXHR.getAllResponseHeaders()), adapter.parseErrorResponse(jqXHR.responseText) || errorThrown, requestData);
           }
+
+          _ember['default'].run.join(null, reject, error);
         };
 
         adapter._ajaxRequest(hash);
@@ -82722,9 +85627,7 @@ define('ember-data/adapters/rest', ['exports', 'ember', 'ember-data/adapter', 'e
 
       try {
         json = _ember['default'].$.parseJSON(responseText);
-      } catch (e) {
-        // ignored
-      }
+      } catch (e) {}
 
       return json;
     },
@@ -82776,39 +85679,20 @@ define('ember-data/adapters/rest', ['exports', 'ember', 'ember-data/adapter', 'e
       return ['Ember Data Request ' + requestDescription + ' returned a ' + status, payloadDescription, shortenedPayload].join('\n');
     },
 
-    // @since 2.5.0
     buildQuery: function buildQuery(snapshot) {
       var query = {};
 
-      if (snapshot) {
-        var include = snapshot.include;
+      if (true) {
+        if (snapshot) {
+          var include = snapshot.include;
 
-        if (include) {
-          query.include = include;
+          if (include) {
+            query.include = include;
+          }
         }
       }
 
       return query;
-    },
-
-    _hasCustomizedAjax: function _hasCustomizedAjax() {
-      if (this.ajax !== RESTAdapter.prototype.ajax) {
-        (0, _emberDataPrivateDebug.deprecate)('RESTAdapter#ajax has been deprecated please use. `methodForRequest`, `urlForRequest`, `headersForRequest` or `dataForRequest` instead.', false, {
-          id: 'ds.rest-adapter.ajax',
-          until: '3.0.0'
-        });
-        return true;
-      }
-
-      if (this.ajaxOptions !== RESTAdapter.prototype.ajaxOptions) {
-        (0, _emberDataPrivateDebug.deprecate)('RESTAdapter#ajaxOptions has been deprecated please use. `methodForRequest`, `urlForRequest`, `headersForRequest` or `dataForRequest` instead.', false, {
-          id: 'ds.rest-adapter.ajax-options',
-          until: '3.0.0'
-        });
-        return true;
-      }
-
-      return false;
     }
   });
 
@@ -82936,10 +85820,8 @@ define('ember-data/adapters/rest', ['exports', 'ember', 'ember-data/adapter', 'e
 
           case 'findHasMany':
           case 'findBelongsTo':
-            {
-              var url = this.buildURL(type.modelName, id, snapshot, requestType);
-              return this.urlPrefix(params.url, url);
-            }
+            var url = this.buildURL(type.modelName, id, snapshot, requestType);
+            return this.urlPrefix(params.url, url);
         }
 
         return this.buildURL(type.modelName, id, snapshot, requestType, query);
@@ -82995,7 +85877,7 @@ define('ember-data/adapters/rest', ['exports', 'ember', 'ember-data/adapter', 'e
         hash.context = this;
 
         if (request.data) {
-          if (request.method !== 'GET') {
+          if (request.type !== 'GET') {
             hash.contentType = 'application/json; charset=utf-8';
             hash.data = JSON.stringify(request.data);
           } else {
@@ -83035,65 +85917,43 @@ define('ember-data/adapters/rest', ['exports', 'ember', 'ember-data/adapter', 'e
         return new _ember['default'].RSVP.Promise(function (resolve, reject) {
 
           hash.success = function (payload, textStatus, jqXHR) {
-            try {
-              var response = ajaxSuccess(adapter, jqXHR, payload, requestData);
+            var response = adapter.handleResponse(jqXHR.status, (0, _emberDataPrivateUtilsParseResponseHeaders['default'])(jqXHR.getAllResponseHeaders()), payload, requestData);
+
+            if (response instanceof _emberDataAdaptersErrors.AdapterError) {
+              _ember['default'].run.join(null, reject, response);
+            } else {
               _ember['default'].run.join(null, resolve, response);
-            } catch (error) {
-              _ember['default'].run.join(null, reject, error);
             }
           };
 
           hash.error = function (jqXHR, textStatus, errorThrown) {
-            try {
-              var responseData = {
-                textStatus: textStatus,
-                errorThrown: errorThrown
-              };
-              var error = ajaxError(adapter, jqXHR, requestData, responseData);
-              _ember['default'].run.join(null, reject, error);
-            } catch (error) {
-              _ember['default'].run.join(null, reject, error);
+            (0, _emberDataPrivateDebug.runInDebug)(function () {
+              var message = 'The server returned an empty string for ' + method + ' ' + url + ', which cannot be parsed into a valid JSON. Return either null or {}.';
+              var validJSONString = !(textStatus === "parsererror" && jqXHR.responseText === "");
+              (0, _emberDataPrivateDebug.warn)(message, validJSONString, {
+                id: 'ds.adapter.returned-empty-string-as-JSON'
+              });
+            });
+
+            var error = undefined;
+
+            if (errorThrown instanceof Error) {
+              error = errorThrown;
+            } else if (textStatus === 'timeout') {
+              error = new _emberDataAdaptersErrors.TimeoutError();
+            } else if (textStatus === 'abort') {
+              error = new _emberDataAdaptersErrors.AbortError();
+            } else {
+              error = adapter.handleResponse(jqXHR.status, (0, _emberDataPrivateUtilsParseResponseHeaders['default'])(jqXHR.getAllResponseHeaders()), adapter.parseErrorResponse(jqXHR.responseText) || errorThrown, requestData);
             }
+
+            _ember['default'].run.join(null, reject, error);
           };
 
           adapter._ajaxRequest(hash);
         }, 'DS: RESTAdapter#makeRequest: ' + method + ' ' + url);
       }
     });
-  }
-
-  function ajaxSuccess(adapter, jqXHR, payload, requestData) {
-    var response = adapter.handleResponse(jqXHR.status, (0, _emberDataPrivateUtilsParseResponseHeaders['default'])(jqXHR.getAllResponseHeaders()), payload, requestData);
-
-    if (response && response.isAdapterError) {
-      return Promise.reject(response);
-    } else {
-      return response;
-    }
-  }
-
-  function ajaxError(adapter, jqXHR, requestData, responseData) {
-    (0, _emberDataPrivateDebug.runInDebug)(function () {
-      var message = 'The server returned an empty string for ' + requestData.method + ' ' + requestData.url + ', which cannot be parsed into a valid JSON. Return either null or {}.';
-      var validJSONString = !(responseData.textStatus === "parsererror" && jqXHR.responseText === "");
-      (0, _emberDataPrivateDebug.warn)(message, validJSONString, {
-        id: 'ds.adapter.returned-empty-string-as-JSON'
-      });
-    });
-
-    var error = undefined;
-
-    if (responseData.errorThrown instanceof Error) {
-      error = responseData.errorThrown;
-    } else if (responseData.textStatus === 'timeout') {
-      error = new _emberDataAdaptersErrors.TimeoutError();
-    } else if (responseData.textStatus === 'abort') {
-      error = new _emberDataAdaptersErrors.AbortError();
-    } else {
-      error = adapter.handleResponse(jqXHR.status, (0, _emberDataPrivateUtilsParseResponseHeaders['default'])(jqXHR.getAllResponseHeaders()), adapter.parseErrorResponse(jqXHR.responseText) || responseData.errorThrown, requestData);
-    }
-
-    return error;
   }
 
   //From http://stackoverflow.com/questions/280634/endswith-in-javascript
@@ -83186,34 +86046,6 @@ define('ember-data/attr', ['exports', 'ember', 'ember-data/-private/debug'], fun
     });
     ```
   
-    The `options` hash is passed as second argument to a transforms'
-    `serialize` and `deserialize` method. This allows to configure a
-    transformation and adapt the corresponding value, based on the config:
-  
-    ```app/models/post.js
-    export default DS.Model.extend({
-      text: DS.attr('text', {
-        uppercase: true
-      })
-    });
-    ```
-  
-    ```app/transforms/text.js
-    export default DS.Transform.extend({
-      serialize: function(value, options) {
-        if (options.uppercase) {
-          return value.toUpperCase();
-        }
-  
-        return value;
-      },
-  
-      deserialize: function(value) {
-        return value;
-      }
-    })
-    ```
-  
     @namespace
     @method attr
     @for DS
@@ -83272,8 +86104,40 @@ define('ember-data/attr', ['exports', 'ember', 'ember-data/-private/debug'], fun
       }
     }).meta(meta);
   }
+
+  // TODO add to documentation of `attr` function above, once this feature is added
+  // /**
+  //  * The `options` hash is passed as second argument to a transforms'
+  //  * `serialize` and `deserialize` method. This allows to configure a
+  //  * transformation and adapt the corresponding value, based on the config:
+  //  *
+  //  * ```app/models/post.js
+  //  * export default DS.Model.extend({
+  //  *   text: DS.attr('text', {
+  //  *     uppercase: true
+  //  *   })
+  //  * });
+  //  * ```
+  //  *
+  //  * ```app/transforms/text.js
+  //  * export default DS.Transform.extend({
+  //  *   serialize: function(value, options) {
+  //  *     if (options.uppercase) {
+  //  *       return value.toUpperCase();
+  //  *     }
+  //  *
+  //  *     return value;
+  //  *   },
+  //  *
+  //  *   deserialize: function(value) {
+  //  *     return value;
+  //  *   }
+  //  * })
+  //  * ```
+  //  *
+  //  */
 });
-define("ember-data/index", ["exports", "ember", "ember-data/-private/debug", "ember-data/-private/features", "ember-data/-private/global", "ember-data/-private/core", "ember-data/-private/system/normalize-model-name", "ember-data/-private/system/model/internal-model", "ember-data/-private/system/promise-proxies", "ember-data/-private/system/store", "ember-data/-private/system/model", "ember-data/model", "ember-data/-private/system/snapshot", "ember-data/adapter", "ember-data/serializer", "ember-data/-private/system/debug", "ember-data/adapters/errors", "ember-data/-private/system/record-arrays", "ember-data/-private/system/many-array", "ember-data/-private/system/record-array-manager", "ember-data/-private/adapters", "ember-data/-private/adapters/build-url-mixin", "ember-data/-private/serializers", "ember-inflector", "ember-data/serializers/embedded-records-mixin", "ember-data/-private/transforms", "ember-data/relationships", "ember-data/setup-container", "ember-data/-private/instance-initializers/initialize-store-service", "ember-data/-private/system/container-proxy", "ember-data/-private/system/relationships/state/relationship"], function (exports, _ember, _emberDataPrivateDebug, _emberDataPrivateFeatures, _emberDataPrivateGlobal, _emberDataPrivateCore, _emberDataPrivateSystemNormalizeModelName, _emberDataPrivateSystemModelInternalModel, _emberDataPrivateSystemPromiseProxies, _emberDataPrivateSystemStore, _emberDataPrivateSystemModel, _emberDataModel, _emberDataPrivateSystemSnapshot, _emberDataAdapter, _emberDataSerializer, _emberDataPrivateSystemDebug, _emberDataAdaptersErrors, _emberDataPrivateSystemRecordArrays, _emberDataPrivateSystemManyArray, _emberDataPrivateSystemRecordArrayManager, _emberDataPrivateAdapters, _emberDataPrivateAdaptersBuildUrlMixin, _emberDataPrivateSerializers, _emberInflector, _emberDataSerializersEmbeddedRecordsMixin, _emberDataPrivateTransforms, _emberDataRelationships, _emberDataSetupContainer, _emberDataPrivateInstanceInitializersInitializeStoreService, _emberDataPrivateSystemContainerProxy, _emberDataPrivateSystemRelationshipsStateRelationship) {
+define("ember-data/index", ["exports", "ember", "ember-data/-private/debug", "ember-data/-private/features", "ember-data/-private/core", "ember-data/-private/system/normalize-model-name", "ember-data/-private/system/model/internal-model", "ember-data/-private/system/promise-proxies", "ember-data/-private/system/store", "ember-data/-private/system/model", "ember-data/model", "ember-data/-private/system/snapshot", "ember-data/adapter", "ember-data/serializer", "ember-data/-private/system/debug", "ember-data/adapters/errors", "ember-data/-private/system/record-arrays", "ember-data/-private/system/many-array", "ember-data/-private/system/record-array-manager", "ember-data/-private/adapters", "ember-data/-private/adapters/build-url-mixin", "ember-data/-private/serializers", "ember-inflector", "ember-data/serializers/embedded-records-mixin", "ember-data/-private/transforms", "ember-data/relationships", "ember-data/setup-container", "ember-data/-private/instance-initializers/initialize-store-service", "ember-data/-private/system/container-proxy", "ember-data/-private/system/relationships/state/relationship"], function (exports, _ember, _emberDataPrivateDebug, _emberDataPrivateFeatures, _emberDataPrivateCore, _emberDataPrivateSystemNormalizeModelName, _emberDataPrivateSystemModelInternalModel, _emberDataPrivateSystemPromiseProxies, _emberDataPrivateSystemStore, _emberDataPrivateSystemModel, _emberDataModel, _emberDataPrivateSystemSnapshot, _emberDataAdapter, _emberDataSerializer, _emberDataPrivateSystemDebug, _emberDataAdaptersErrors, _emberDataPrivateSystemRecordArrays, _emberDataPrivateSystemManyArray, _emberDataPrivateSystemRecordArrayManager, _emberDataPrivateAdapters, _emberDataPrivateAdaptersBuildUrlMixin, _emberDataPrivateSerializers, _emberInflector, _emberDataSerializersEmbeddedRecordsMixin, _emberDataPrivateTransforms, _emberDataRelationships, _emberDataSetupContainer, _emberDataPrivateInstanceInitializersInitializeStoreService, _emberDataPrivateSystemContainerProxy, _emberDataPrivateSystemRelationshipsStateRelationship) {
   "use strict";
 
   if (_ember["default"].VERSION.match(/^1\.([0-9]|1[0-2])\./)) {
@@ -83355,14 +86219,7 @@ define("ember-data/index", ["exports", "ember", "ember-data/-private/debug", "em
     value: _emberDataPrivateSystemNormalizeModelName["default"]
   });
 
-  Object.defineProperty(_emberDataPrivateGlobal["default"], 'DS', {
-    configurable: true,
-    get: function get() {
-      (0, _emberDataPrivateDebug.deprecate)('Using the global version of DS is deprecated. Please either import ' + 'the specific modules needed or `import DS from \'ember-data\';`.', false, { id: 'ember-data.global-ds', until: '3.0.0' });
-
-      return _emberDataPrivateCore["default"];
-    }
-  });
+  _ember["default"].lookup.DS = _emberDataPrivateCore["default"];
 
   exports["default"] = _emberDataPrivateCore["default"];
 });
@@ -83430,8 +86287,7 @@ define('ember-data/serializer', ['exports', 'ember'], function (exports, _ember)
       The `normalizeResponse` method is used to normalize a payload from the
       server to a JSON-API Document.
        http://jsonapi.org/format/#document-structure
-       @since 1.13.0
-      @method normalizeResponse
+       @method normalizeResponse
       @param {DS.Store} store
       @param {DS.Model} primaryModelClass
       @param {Object} payload
@@ -83470,7 +86326,7 @@ define('ember-data/serializer', ['exports', 'ember'], function (exports, _ember)
 
   });
 });
-define('ember-data/serializers/embedded-records-mixin', ['exports', 'ember', 'ember-data/-private/debug'], function (exports, _ember, _emberDataPrivateDebug) {
+define('ember-data/serializers/embedded-records-mixin', ['exports', 'ember', 'ember-data/-private/debug', 'ember-data/-private/features'], function (exports, _ember, _emberDataPrivateDebug, _emberDataPrivateFeatures) {
   'use strict';
 
   function _toConsumableArray(arr) {
@@ -83666,16 +86522,13 @@ define('ember-data/serializers/embedded-records-mixin', ['exports', 'ember', 'em
       var includeIds = this.hasSerializeIdsOption(attr);
       var includeRecords = this.hasSerializeRecordsOption(attr);
       var embeddedSnapshot = snapshot.belongsTo(attr);
+      var key;
       if (includeIds) {
-        var serializedKey = this._getMappedKey(relationship.key, snapshot.type);
-        if (serializedKey === relationship.key && this.keyForRelationship) {
-          serializedKey = this.keyForRelationship(relationship.key, relationship.kind, "serialize");
-        }
-
+        key = this.keyForRelationship(attr, relationship.kind, 'serialize');
         if (!embeddedSnapshot) {
-          json[serializedKey] = null;
+          json[key] = null;
         } else {
-          json[serializedKey] = embeddedSnapshot.id;
+          json[key] = embeddedSnapshot.id;
 
           if (relationship.options.polymorphic) {
             this.serializePolymorphicType(snapshot, json, relationship);
@@ -83810,6 +86663,7 @@ define('ember-data/serializers/embedded-records-mixin', ['exports', 'ember', 'em
         }
       }
       ```
+       Note that the `ids-and-types` strategy is still behind the `ds-serialize-ids-and-types` feature flag.
        @method serializeHasMany
       @param {DS.Snapshot} snapshot
       @param {Object} json
@@ -83823,17 +86677,15 @@ define('ember-data/serializers/embedded-records-mixin', ['exports', 'ember', 'em
       }
 
       if (this.hasSerializeIdsOption(attr)) {
-        var serializedKey = this._getMappedKey(relationship.key, snapshot.type);
-        if (serializedKey === relationship.key && this.keyForRelationship) {
-          serializedKey = this.keyForRelationship(relationship.key, relationship.kind, "serialize");
-        }
-
+        var serializedKey = this.keyForRelationship(attr, relationship.kind, 'serialize');
         json[serializedKey] = snapshot.hasMany(attr, { ids: true });
       } else if (this.hasSerializeRecordsOption(attr)) {
         this._serializeEmbeddedHasMany(snapshot, json, relationship);
       } else {
-        if (this.hasSerializeIdsAndTypesOption(attr)) {
-          this._serializeHasManyAsIdsAndTypes(snapshot, json, relationship);
+        if (true) {
+          if (this.hasSerializeIdsAndTypesOption(attr)) {
+            this._serializeHasManyAsIdsAndTypes(snapshot, json, relationship);
+          }
         }
       }
     },
@@ -84154,7 +87006,6 @@ define('ember-data/serializers/json-api', ['exports', 'ember', 'ember-data/-priv
   
     to the format that the Ember Data store expects.
   
-    @since 1.13.0
     @class JSONAPISerializer
     @namespace DS
     @extends DS.JSONSerializer
@@ -84203,25 +87054,8 @@ define('ember-data/serializers/json-api', ['exports', 'ember', 'ember-data/-priv
       @private
     */
     _normalizeRelationshipDataHelper: function _normalizeRelationshipDataHelper(relationshipDataHash) {
-      if (false) {
-        var modelName = this.modelNameFromPayloadType(relationshipDataHash.type);
-        var deprecatedModelNameLookup = this.modelNameFromPayloadKey(relationshipDataHash.type);
-
-        if (modelName !== deprecatedModelNameLookup && this._hasCustomModelNameFromPayloadKey()) {
-          (0, _emberDataPrivateDebug.deprecate)("You are using modelNameFromPayloadKey to normalize the type for a relationship. This has been deprecated in favor of modelNameFromPayloadType", false, {
-            id: 'ds.json-api-serializer.deprecated-model-name-for-relationship',
-            until: '3.0.0'
-          });
-
-          modelName = deprecatedModelNameLookup;
-        }
-
-        relationshipDataHash.type = modelName;
-      } else {
-        var type = this.modelNameFromPayloadKey(relationshipDataHash.type);
-        relationshipDataHash.type = type;
-      }
-
+      var type = this.modelNameFromPayloadKey(relationshipDataHash.type);
+      relationshipDataHash.type = type;
       return relationshipDataHash;
     },
 
@@ -84236,31 +87070,10 @@ define('ember-data/serializers/json-api', ['exports', 'ember', 'ember-data/-priv
         id: 'ds.serializer.type-is-undefined'
       });
 
-      var modelName = undefined,
-          usedLookup = undefined;
-
-      if (false) {
-        modelName = this.modelNameFromPayloadType(resourceHash.type);
-        var deprecatedModelNameLookup = this.modelNameFromPayloadKey(resourceHash.type);
-
-        usedLookup = 'modelNameFromPayloadType';
-
-        if (modelName !== deprecatedModelNameLookup && this._hasCustomModelNameFromPayloadKey()) {
-          (0, _emberDataPrivateDebug.deprecate)("You are using modelNameFromPayloadKey to normalize the type for a resource. This has been deprecated in favor of modelNameFromPayloadType", false, {
-            id: 'ds.json-api-serializer.deprecated-model-name-for-resource',
-            until: '3.0.0'
-          });
-
-          modelName = deprecatedModelNameLookup;
-          usedLookup = 'modelNameFromPayloadKey';
-        }
-      } else {
-        modelName = this.modelNameFromPayloadKey(resourceHash.type);
-        usedLookup = 'modelNameFromPayloadKey';
-      }
+      var modelName = this.modelNameFromPayloadKey(resourceHash.type);
 
       if (!this.store._hasModelFor(modelName)) {
-        (0, _emberDataPrivateDebug.warn)(this.warnMessageNoModelForType(modelName, resourceHash.type, usedLookup), false, {
+        (0, _emberDataPrivateDebug.warn)(this.warnMessageNoModelForType(modelName, resourceHash.type), false, {
           id: 'ds.serializer.model-for-type-missing'
         });
         return null;
@@ -84330,7 +87143,7 @@ define('ember-data/serializers/json-api', ['exports', 'ember', 'ember-data/-priv
       if (resourceHash.attributes) {
         modelClass.eachAttribute(function (key) {
           var attributeKey = _this.keyForAttribute(key, 'deserialize');
-          if (resourceHash.attributes[attributeKey] !== undefined) {
+          if (resourceHash.attributes.hasOwnProperty(attributeKey)) {
             attributes[key] = resourceHash.attributes[attributeKey];
           }
         });
@@ -84378,7 +87191,7 @@ define('ember-data/serializers/json-api', ['exports', 'ember', 'ember-data/-priv
       if (resourceHash.relationships) {
         modelClass.eachRelationship(function (key, relationshipMeta) {
           var relationshipKey = _this2.keyForRelationship(key, relationshipMeta.kind, 'deserialize');
-          if (resourceHash.relationships[relationshipKey] !== undefined) {
+          if (resourceHash.relationships.hasOwnProperty(relationshipKey)) {
 
             var relationshipHash = resourceHash.relationships[relationshipKey];
             relationships[key] = _this2.extractRelationship(relationshipHash);
@@ -84397,23 +87210,7 @@ define('ember-data/serializers/json-api', ['exports', 'ember', 'ember-data/-priv
       @private
     */
     _extractType: function _extractType(modelClass, resourceHash) {
-      if (false) {
-        var modelName = this.modelNameFromPayloadType(resourceHash.type);
-        var deprecatedModelNameLookup = this.modelNameFromPayloadKey(resourceHash.type);
-
-        if (modelName !== deprecatedModelNameLookup && this._hasCustomModelNameFromPayloadKey()) {
-          (0, _emberDataPrivateDebug.deprecate)("You are using modelNameFromPayloadKey to normalize the type for a polymorphic relationship. This has been deprecated in favor of modelNameFromPayloadType", false, {
-            id: 'ds.json-api-serializer.deprecated-model-name-for-polymorphic-type',
-            until: '3.0.0'
-          });
-
-          modelName = deprecatedModelNameLookup;
-        }
-
-        return modelName;
-      } else {
-        return this.modelNameFromPayloadKey(resourceHash.type);
-      }
+      return this.modelNameFromPayloadKey(resourceHash.type);
     },
 
     /**
@@ -84421,7 +87218,6 @@ define('ember-data/serializers/json-api', ['exports', 'ember', 'ember-data/-priv
       @param {String} key
       @return {String} the model's modelName
     */
-    // TODO @deprecated Use modelNameFromPayloadType instead
     modelNameFromPayloadKey: function modelNameFromPayloadKey(key) {
       return (0, _emberInflector.singularize)((0, _emberDataPrivateSystemNormalizeModelName['default'])(key));
     },
@@ -84431,7 +87227,6 @@ define('ember-data/serializers/json-api', ['exports', 'ember', 'ember-data/-priv
       @param {String} modelName
       @return {String}
     */
-    // TODO @deprecated Use payloadTypeFromModelName instead
     payloadKeyFromModelName: function payloadKeyFromModelName(modelName) {
       return (0, _emberInflector.pluralize)(modelName);
     },
@@ -84522,25 +87317,7 @@ define('ember-data/serializers/json-api', ['exports', 'ember', 'ember-data/-priv
     */
     serialize: function serialize(snapshot, options) {
       var data = this._super.apply(this, arguments);
-
-      var payloadType = undefined;
-      if (false) {
-        payloadType = this.payloadTypeFromModelName(snapshot.modelName);
-        var deprecatedPayloadTypeLookup = this.payloadKeyFromModelName(snapshot.modelName);
-
-        if (payloadType !== deprecatedPayloadTypeLookup && this._hasCustomPayloadKeyFromModelName()) {
-          (0, _emberDataPrivateDebug.deprecate)("You used payloadKeyFromModelName to customize how a type is serialized. Use payloadTypeFromModelName instead.", false, {
-            id: 'ds.json-api-serializer.deprecated-payload-type-for-model',
-            until: '3.0.0'
-          });
-
-          payloadType = deprecatedPayloadTypeLookup;
-        }
-      } else {
-        payloadType = this.payloadKeyFromModelName(snapshot.modelName);
-      }
-
-      data.type = payloadType;
+      data.type = this.payloadKeyFromModelName(snapshot.modelName);
       return { data: data };
     },
 
@@ -84595,26 +87372,8 @@ define('ember-data/serializers/json-api', ['exports', 'ember', 'ember-data/-priv
 
           var data = null;
           if (belongsTo) {
-            var payloadType = undefined;
-
-            if (false) {
-              payloadType = this.payloadTypeFromModelName(belongsTo.modelName);
-              var deprecatedPayloadTypeLookup = this.payloadKeyFromModelName(belongsTo.modelName);
-
-              if (payloadType !== deprecatedPayloadTypeLookup && this._hasCustomPayloadKeyFromModelName()) {
-                (0, _emberDataPrivateDebug.deprecate)("You used payloadKeyFromModelName to serialize type for belongs-to relationship. Use payloadTypeFromModelName instead.", false, {
-                  id: 'ds.json-api-serializer.deprecated-payload-type-for-belongs-to',
-                  until: '3.0.0'
-                });
-
-                payloadType = deprecatedPayloadTypeLookup;
-              }
-            } else {
-              payloadType = this.payloadKeyFromModelName(belongsTo.modelName);
-            }
-
             data = {
-              type: payloadType,
+              type: this.payloadKeyFromModelName(belongsTo.modelName),
               id: belongsTo.id
             };
           }
@@ -84632,12 +87391,8 @@ define('ember-data/serializers/json-api', ['exports', 'ember', 'ember-data/-priv
     */
     serializeHasMany: function serializeHasMany(snapshot, json, relationship) {
       var key = relationship.key;
-      var shouldSerializeHasMany = '_shouldSerializeHasMany';
-      if (false) {
-        shouldSerializeHasMany = 'shouldSerializeHasMany';
-      }
 
-      if (this[shouldSerializeHasMany](snapshot, key, relationship)) {
+      if (this._shouldSerializeHasMany(snapshot, key, relationship)) {
         var hasMany = snapshot.hasMany(key);
         if (hasMany !== undefined) {
 
@@ -84652,27 +87407,8 @@ define('ember-data/serializers/json-api', ['exports', 'ember', 'ember-data/-priv
 
           for (var i = 0; i < hasMany.length; i++) {
             var item = hasMany[i];
-
-            var payloadType = undefined;
-
-            if (false) {
-              payloadType = this.payloadTypeFromModelName(item.modelName);
-              var deprecatedPayloadTypeLookup = this.payloadKeyFromModelName(item.modelName);
-
-              if (payloadType !== deprecatedPayloadTypeLookup && this._hasCustomPayloadKeyFromModelName()) {
-                (0, _emberDataPrivateDebug.deprecate)("You used payloadKeyFromModelName to serialize type for belongs-to relationship. Use payloadTypeFromModelName instead.", false, {
-                  id: 'ds.json-api-serializer.deprecated-payload-type-for-has-many',
-                  until: '3.0.0'
-                });
-
-                payloadType = deprecatedPayloadTypeLookup;
-              }
-            } else {
-              payloadType = this.payloadKeyFromModelName(item.modelName);
-            }
-
             data[i] = {
-              type: payloadType,
+              type: this.payloadKeyFromModelName(item.modelName),
               id: item.id
             };
           }
@@ -84682,100 +87418,6 @@ define('ember-data/serializers/json-api', ['exports', 'ember', 'ember-data/-priv
       }
     }
   });
-
-  if (false) {
-
-    JSONAPISerializer.reopen({
-
-      /**
-        `modelNameFromPayloadType` can be used to change the mapping for a DS model
-        name, taken from the value in the payload.
-         Say your API namespaces the type of a model and returns the following
-        payload for the `post` model:
-         ```javascript
-        // GET /api/posts/1
-        {
-          "data": {
-            "id": 1,
-            "type: "api::v1::post"
-          }
-        }
-        ```
-         By overwriting `modelNameFromPayloadType` you can specify that the
-        `posr` model should be used:
-         ```app/serializers/application.js
-        import DS from "ember-data";
-         export default DS.JSONAPISerializer.extend({
-          modelNameFromPayloadType(payloadType) {
-            return payloadType.replace('api::v1::', '');
-          }
-        });
-        ```
-         By default the modelName for a model is its singularized name in dasherized
-        form.  Usually, Ember Data can use the correct inflection to do this for
-        you. Most of the time, you won't need to override
-        `modelNameFromPayloadType` for this purpose.
-         Also take a look at
-        [payloadTypeFromModelName](#method_payloadTypeFromModelName) to customize
-        how the type of a record should be serialized.
-         @method modelNameFromPayloadType
-        @public
-        @param {String} payloadType type from payload
-        @return {String} modelName
-      */
-      modelNameFromPayloadType: function modelNameFromPayloadType(type) {
-        return (0, _emberInflector.singularize)((0, _emberDataPrivateSystemNormalizeModelName['default'])(type));
-      },
-
-      /**
-        `payloadTypeFromModelName` can be used to change the mapping for the type in
-        the payload, taken from the model name.
-         Say your API namespaces the type of a model and expects the following
-        payload when you update the `post` model:
-         ```javascript
-        // POST /api/posts/1
-        {
-          "data": {
-            "id": 1,
-            "type": "api::v1::post"
-          }
-        }
-        ```
-         By overwriting `payloadTypeFromModelName` you can specify that the
-        namespaces model name for the `post` should be used:
-         ```app/serializers/application.js
-        import DS from "ember-data";
-         export default JSONAPISerializer.extend({
-          payloadTypeFromModelName(modelName) {
-            return "api::v1::" + modelName;
-          }
-        });
-        ```
-         By default the payload type is the pluralized model name. Usually, Ember
-        Data can use the correct inflection to do this for you. Most of the time,
-        you won't need to override `payloadTypeFromModelName` for this purpose.
-         Also take a look at
-        [modelNameFromPayloadType](#method_modelNameFromPayloadType) to customize
-        how the model name from should be mapped from the payload.
-         @method payloadTypeFromModelName
-        @public
-        @param {String} modelname modelName from the record
-        @return {String} payloadType
-      */
-      payloadTypeFromModelName: function payloadTypeFromModelName(modelName) {
-        return (0, _emberInflector.pluralize)(modelName);
-      },
-
-      _hasCustomModelNameFromPayloadKey: function _hasCustomModelNameFromPayloadKey() {
-        return this.modelNameFromPayloadKey !== JSONAPISerializer.prototype.modelNameFromPayloadKey;
-      },
-
-      _hasCustomPayloadKeyFromModelName: function _hasCustomPayloadKeyFromModelName() {
-        return this.payloadKeyFromModelName !== JSONAPISerializer.prototype.payloadKeyFromModelName;
-      }
-
-    });
-  }
 
   (0, _emberDataPrivateDebug.runInDebug)(function () {
     JSONAPISerializer.reopen({
@@ -84787,15 +87429,15 @@ define('ember-data/serializers/json-api', ['exports', 'ember', 'ember-data/-priv
       warnMessageForUndefinedType: function warnMessageForUndefinedType() {
         return 'Encountered a resource object with an undefined type (resolved resource using ' + this.constructor.toString() + ')';
       },
-      warnMessageNoModelForType: function warnMessageNoModelForType(modelName, originalType, usedLookup) {
-        return 'Encountered a resource object with type "' + originalType + '", but no model was found for model name "' + modelName + '" (resolved model name using \'' + this.constructor.toString() + '.' + usedLookup + '("' + originalType + '")).';
+      warnMessageNoModelForType: function warnMessageNoModelForType(modelName, originalType) {
+        return 'Encountered a resource object with type "' + originalType + '", but no model was found for model name "' + modelName + '" (resolved model name using ' + this.constructor.toString() + '.modelNameFromPayloadKey("' + originalType + '"))';
       }
     });
   });
 
   exports['default'] = JSONAPISerializer;
 });
-define('ember-data/serializers/json', ['exports', 'ember', 'ember-data/-private/debug', 'ember-data/serializer', 'ember-data/-private/system/coerce-id', 'ember-data/-private/system/normalize-model-name', 'ember-data/-private/utils', 'ember-data/-private/features', 'ember-data/adapters/errors'], function (exports, _ember, _emberDataPrivateDebug, _emberDataSerializer, _emberDataPrivateSystemCoerceId, _emberDataPrivateSystemNormalizeModelName, _emberDataPrivateUtils, _emberDataPrivateFeatures, _emberDataAdaptersErrors) {
+define('ember-data/serializers/json', ['exports', 'ember', 'ember-data/-private/debug', 'ember-data/serializer', 'ember-data/-private/system/coerce-id', 'ember-data/-private/system/normalize-model-name', 'ember-data/-private/utils', 'ember-data/adapters/errors', 'ember-data/-private/features'], function (exports, _ember, _emberDataPrivateDebug, _emberDataSerializer, _emberDataPrivateSystemCoerceId, _emberDataPrivateSystemNormalizeModelName, _emberDataPrivateUtils, _emberDataAdaptersErrors, _emberDataPrivateFeatures) {
   'use strict';
 
   function _toConsumableArray(arr) {
@@ -84876,7 +87518,7 @@ define('ember-data/serializers/json', ['exports', 'ember', 'ember-data/-private/
     @namespace DS
     @extends DS.Serializer
   */
-  var JSONSerializer = _emberDataSerializer['default'].extend({
+  exports['default'] = _emberDataSerializer['default'].extend({
 
     /**
       The `primaryKey` is used when serializing and deserializing
@@ -84964,16 +87606,23 @@ define('ember-data/serializers/json', ['exports', 'ember', 'ember-data/-private/
     applyTransforms: function applyTransforms(typeClass, data) {
       var _this = this;
 
-      var attributes = get(typeClass, 'attributes');
+      var attributes = undefined;
+      if (true) {
+        attributes = get(typeClass, 'attributes');
+      }
 
       typeClass.eachTransformedAttribute(function (key, typeClass) {
-        if (data[key] === undefined) {
+        if (!(key in data)) {
           return;
         }
 
         var transform = _this.transformFor(typeClass);
-        var transformMeta = attributes.get(key);
-        data[key] = transform.deserialize(data[key], transformMeta.options);
+        if (true) {
+          var transformMeta = attributes.get(key);
+          data[key] = transform.deserialize(data[key], transformMeta.options);
+        } else {
+          data[key] = transform.deserialize(data[key]);
+        }
       });
 
       return data;
@@ -84998,8 +87647,7 @@ define('ember-data/serializers/json', ['exports', 'ember', 'ember-data/-private/
          store.push(normalized);
       });
       ```
-       @since 1.13.0
-      @method normalizeResponse
+       @method normalizeResponse
       @param {DS.Store} store
       @param {DS.Model} primaryModelClass
       @param {Object} payload
@@ -85033,7 +87681,6 @@ define('ember-data/serializers/json', ['exports', 'ember', 'ember-data/-private/
     },
 
     /**
-      @since 1.13.0
       @method normalizeFindRecordResponse
       @param {DS.Store} store
       @param {DS.Model} primaryModelClass
@@ -85047,7 +87694,6 @@ define('ember-data/serializers/json', ['exports', 'ember', 'ember-data/-private/
     },
 
     /**
-      @since 1.13.0
       @method normalizeQueryRecordResponse
       @param {DS.Store} store
       @param {DS.Model} primaryModelClass
@@ -85061,7 +87707,6 @@ define('ember-data/serializers/json', ['exports', 'ember', 'ember-data/-private/
     },
 
     /**
-      @since 1.13.0
       @method normalizeFindAllResponse
       @param {DS.Store} store
       @param {DS.Model} primaryModelClass
@@ -85075,7 +87720,6 @@ define('ember-data/serializers/json', ['exports', 'ember', 'ember-data/-private/
     },
 
     /**
-      @since 1.13.0
       @method normalizeFindBelongsToResponse
       @param {DS.Store} store
       @param {DS.Model} primaryModelClass
@@ -85089,7 +87733,6 @@ define('ember-data/serializers/json', ['exports', 'ember', 'ember-data/-private/
     },
 
     /**
-      @since 1.13.0
       @method normalizeFindHasManyResponse
       @param {DS.Store} store
       @param {DS.Model} primaryModelClass
@@ -85103,7 +87746,6 @@ define('ember-data/serializers/json', ['exports', 'ember', 'ember-data/-private/
     },
 
     /**
-      @since 1.13.0
       @method normalizeFindManyResponse
       @param {DS.Store} store
       @param {DS.Model} primaryModelClass
@@ -85117,7 +87759,6 @@ define('ember-data/serializers/json', ['exports', 'ember', 'ember-data/-private/
     },
 
     /**
-      @since 1.13.0
       @method normalizeQueryResponse
       @param {DS.Store} store
       @param {DS.Model} primaryModelClass
@@ -85131,7 +87772,6 @@ define('ember-data/serializers/json', ['exports', 'ember', 'ember-data/-private/
     },
 
     /**
-      @since 1.13.0
       @method normalizeCreateRecordResponse
       @param {DS.Store} store
       @param {DS.Model} primaryModelClass
@@ -85145,7 +87785,6 @@ define('ember-data/serializers/json', ['exports', 'ember', 'ember-data/-private/
     },
 
     /**
-      @since 1.13.0
       @method normalizeDeleteRecordResponse
       @param {DS.Store} store
       @param {DS.Model} primaryModelClass
@@ -85159,7 +87798,6 @@ define('ember-data/serializers/json', ['exports', 'ember', 'ember-data/-private/
     },
 
     /**
-      @since 1.13.0
       @method normalizeUpdateRecordResponse
       @param {DS.Store} store
       @param {DS.Model} primaryModelClass
@@ -85173,7 +87811,6 @@ define('ember-data/serializers/json', ['exports', 'ember', 'ember-data/-private/
     },
 
     /**
-      @since 1.13.0
       @method normalizeSaveResponse
       @param {DS.Store} store
       @param {DS.Model} primaryModelClass
@@ -85187,7 +87824,6 @@ define('ember-data/serializers/json', ['exports', 'ember', 'ember-data/-private/
     },
 
     /**
-      @since 1.13.0
       @method normalizeSingleResponse
       @param {DS.Store} store
       @param {DS.Model} primaryModelClass
@@ -85201,7 +87837,6 @@ define('ember-data/serializers/json', ['exports', 'ember', 'ember-data/-private/
     },
 
     /**
-      @since 1.13.0
       @method normalizeArrayResponse
       @param {DS.Store} store
       @param {DS.Model} primaryModelClass
@@ -85352,7 +87987,7 @@ define('ember-data/serializers/json', ['exports', 'ember', 'ember-data/-private/
 
       modelClass.eachAttribute(function (key) {
         attributeKey = _this2.keyForAttribute(key, 'deserialize');
-        if (resourceHash[attributeKey] !== undefined) {
+        if (resourceHash.hasOwnProperty(attributeKey)) {
           attributes[key] = resourceHash[attributeKey];
         }
       });
@@ -85384,24 +88019,7 @@ define('ember-data/serializers/json', ['exports', 'ember', 'ember-data/-private/
 
         var modelClass = this.store.modelFor(relationshipModelName);
         if (relationshipHash.type && !(0, _emberDataPrivateUtils.modelHasAttributeOrRelationshipNamedType)(modelClass)) {
-
-          if (false) {
-            var modelName = this.modelNameFromPayloadType(relationshipHash.type);
-            var deprecatedModelNameLookup = this.modelNameFromPayloadKey(relationshipHash.type);
-
-            if (modelName !== deprecatedModelNameLookup && this._hasCustomModelNameFromPayloadKey()) {
-              (0, _emberDataPrivateDebug.deprecate)("You used modelNameFromPayloadKey to customize how a type is normalized. Use modelNameFromPayloadType instead", false, {
-                id: 'ds.json-serializer.deprecated-type-for-polymorphic-relationship',
-                until: '3.0.0'
-              });
-
-              modelName = deprecatedModelNameLookup;
-            }
-
-            relationshipHash.type = modelName;
-          } else {
-            relationshipHash.type = this.modelNameFromPayloadKey(relationshipHash.type);
-          }
+          relationshipHash.type = this.modelNameFromPayloadKey(relationshipHash.type);
         }
         return relationshipHash;
       }
@@ -85444,7 +88062,7 @@ define('ember-data/serializers/json', ['exports', 'ember', 'ember-data/-private/
       modelClass.eachRelationship(function (key, relationshipMeta) {
         var relationship = null;
         var relationshipKey = _this3.keyForRelationship(key, relationshipMeta.kind, 'deserialize');
-        if (resourceHash[relationshipKey] !== undefined) {
+        if (resourceHash.hasOwnProperty(relationshipKey)) {
           var data = null;
           var relationshipHash = resourceHash[relationshipKey];
           if (relationshipMeta.kind === 'belongsTo') {
@@ -85470,7 +88088,7 @@ define('ember-data/serializers/json', ['exports', 'ember', 'ember-data/-private/
         }
 
         var linkKey = _this3.keyForLink(key, relationshipMeta.kind);
-        if (resourceHash.links && resourceHash.links[linkKey] !== undefined) {
+        if (resourceHash.links && resourceHash.links.hasOwnProperty(linkKey)) {
           var related = resourceHash.links[linkKey];
           relationship = relationship || {};
           relationship.links = { related: related };
@@ -85489,7 +88107,6 @@ define('ember-data/serializers/json', ['exports', 'ember', 'ember-data/-private/
       @param {String} key
       @return {String} the model's modelName
     */
-    // TODO @deprecated Use modelNameFromPayloadType instead
     modelNameFromPayloadKey: function modelNameFromPayloadKey(key) {
       return (0, _emberDataPrivateSystemNormalizeModelName['default'])(key);
     },
@@ -85509,7 +88126,7 @@ define('ember-data/serializers/json', ['exports', 'ember', 'ember-data/-private/
           if (key === payloadKey) {
             return;
           }
-          if (hash[payloadKey] === undefined) {
+          if (!hash.hasOwnProperty(payloadKey)) {
             return;
           }
 
@@ -85534,7 +88151,7 @@ define('ember-data/serializers/json', ['exports', 'ember', 'ember-data/-private/
           if (key === payloadKey) {
             return;
           }
-          if (hash[payloadKey] === undefined) {
+          if (!hash.hasOwnProperty(payloadKey)) {
             return;
           }
 
@@ -85556,7 +88173,7 @@ define('ember-data/serializers/json', ['exports', 'ember', 'ember-data/-private/
         for (key in attrs) {
           normalizedKey = payloadKey = this._getMappedKey(key, modelClass);
 
-          if (hash[payloadKey] === undefined) {
+          if (!hash.hasOwnProperty(payloadKey)) {
             continue;
           }
 
@@ -85633,26 +88250,6 @@ define('ember-data/serializers/json', ['exports', 'ember', 'ember-data/-private/
       var attrs = get(this, 'attrs');
 
       return attrs && attrs[key] && attrs[key].serialize === true;
-    },
-
-    /**
-      Check if the given hasMany relationship should be serialized
-       @method shouldSerializeHasMany
-      @param {DS.Snapshot} snapshot
-      @param {String} key
-      @param {String} relationshipType
-      @return {boolean} true if the hasMany relationship should be serialized
-    */
-
-    shouldSerializeHasMany: function shouldSerializeHasMany(snapshot, key, relationship) {
-      if (this._shouldSerializeHasMany !== JSONSerializer.prototype._shouldSerializeHasMany) {
-        (0, _emberDataPrivateDebug.deprecate)('The private method _shouldSerializeHasMany has been promoted to the public API. Please remove the underscore to use the public shouldSerializeHasMany method.', false, {
-          id: 'ds.serializer.private-should-serialize-has-many',
-          until: '3.0.0'
-        });
-      }
-
-      return this._shouldSerializeHasMany(snapshot, key, relationship);
     },
 
     /**
@@ -85869,7 +88466,11 @@ define('ember-data/serializers/json', ['exports', 'ember', 'ember-data/-private/
         var value = snapshot.attr(key);
         if (type) {
           var transform = this.transformFor(type);
-          value = transform.serialize(value, attribute.options);
+          if (true) {
+            value = transform.serialize(value, attribute.options);
+          } else {
+            value = transform.serialize(value);
+          }
         }
 
         // if provided, use the mapping provided by `attrs` in
@@ -85954,12 +88555,8 @@ define('ember-data/serializers/json', ['exports', 'ember', 'ember-data/-private/
     */
     serializeHasMany: function serializeHasMany(snapshot, json, relationship) {
       var key = relationship.key;
-      var shouldSerializeHasMany = '_shouldSerializeHasMany';
-      if (false) {
-        shouldSerializeHasMany = 'shouldSerializeHasMany';
-      }
 
-      if (this[shouldSerializeHasMany](snapshot, key, relationship)) {
+      if (this._shouldSerializeHasMany(snapshot, key, relationship)) {
         var hasMany = snapshot.hasMany(key, { ids: true });
         if (hasMany !== undefined) {
           // if provided, use the mapping provided by `attrs` in
@@ -86026,7 +88623,7 @@ define('ember-data/serializers/json', ['exports', 'ember', 'ember-data/-private/
       @param {Object} payload
     */
     extractMeta: function extractMeta(store, modelClass, payload) {
-      if (payload && payload['meta'] !== undefined) {
+      if (payload && payload.hasOwnProperty('meta')) {
         var meta = payload.meta;
         delete payload.meta;
         return meta;
@@ -86116,7 +88713,7 @@ define('ember-data/serializers/json', ['exports', 'ember', 'ember-data/-private/
 
         typeClass.eachAttribute(function (name) {
           var key = _this7.keyForAttribute(name, 'deserialize');
-          if (key !== name && payload[key] !== undefined) {
+          if (key !== name && payload.hasOwnProperty(key)) {
             payload[name] = payload[key];
             delete payload[key];
           }
@@ -86124,7 +88721,7 @@ define('ember-data/serializers/json', ['exports', 'ember', 'ember-data/-private/
 
         typeClass.eachRelationship(function (name) {
           var key = _this7.keyForRelationship(name, 'deserialize');
-          if (key !== name && payload[key] !== undefined) {
+          if (key !== name && payload.hasOwnProperty(key)) {
             payload[name] = payload[key];
             delete payload[key];
           }
@@ -86207,29 +88804,6 @@ define('ember-data/serializers/json', ['exports', 'ember', 'ember-data/-private/
       return transform;
     }
   });
-
-  if (false) {
-
-    JSONSerializer.reopen({
-
-      /**
-        @method modelNameFromPayloadType
-        @public
-        @param {String} type
-        @return {String} the model's modelName
-        */
-      modelNameFromPayloadType: function modelNameFromPayloadType(type) {
-        return (0, _emberDataPrivateSystemNormalizeModelName['default'])(type);
-      },
-
-      _hasCustomModelNameFromPayloadKey: function _hasCustomModelNameFromPayloadKey() {
-        return this.modelNameFromPayloadKey !== JSONSerializer.prototype.modelNameFromPayloadKey;
-      }
-
-    });
-  }
-
-  exports['default'] = JSONSerializer;
 });
 define("ember-data/serializers/rest", ["exports", "ember", "ember-data/-private/debug", "ember-data/serializers/json", "ember-data/-private/system/normalize-model-name", "ember-inflector", "ember-data/-private/system/coerce-id", "ember-data/-private/utils", "ember-data/-private/features"], function (exports, _ember, _emberDataPrivateDebug, _emberDataSerializersJson, _emberDataPrivateSystemNormalizeModelName, _emberInflector, _emberDataPrivateSystemCoerceId, _emberDataPrivateUtils, _emberDataPrivateFeatures) {
   "use strict";
@@ -86347,7 +88921,7 @@ define("ember-data/serializers/rest", ["exports", "ember", "ember-data/-private/
       * With `App.Comment`, `"comments"` and `{ id: 1, body: "FIRST" }`
       * With `App.Comment`, `"comments"` and `{ id: 2, body: "Rails is unagi" }`
        You can use this method, for example, to normalize underscored keys to camelized
-      or other general-purpose normalizations. You will only need to implement
+      or other general-purpose normalizations. You will only need to implement 
       `normalize` and manipulate the payload as desired.
        For example, if the `IDs` under `"comments"` are provided as `_id` instead of
       `id`, you can specify how to normalize just the comments:
@@ -86357,14 +88931,14 @@ define("ember-data/serializers/rest", ["exports", "ember", "ember-data/-private/
         normalize(model, hash, prop) {
           if (prop === 'comments') {
             hash.id = hash._id;
-            delete hash._id;
+            delete hash._id;   
           }
            return this._super(...arguments);
         }
       });
       ```
-       On each call to the `normalize` method, the third parameter (`prop`) is always
-      one of the keys that were in the original payload or in the result of another
+       On each call to the `normalize` method, the third parameter (`prop`) is always 
+      one of the keys that were in the original payload or in the result of another 
       normalization as `normalizeResponse`.
        @method normalize
       @param {DS.Model} modelClass
@@ -86405,6 +88979,7 @@ define("ember-data/serializers/rest", ["exports", "ember", "ember-data/-private/
       var modelClass = store.modelFor(modelName);
       var serializer = store.serializerFor(modelName);
 
+      /*jshint loopfunc:true*/
       _ember["default"].makeArray(arrayHash).forEach(function (hash) {
         var _normalizePolymorphicRecord2 = _this._normalizePolymorphicRecord(store, hash, prop, modelClass, serializer);
 
@@ -86423,36 +88998,17 @@ define("ember-data/serializers/rest", ["exports", "ember", "ember-data/-private/
     },
 
     _normalizePolymorphicRecord: function _normalizePolymorphicRecord(store, hash, prop, primaryModelClass, primarySerializer) {
-      var serializer = primarySerializer;
-      var modelClass = primaryModelClass;
-
+      var serializer = undefined,
+          modelClass = undefined;
       var primaryHasTypeAttribute = (0, _emberDataPrivateUtils.modelHasAttributeOrRelationshipNamedType)(primaryModelClass);
-
-      if (!primaryHasTypeAttribute && hash.type) {
-        // Support polymorphic records in async relationships
-        var modelName = undefined;
-        if (false) {
-          modelName = this.modelNameFromPayloadType(hash.type);
-          var deprecatedModelNameLookup = this.modelNameFromPayloadKey(hash.type);
-
-          if (modelName !== deprecatedModelNameLookup && !this._hasCustomModelNameFromPayloadType() && this._hasCustomModelNameFromPayloadKey()) {
-            (0, _emberDataPrivateDebug.deprecate)("You are using modelNameFromPayloadKey to normalize the type for a polymorphic relationship. This is has been deprecated in favor of modelNameFromPayloadType", false, {
-              id: 'ds.rest-serializer.deprecated-model-name-for-polymorphic-type',
-              until: '3.0.0'
-            });
-
-            modelName = deprecatedModelNameLookup;
-          }
-        } else {
-          modelName = this.modelNameFromPayloadKey(hash.type);
-        }
-
-        if (store._hasModelFor(modelName)) {
-          serializer = store.serializerFor(modelName);
-          modelClass = store.modelFor(modelName);
-        }
+      // Support polymorphic records in async relationships
+      if (!primaryHasTypeAttribute && hash.type && store._hasModelFor(this.modelNameFromPayloadKey(hash.type))) {
+        serializer = store.serializerFor(this.modelNameFromPayloadKey(hash.type));
+        modelClass = store.modelFor(this.modelNameFromPayloadKey(hash.type));
+      } else {
+        serializer = primarySerializer;
+        modelClass = primaryModelClass;
       }
-
       return serializer.normalize(modelClass, hash, prop);
     },
 
@@ -86569,6 +89125,7 @@ define("ember-data/serializers/rest", ["exports", "ember", "ember-data/-private/
         }
 
         if (isSingle) {
+          /*jshint loopfunc:true*/
           data.forEach(function (resource) {
 
             /*
@@ -86653,6 +89210,7 @@ define("ember-data/serializers/rest", ["exports", "ember", "ember-data/-private/
         var type = store.modelFor(modelName);
         var typeSerializer = store.serializerFor(type.modelName);
 
+        /*jshint loopfunc:true*/
         _ember["default"].makeArray(payload[prop]).forEach(function (hash) {
           var _typeSerializer$normalize = typeSerializer.normalize(type, hash, prop);
 
@@ -86947,11 +89505,7 @@ define("ember-data/serializers/rest", ["exports", "ember", "ember-data/-private/
       if (_ember["default"].isNone(belongsTo)) {
         json[typeKey] = null;
       } else {
-        if (false) {
-          json[typeKey] = this.payloadTypeFromModelName(belongsTo.modelName);
-        } else {
-          json[typeKey] = camelize(belongsTo.modelName);
-        }
+        json[typeKey] = camelize(belongsTo.modelName);
       }
     },
 
@@ -86989,145 +89543,17 @@ define("ember-data/serializers/rest", ["exports", "ember", "ember-data/-private/
       var isPolymorphic = relationshipMeta.options.polymorphic;
       var typeProperty = this.keyForPolymorphicType(key, relationshipType, 'deserialize');
 
-      if (isPolymorphic && resourceHash[typeProperty] !== undefined && typeof relationshipHash !== 'object') {
-
-        if (false) {
-
-          var payloadType = resourceHash[typeProperty];
-          var type = this.modelNameFromPayloadType(payloadType);
-          var deprecatedTypeLookup = this.modelNameFromPayloadKey(payloadType);
-
-          if (payloadType !== deprecatedTypeLookup && !this._hasCustomModelNameFromPayloadType() && this._hasCustomModelNameFromPayloadKey()) {
-            (0, _emberDataPrivateDebug.deprecate)("You are using modelNameFromPayloadKey to normalize the type for a polymorphic relationship. This has been deprecated in favor of modelNameFromPayloadType", false, {
-              id: 'ds.rest-serializer.deprecated-model-name-for-polymorphic-type',
-              until: '3.0.0'
-            });
-
-            type = deprecatedTypeLookup;
-          }
-
-          return {
-            id: relationshipHash,
-            type: type
-          };
-        } else {
-
-          var type = this.modelNameFromPayloadKey(resourceHash[typeProperty]);
-          return {
-            id: relationshipHash,
-            type: type
-          };
-        }
+      if (isPolymorphic && resourceHash.hasOwnProperty(typeProperty) && typeof relationshipHash !== 'object') {
+        var type = this.modelNameFromPayloadKey(resourceHash[typeProperty]);
+        return {
+          id: relationshipHash,
+          type: type
+        };
       }
 
       return this._super.apply(this, arguments);
     }
   });
-
-  if (false) {
-
-    RESTSerializer.reopen({
-
-      /**
-        `modelNameFromPayloadType` can be used to change the mapping for a DS model
-        name, taken from the value in the payload.
-         Say your API namespaces the type of a model and returns the following
-        payload for the `post` model, which has a polymorphic `user` relationship:
-         ```javascript
-        // GET /api/posts/1
-        {
-          "post": {
-            "id": 1,
-            "user": 1,
-            "userType: "api::v1::administrator"
-          }
-        }
-        ```
-         By overwriting `modelNameFromPayloadType` you can specify that the
-        `administrator` model should be used:
-         ```app/serializers/application.js
-        import DS from "ember-data";
-         export default DS.RESTSerializer.extend({
-          modelNameFromPayloadType(payloadType) {
-            return payloadType.replace('api::v1::', '');
-          }
-        });
-        ```
-         By default the modelName for a model is its name in dasherized form.
-        Usually, Ember Data can use the correct inflection to do this for you. Most
-        of the time, you won't need to override `modelNameFromPayloadType` for this
-        purpose.
-         Also take a look at
-        [payloadTypeFromModelName](#method_payloadTypeFromModelName) to customize
-        how the type of a record should be serialized.
-         @method modelNameFromPayloadType
-        @public
-        @param {String} payloadType type from payload
-        @return {String} modelName
-      */
-      modelNameFromPayloadType: function modelNameFromPayloadType(payloadType) {
-        return (0, _emberInflector.singularize)((0, _emberDataPrivateSystemNormalizeModelName["default"])(payloadType));
-      },
-
-      /**
-        `payloadTypeFromModelName` can be used to change the mapping for the type in
-        the payload, taken from the model name.
-         Say your API namespaces the type of a model and expects the following
-        payload when you update the `post` model, which has a polymorphic `user`
-        relationship:
-         ```javascript
-        // POST /api/posts/1
-        {
-          "post": {
-            "id": 1,
-            "user": 1,
-            "userType": "api::v1::administrator"
-          }
-        }
-        ```
-         By overwriting `payloadTypeFromModelName` you can specify that the
-        namespaces model name for the `administrator` should be used:
-         ```app/serializers/application.js
-        import DS from "ember-data";
-         export default DS.RESTSerializer.extend({
-          payloadTypeFromModelName(modelName) {
-            return "api::v1::" + modelName;
-          }
-        });
-        ```
-         By default the payload type is the camelized model name. Usually, Ember
-        Data can use the correct inflection to do this for you. Most of the time,
-        you won't need to override `payloadTypeFromModelName` for this purpose.
-         Also take a look at
-        [modelNameFromPayloadType](#method_modelNameFromPayloadType) to customize
-        how the model name from should be mapped from the payload.
-         @method payloadTypeFromModelName
-        @public
-        @param {String} modelname modelName from the record
-        @return {String} payloadType
-      */
-      payloadTypeFromModelName: function payloadTypeFromModelName(modelName) {
-        return camelize(modelName);
-      },
-
-      _hasCustomModelNameFromPayloadKey: function _hasCustomModelNameFromPayloadKey() {
-        return this.modelNameFromPayloadKey !== RESTSerializer.prototype.modelNameFromPayloadKey;
-      },
-
-      _hasCustomModelNameFromPayloadType: function _hasCustomModelNameFromPayloadType() {
-        return this.modelNameFromPayloadType !== RESTSerializer.prototype.modelNameFromPayloadType;
-      },
-
-      _hasCustomPayloadTypeFromModelName: function _hasCustomPayloadTypeFromModelName() {
-        return this.payloadTypeFromModelName !== RESTSerializer.prototype.payloadTypeFromModelName;
-      },
-
-      _hasCustomPayloadKeyFromModelName: function _hasCustomPayloadKeyFromModelName() {
-        return this.payloadKeyFromModelName !== RESTSerializer.prototype.payloadKeyFromModelName;
-      }
-
-    });
-  }
 
   (0, _emberDataPrivateDebug.runInDebug)(function () {
     RESTSerializer.reopen({
@@ -87202,13 +89628,12 @@ define('ember-data/transform', ['exports', 'ember'], function (exports, _ember) 
       method must return the serialized value.
        Example
        ```javascript
-      serialize: function(deserialized, options) {
+      serialize: function(deserialized) {
         return Ember.isEmpty(deserialized) ? null : Number(deserialized);
       }
       ```
        @method serialize
       @param deserialized The deserialized value
-      @param options hash of options passed to `DS.attr`
       @return The serialized value
     */
     serialize: null,
@@ -87218,13 +89643,12 @@ define('ember-data/transform', ['exports', 'ember'], function (exports, _ember) 
       return the deserialized value for the record attribute.
        Example
        ```javascript
-      deserialize: function(serialized, options) {
+      deserialize: function(serialized) {
         return empty(serialized) ? null : Number(serialized);
       }
       ```
        @method deserialize
       @param serialized The serialized value
-      @param options hash of options passed to `DS.attr`
       @return The deserialized value
     */
     deserialize: null
@@ -87233,7 +89657,7 @@ define('ember-data/transform', ['exports', 'ember'], function (exports, _ember) 
 define("ember-data/version", ["exports"], function (exports) {
   "use strict";
 
-  exports["default"] = "2.8.0";
+  exports["default"] = "2.6.1";
 });
 define('ember-font-awesome/components/fa-icon', ['exports', 'ember', 'ember-computed-decorators', 'ember-font-awesome/utils/try-match', 'ember-font-awesome/utils/optional-decorator'], function (exports, _ember, _emberComputedDecorators, _emberFontAwesomeUtilsTryMatch, _emberFontAwesomeUtilsOptionalDecorator) {
   'use strict';
@@ -87817,9 +90241,9 @@ define('ember-inflector/lib/system/inflections', ['exports'], function (exports)
   'use strict';
 
   exports['default'] = {
-    plurals: [[/$/, 's'], [/s$/i, 's'], [/^(ax|test)is$/i, '$1es'], [/(octop|vir)us$/i, '$1i'], [/(octop|vir)i$/i, '$1i'], [/(alias|status|bonus)$/i, '$1es'], [/(bu)s$/i, '$1ses'], [/(buffal|tomat)o$/i, '$1oes'], [/([ti])um$/i, '$1a'], [/([ti])a$/i, '$1a'], [/sis$/i, 'ses'], [/(?:([^f])fe|([lr])f)$/i, '$1$2ves'], [/(hive)$/i, '$1s'], [/([^aeiouy]|qu)y$/i, '$1ies'], [/(x|ch|ss|sh)$/i, '$1es'], [/(matr|vert|ind)(?:ix|ex)$/i, '$1ices'], [/^(m|l)ouse$/i, '$1ice'], [/^(m|l)ice$/i, '$1ice'], [/^(ox)$/i, '$1en'], [/^(oxen)$/i, '$1'], [/(quiz)$/i, '$1zes']],
+    plurals: [[/$/, 's'], [/s$/i, 's'], [/^(ax|test)is$/i, '$1es'], [/(octop|vir)us$/i, '$1i'], [/(octop|vir)i$/i, '$1i'], [/(alias|status)$/i, '$1es'], [/(bu)s$/i, '$1ses'], [/(buffal|tomat)o$/i, '$1oes'], [/([ti])um$/i, '$1a'], [/([ti])a$/i, '$1a'], [/sis$/i, 'ses'], [/(?:([^f])fe|([lr])f)$/i, '$1$2ves'], [/(hive)$/i, '$1s'], [/([^aeiouy]|qu)y$/i, '$1ies'], [/(x|ch|ss|sh)$/i, '$1es'], [/(matr|vert|ind)(?:ix|ex)$/i, '$1ices'], [/^(m|l)ouse$/i, '$1ice'], [/^(m|l)ice$/i, '$1ice'], [/^(ox)$/i, '$1en'], [/^(oxen)$/i, '$1'], [/(quiz)$/i, '$1zes']],
 
-    singular: [[/s$/i, ''], [/(ss)$/i, '$1'], [/(n)ews$/i, '$1ews'], [/([ti])a$/i, '$1um'], [/((a)naly|(b)a|(d)iagno|(p)arenthe|(p)rogno|(s)ynop|(t)he)(sis|ses)$/i, '$1sis'], [/(^analy)(sis|ses)$/i, '$1sis'], [/([^f])ves$/i, '$1fe'], [/(hive)s$/i, '$1'], [/(tive)s$/i, '$1'], [/([lr])ves$/i, '$1f'], [/([^aeiouy]|qu)ies$/i, '$1y'], [/(s)eries$/i, '$1eries'], [/(m)ovies$/i, '$1ovie'], [/(x|ch|ss|sh)es$/i, '$1'], [/^(m|l)ice$/i, '$1ouse'], [/(bus)(es)?$/i, '$1'], [/(o)es$/i, '$1'], [/(shoe)s$/i, '$1'], [/(cris|test)(is|es)$/i, '$1is'], [/^(a)x[ie]s$/i, '$1xis'], [/(octop|vir)(us|i)$/i, '$1us'], [/(alias|status|bonus)(es)?$/i, '$1'], [/^(ox)en/i, '$1'], [/(vert|ind)ices$/i, '$1ex'], [/(matr)ices$/i, '$1ix'], [/(quiz)zes$/i, '$1'], [/(database)s$/i, '$1']],
+    singular: [[/s$/i, ''], [/(ss)$/i, '$1'], [/(n)ews$/i, '$1ews'], [/([ti])a$/i, '$1um'], [/((a)naly|(b)a|(d)iagno|(p)arenthe|(p)rogno|(s)ynop|(t)he)(sis|ses)$/i, '$1sis'], [/(^analy)(sis|ses)$/i, '$1sis'], [/([^f])ves$/i, '$1fe'], [/(hive)s$/i, '$1'], [/(tive)s$/i, '$1'], [/([lr])ves$/i, '$1f'], [/([^aeiouy]|qu)ies$/i, '$1y'], [/(s)eries$/i, '$1eries'], [/(m)ovies$/i, '$1ovie'], [/(x|ch|ss|sh)es$/i, '$1'], [/^(m|l)ice$/i, '$1ouse'], [/(bus)(es)?$/i, '$1'], [/(o)es$/i, '$1'], [/(shoe)s$/i, '$1'], [/(cris|test)(is|es)$/i, '$1is'], [/^(a)x[ie]s$/i, '$1xis'], [/(octop|vir)(us|i)$/i, '$1us'], [/(alias|status)(es)?$/i, '$1'], [/^(ox)en/i, '$1'], [/(vert|ind)ices$/i, '$1ex'], [/(matr)ices$/i, '$1ix'], [/(quiz)zes$/i, '$1'], [/(database)s$/i, '$1']],
 
     irregularPairs: [['person', 'people'], ['man', 'men'], ['child', 'children'], ['sex', 'sexes'], ['move', 'moves'], ['cow', 'kine'], ['zombie', 'zombies']],
 
@@ -88674,28 +91098,6 @@ define('ember-resolver/resolver', ['exports', 'ember', 'ember-resolver/utils/mod
       }
     },
 
-    resolveEngine: function resolveEngine(parsedName) {
-      var engineName = parsedName.fullNameWithoutType;
-      var engineModule = engineName + '/engine';
-
-      if (this._moduleRegistry.has(engineModule)) {
-        return this._extractDefaultExport(engineModule);
-      }
-    },
-
-    resolveRouteMap: function resolveRouteMap(parsedName) {
-      var engineName = parsedName.fullNameWithoutType;
-      var engineRoutesModule = engineName + '/routes';
-
-      if (this._moduleRegistry.has(engineRoutesModule)) {
-        var routeMap = this._extractDefaultExport(engineRoutesModule);
-
-        _ember['default'].assert('The route map for ' + engineName + ' should be wrapped by \'buildRoutes\' before exporting.', routeMap.isRouteMap);
-
-        return routeMap;
-      }
-    },
-
     mainModuleName: function mainModuleName(parsedName) {
       // if router:main or adapter:main look for a module with just the type first
       var tmpModuleName = parsedName.prefix + '/' + parsedName.type;
@@ -88776,7 +91178,7 @@ define('ember-resolver/resolver', ['exports', 'ember', 'ember-resolver/utils/mod
         var partializedModuleName = moduleName.replace(/\/-([^\/]*)$/, '/_$1');
 
         if (this._moduleRegistry.has(partializedModuleName)) {
-          _ember['default'].deprecate('Modules should not contain underscores. ' + 'Attempted to lookup "' + moduleName + '" which ' + 'was not found. Please rename "' + partializedModuleName + '" ' + 'to "' + moduleName + '" instead.', false, { id: 'ember-resolver.underscored-modules', until: '3.0.0' });
+          _ember['default'].deprecate('Modules should not contain underscores. ' + 'Attempted to lookup "' + moduleName + '" which ' + 'was not found. Please rename "' + partializedModuleName + '" ' + 'to "' + moduleName + '" instead.', false);
 
           return partializedModuleName;
         } else {
@@ -91469,6 +93871,255 @@ define('ember-simple-auth/utils/objects-are-equal', ['exports'], function (expor
     }
 
     return compare(a, b);
+  }
+});
+define('ember-wormhole/components/ember-wormhole', ['exports', 'ember', 'ember-wormhole/templates/components/ember-wormhole', 'ember-wormhole/utils/dom'], function (exports, _ember, _emberWormholeTemplatesComponentsEmberWormhole, _emberWormholeUtilsDom) {
+  'use strict';
+
+  var Component = _ember['default'].Component;
+  var computed = _ember['default'].computed;
+  var observer = _ember['default'].observer;
+  var run = _ember['default'].run;
+
+  exports['default'] = Component.extend({
+    layout: _emberWormholeTemplatesComponentsEmberWormhole['default'],
+
+    /*
+     * Attrs
+     */
+    to: computed.alias('destinationElementId'),
+    destinationElementId: null,
+    destinationElement: computed('destinationElementId', 'renderInPlace', function () {
+      var renderInPlace = this.get('renderInPlace');
+      if (renderInPlace) {
+        return this._element;
+      }
+      var id = this.get('destinationElementId');
+      if (!id) {
+        return null;
+      }
+      return (0, _emberWormholeUtilsDom.findElementById)(this._dom.document, id);
+    }),
+    renderInPlace: false,
+
+    /*
+     * Lifecycle
+     */
+    init: function init() {
+      this._super.apply(this, arguments);
+
+      this._dom = (0, _emberWormholeUtilsDom.getDOM)(this);
+
+      // Create text nodes used for the head, tail
+      this._wormholeHeadNode = this._dom.document.createTextNode('');
+      this._wormholeTailNode = this._dom.document.createTextNode('');
+
+      // A prop to help in the mocking of didInsertElement timing for Fastboot
+      this._didInsert = false;
+    },
+
+    /*
+     * didInsertElement does not fire in Fastboot. Here we use willRender and
+     * a _didInsert property to approximate the timing. Importantly we want
+     * to run appendToDestination after the child nodes have rendered.
+     */
+    willRender: function willRender() {
+      var _this = this;
+
+      this._super.apply(this, arguments);
+      if (!this._didInsert) {
+        this._didInsert = true;
+        run.schedule('afterRender', function () {
+          if (_this.isDestroyed) {
+            return;
+          }
+          _this._element = _this._wormholeHeadNode.parentNode;
+          if (!_this._element) {
+            throw new Error('The head node of a wormhole must be attached to the DOM');
+          }
+          _this._appendToDestination();
+        });
+      }
+    },
+
+    willDestroyElement: function willDestroyElement() {
+      var _this2 = this;
+
+      // not called in fastboot
+      this._super.apply(this, arguments);
+      this._didInsert = false;
+      var _wormholeHeadNode = this._wormholeHeadNode;
+      var _wormholeTailNode = this._wormholeTailNode;
+
+      run.schedule('render', function () {
+        _this2._removeRange(_wormholeHeadNode, _wormholeTailNode);
+      });
+    },
+
+    _destinationDidChange: observer('destinationElement', function () {
+      var destinationElement = this.get('destinationElement');
+      if (destinationElement !== this._wormholeHeadNode.parentNode) {
+        run.schedule('render', this, '_appendToDestination');
+      }
+    }),
+
+    _appendToDestination: function _appendToDestination() {
+      var destinationElement = this.get('destinationElement');
+      if (!destinationElement) {
+        var destinationElementId = this.get('destinationElementId');
+        if (destinationElementId) {
+          throw new Error('ember-wormhole failed to render into \'#' + this.get('destinationElementId') + '\' because the element is not in the DOM');
+        }
+        throw new Error('ember-wormhole failed to render content because the destinationElementId was set to an undefined or falsy value.');
+      }
+
+      var currentActiveElement = (0, _emberWormholeUtilsDom.getActiveElement)();
+      this._appendRange(destinationElement, this._wormholeHeadNode, this._wormholeTailNode);
+      if (currentActiveElement && (0, _emberWormholeUtilsDom.getActiveElement)() !== currentActiveElement) {
+        currentActiveElement.focus();
+      }
+    },
+
+    _appendRange: function _appendRange(destinationElement, firstNode, lastNode) {
+      while (firstNode) {
+        destinationElement.insertBefore(firstNode, null);
+        firstNode = firstNode !== lastNode ? lastNode.parentNode.firstChild : null;
+      }
+    },
+
+    _removeRange: function _removeRange(firstNode, lastNode) {
+      var node = lastNode;
+      do {
+        var next = node.previousSibling;
+        if (node.parentNode) {
+          node.parentNode.removeChild(node);
+          if (node === firstNode) {
+            break;
+          }
+        }
+        node = next;
+      } while (node);
+    }
+
+  });
+});
+define("ember-wormhole/templates/components/ember-wormhole", ["exports"], function (exports) {
+  "use strict";
+
+  exports["default"] = Ember.HTMLBars.template((function () {
+    return {
+      meta: {
+        "fragmentReason": {
+          "name": "missing-wrapper",
+          "problems": ["wrong-type", "multiple-nodes"]
+        },
+        "revision": "Ember@2.6.1",
+        "loc": {
+          "source": null,
+          "start": {
+            "line": 1,
+            "column": 0
+          },
+          "end": {
+            "line": 4,
+            "column": 0
+          }
+        },
+        "moduleName": "modules/ember-wormhole/templates/components/ember-wormhole.hbs"
+      },
+      isEmpty: false,
+      arity: 0,
+      cachedFragment: null,
+      hasRendered: false,
+      buildFragment: function buildFragment(dom) {
+        var el0 = dom.createDocumentFragment();
+        var el1 = dom.createComment("");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createComment("");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createComment("");
+        dom.appendChild(el0, el1);
+        return el0;
+      },
+      buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+        var morphs = new Array(3);
+        morphs[0] = dom.createMorphAt(fragment, 0, 0, contextualElement);
+        morphs[1] = dom.createMorphAt(fragment, 1, 1, contextualElement);
+        morphs[2] = dom.createMorphAt(fragment, 2, 2, contextualElement);
+        dom.insertBoundary(fragment, 0);
+        dom.insertBoundary(fragment, null);
+        return morphs;
+      },
+      statements: [["inline", "unbound", [["get", "_wormholeHeadNode", ["loc", [null, [1, 10], [1, 27]]]]], [], ["loc", [null, [1, 0], [1, 31]]]], ["content", "yield", ["loc", [null, [2, 0], [2, 11]]]], ["inline", "unbound", [["get", "_wormholeTailNode", ["loc", [null, [3, 10], [3, 27]]]]], [], ["loc", [null, [3, 0], [3, 31]]]]],
+      locals: [],
+      templates: []
+    };
+  })());
+});
+define('ember-wormhole/utils/dom', ['exports'], function (exports) {
+  'use strict';
+
+  exports.getActiveElement = getActiveElement;
+  exports.findElementById = findElementById;
+  exports.getDOM = getDOM;
+
+  /*
+   * Implement some helpers methods for interacting with the DOM,
+   * be it Fastboot's SimpleDOM or the browser's version.
+   */
+
+  function getActiveElement() {
+    if (typeof document === 'undefined') {
+      return null;
+    } else {
+      return document.activeElement;
+    }
+  }
+
+  function childNodesOfElement(element) {
+    var children = [];
+    var child = element.firstChild;
+    while (child) {
+      children.push(child);
+      child = child.nextSibling;
+    }
+    return children;
+  }
+
+  function findElementById(doc, id) {
+    if (doc.getElementById) {
+      return doc.getElementById(id);
+    }
+
+    var nodes = childNodesOfElement(doc);
+    var node = undefined;
+
+    while (nodes.length) {
+      node = nodes.shift();
+
+      if (node.getAttribute && node.getAttribute('id') === id) {
+        return node;
+      }
+
+      nodes = childNodesOfElement(node).concat(nodes);
+    }
+  }
+
+  // Private Ember API usage. Get the dom implementation used by the current
+  // renderer, be it native browser DOM or Fastboot SimpleDOM
+
+  function getDOM(context) {
+    var renderer = context.renderer;
+
+    if (renderer._dom) {
+      // pre glimmer2
+      return renderer._dom;
+    } else if (renderer._env && renderer._env.getDOM) {
+      // glimmer2
+      return renderer._env.getDOM();
+    } else {
+      throw new Error('ember-wormhole could not get DOM');
+    }
   }
 });
 ;/* jshint ignore:start */

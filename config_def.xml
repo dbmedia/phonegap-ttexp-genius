@@ -3,7 +3,7 @@
         xmlns:gap   = "http://phonegap.com/ns/1.0"
         id          = "net.dbmediaweb.ttexp"
         versionCode = "10"
-        version     = "1.0.6" >
+        version     = "1.0.1" >
     
     <name>TTExp</name>
     <description>
@@ -14,9 +14,11 @@
     </author>
     <content src="index.html" />
     <access origin="*" />
+	<access origin="cdvfile://*" />
 	<allow-navigation href="http://*/*" />
 	<allow-navigation href="https://*/*" />
 	<allow-navigation href="data:*" />
+	<allow-navigation href="*://*/*"/>
     <allow-intent href="http://*/*" />
     <allow-intent href="https://*/*" />
     <allow-intent href="tel:*" />
@@ -28,34 +30,40 @@
     <preference name="fullscreen" value="true" />
     <preference name="orientation" value="landscape" />
 	<preference name="iosPersistentFileLocation" value="Library" />
+	<preference name="iosExtraFilesystems" value="library-nosync,cache,bundle,root" />
     
     <icon src="icon.png" gap:role="default" />
+	<splash src="splash.png" gap:role="default" />
     
-    <!-- iPhone 6 / 6+ -->
-	<icon src="icon-60@3x.png" platform="ios" width="180" height="180" />
-
-	<!-- iPhone / iPod Touch  -->
-	<icon src="icon-60.png" platform="ios" width="60" height="60" />
-	<icon src="icon-60@2x.png" platform="ios" width="120" height="120" />
-
-	<!-- iPad -->
-	<icon src="icon-76.png" platform="ios" width="76" height="76" />
-	<icon src="icon-76@2x.png" platform="ios" width="152" height="152" />
-
-	<!-- Settings Icon -->
-	<icon src="icon-small.png" platform="ios" width="29" height="29" />
-	<icon src="icon-small@2x.png" platform="ios" width="58" height="58" />
-
-	<!-- Spotlight Icon -->
-	<icon src="icon-40.png" platform="ios" width="40" height="40" />
-	<icon src="icon-40@2x.png" platform="ios" width="80" height="80" />
-    
+	<!-- https://resizeappicon.com/ -->
     <platform name="android">
         <allow-intent href="market:*" />
     </platform>
     <platform name="ios">
         <allow-intent href="itms:*" />
         <allow-intent href="itms-apps:*" />
+    
+		<!-- iPhone 6 / 6+ -->
+		<icon src="icon-60@3x.png" width="180" height="180" />
+
+		<!-- iPhone / iPod Touch  -->
+		<icon src="icon-60.png" width="60" height="60" />
+		<icon src="icon-60@2x.png" width="120" height="120" />
+		<icon src="icon-72.png" width="72" height="72" />
+		<icon src="icon-72@2x.png" width="144" height="144" />
+
+		<!-- iPad -->
+		<icon src="icon-76.png" width="76" height="76" />
+		<icon src="icon-76@2x.png" width="152" height="152" />
+		<icon src="icon167.png" width="167" height="167" />
+
+		<!-- Settings Icon -->
+		<icon src="icon-small.png" width="29" height="29" />
+		<icon src="icon-small@2x.png" width="58" height="58" />
+
+		<!-- Spotlight Icon -->
+		<icon src="icon-40.png" width="40" height="40" />
+		<icon src="icon-40@2x.png" width="80" height="80" />
     </platform>
     
 	<plugin name="cordova-plugin-whitelist" spec="1.2.2" />
