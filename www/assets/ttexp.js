@@ -7916,6 +7916,8 @@ define("ttexp/templates/play", ["exports"], function (exports) {
         dom.appendChild(el2, el3);
         var el3 = dom.createElement("video");
         dom.setAttribute(el3, "id", "video-player");
+        dom.setAttribute(el3, "webkit-playsinline", "");
+        dom.setAttribute(el3, "playsinline", "");
         var el4 = dom.createTextNode("\n			Your browser does not support the video element.\n		");
         dom.appendChild(el3, el4);
         dom.appendChild(el2, el3);
@@ -9966,7 +9968,7 @@ catch(err) {
 /* jshint ignore:start */
 
 if (!runningTests) {
-  require("ttexp/app")["default"].create({"serverApiUrl":"http://demo.ttexp.net/api","LOG_ACTIVE_GENERATION":false,"LOG_VIEW_LOOKUPS":false,"name":"ttexp","version":"1.0.7+adb30a1b"});
+  require("ttexp/app")["default"].create({"serverApiUrl":"http://demo.ttexp.net/api","LOG_ACTIVE_GENERATION":false,"LOG_VIEW_LOOKUPS":false,"name":"ttexp","version":"1.0.7"});
 }
 
 /* jshint ignore:end */
