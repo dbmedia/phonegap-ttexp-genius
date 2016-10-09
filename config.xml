@@ -2,7 +2,7 @@
 <widget xmlns       = "http://www.w3.org/ns/widgets"
         xmlns:gap   = "http://phonegap.com/ns/1.0"
         id          = "it.gruppoina.agmonza.genius"
-        versionCode = "42"
+        versionCode = "43"
         version     = "1.0.8" >
     
     <name>GENius</name>
@@ -31,6 +31,7 @@
     <preference name="orientation" value="landscape" />
 	<preference name="iosPersistentFileLocation" value="Library" />
 	<preference name="iosExtraFilesystems" value="library-nosync,cache,bundle,root" />
+	<preference name="AllowInlineMediaPlayback" value="true" />
     
     <icon src="icon.png" gap:role="default" />
 	<splash src="splash.png" gap:role="default" />
