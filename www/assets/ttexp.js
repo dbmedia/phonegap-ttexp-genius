@@ -1562,14 +1562,14 @@ define('ttexp/routes/scenarios', ['exports', 'ember', 'ember-simple-auth/mixins/
                 } else {
                   console.log("Download complete!!!");
                   if (mediaFileErrors) {
-                    self.controller.get('notifications').warning('Download di ' + scenario.get('name') + ' completato con ' + mediaFileErrors + ' error' + (mediaFileErrors > 1 ? 'i' : 'e') + ': ' + mediaFileErrorsNames, {
-                      autoClear: false
-                    });
+                    //                  self.controller.get('notifications').warning('Download di '+scenario.get('name')+' completato con '+mediaFileErrors+' error'+(mediaFileErrors > 1 ? 'i' : 'e')+': '+mediaFileErrorsNames, {
+                    //                    autoClear: false
+                    //                  });
                   } else {
-                    self.controller.get('notifications').success('Download di ' + scenario.get('name') + ' completato con successo', {
-                      autoClear: true
-                    });
-                  }
+                      self.controller.get('notifications').success('Download di ' + scenario.get('name') + ' completato con successo', {
+                        autoClear: true
+                      });
+                    }
 
                   if (window.cordova && false) {
                     var testFileData = {
@@ -8876,6 +8876,7 @@ define("ttexp/templates/scenarios", ["exports"], function (exports) {
           var el2 = dom.createTextNode("\n									  		");
           dom.appendChild(el1, el2);
           var el2 = dom.createElement("td");
+          dom.setAttribute(el2, "class", "text-center");
           var el3 = dom.createTextNode("\n");
           dom.appendChild(el2, el3);
           var el3 = dom.createComment("");
@@ -8886,6 +8887,7 @@ define("ttexp/templates/scenarios", ["exports"], function (exports) {
           var el2 = dom.createTextNode("\n									  		");
           dom.appendChild(el1, el2);
           var el2 = dom.createElement("td");
+          dom.setAttribute(el2, "class", "text-center");
           var el3 = dom.createTextNode("\n");
           dom.appendChild(el2, el3);
           var el3 = dom.createComment("");
@@ -8900,7 +8902,7 @@ define("ttexp/templates/scenarios", ["exports"], function (exports) {
           dom.appendChild(el2, el3);
           var el3 = dom.createElement("a");
           dom.setAttribute(el3, "href", "#");
-          dom.setAttribute(el3, "class", "btn-link hiddenXXX");
+          dom.setAttribute(el3, "class", "btn-link hidden");
           var el4 = dom.createElement("i");
           dom.setAttribute(el4, "class", "fa fa-download");
           dom.appendChild(el3, el4);
@@ -9189,6 +9191,7 @@ define("ttexp/templates/scenarios", ["exports"], function (exports) {
         dom.appendChild(el10, el11);
         var el11 = dom.createElement("th");
         dom.setAttribute(el11, "style", "width:25%");
+        dom.setAttribute(el11, "class", "text-center");
         var el12 = dom.createTextNode("Tentativi");
         dom.appendChild(el11, el12);
         dom.appendChild(el10, el11);
@@ -9196,6 +9199,7 @@ define("ttexp/templates/scenarios", ["exports"], function (exports) {
         dom.appendChild(el10, el11);
         var el11 = dom.createElement("th");
         dom.setAttribute(el11, "style", "width:25%");
+        dom.setAttribute(el11, "class", "text-center");
         var el12 = dom.createTextNode("Valutazione");
         dom.appendChild(el11, el12);
         dom.appendChild(el10, el11);
@@ -10121,7 +10125,7 @@ catch(err) {
 /* jshint ignore:start */
 
 if (!runningTests) {
-  require("ttexp/app")["default"].create({"serverApiUrl":"http://demo.ttexp.net/api","LOG_ACTIVE_GENERATION":false,"LOG_VIEW_LOOKUPS":false,"name":"ttexp","version":"1.0.9+33f7561d"});
+  require("ttexp/app")["default"].create({"serverApiUrl":"http://demo.ttexp.net/api","LOG_ACTIVE_GENERATION":false,"LOG_VIEW_LOOKUPS":false,"name":"ttexp","version":"1.0.9+4644f949"});
 }
 
 /* jshint ignore:end */

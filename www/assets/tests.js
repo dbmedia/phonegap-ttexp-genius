@@ -380,7 +380,7 @@ define('ttexp/tests/routes/scenarios.jshint', ['exports'], function (exports) {
   QUnit.module('JSHint | routes/scenarios.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(false, 'routes/scenarios.js should pass jshint.\nroutes/scenarios.js: line 122, col 46, Expected \'!==\' and instead saw \'!=\'.\nroutes/scenarios.js: line 125, col 50, Missing semicolon.\nroutes/scenarios.js: line 156, col 44, \'LocalFileSystem\' is not defined.\nroutes/scenarios.js: line 227, col 28, \'FileTransfer\' is not defined.\n\n4 errors');
+    assert.ok(false, 'routes/scenarios.js should pass jshint.\nroutes/scenarios.js: line 121, col 46, Expected \'!==\' and instead saw \'!=\'.\nroutes/scenarios.js: line 124, col 50, Missing semicolon.\nroutes/scenarios.js: line 155, col 44, \'LocalFileSystem\' is not defined.\nroutes/scenarios.js: line 226, col 28, \'FileTransfer\' is not defined.\n\n4 errors');
   });
 });
 define('ttexp/tests/routes/scores.jshint', ['exports'], function (exports) {
@@ -792,7 +792,7 @@ define('ttexp/tests/utils/pg-file-system.jshint', ['exports'], function (exports
   QUnit.module('JSHint | utils/pg-file-system.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(false, 'utils/pg-file-system.js should pass jshint.\nutils/pg-file-system.js: line 18, col 33, \'isAppend\' is defined but never used.\nutils/pg-file-system.js: line 93, col 13, \'blob\' is defined but never used.\nutils/pg-file-system.js: line 13, col 7, \'writeFile\' is not defined.\nutils/pg-file-system.js: line 47, col 7, \'writeFile\' is not defined.\nutils/pg-file-system.js: line 14, col 8, \'onErrorCreateFile\' is not defined.\nutils/pg-file-system.js: line 3, col 19, \'service\' is defined but never used.\n\n6 errors');
+    assert.ok(false, 'utils/pg-file-system.js should pass jshint.\nutils/pg-file-system.js: line 18, col 33, \'isAppend\' is defined but never used.\nutils/pg-file-system.js: line 92, col 13, \'blob\' is defined but never used.\nutils/pg-file-system.js: line 13, col 7, \'writeFile\' is not defined.\nutils/pg-file-system.js: line 47, col 7, \'writeFile\' is not defined.\nutils/pg-file-system.js: line 14, col 8, \'onErrorCreateFile\' is not defined.\nutils/pg-file-system.js: line 3, col 19, \'service\' is defined but never used.\n\n6 errors');
   });
 });
 /* jshint ignore:start */
