@@ -65632,6 +65632,82 @@ requireModule("ember");
   })
 
 }(jQuery);
+;(function() {
+  function objectAt(content, idx) {
+    if (content.objectAt) {
+      return content.objectAt(idx);
+    }
+
+    return content[idx];
+  }
+
+  function arrayIncludes(obj, startAt) {
+    var len = Ember.get(this, 'length');
+    var idx, currentObj;
+
+    if (startAt === undefined) {
+      startAt = 0;
+    }
+
+    if (startAt < 0) {
+      startAt += len;
+    }
+
+    for (idx = startAt; idx < len; idx++) {
+      currentObj = objectAt(this, idx);
+
+      // SameValueZero comparison (NaN !== NaN)
+      if (obj === currentObj || (obj !== obj && currentObj !== currentObj)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  Ember.Array.reopen({
+    // inlined from https://git.io/v6F5T
+    includes: arrayIncludes
+  });
+
+  Ember.MutableArray.reopen({
+    addObject: function(obj) {
+      if (!this.includes(obj)) {
+        this.pushObject(obj);
+      }
+
+      return this;
+    }
+  });
+
+  Ember.Enumerable.reopen({
+    includes: function(obj) {
+      Ember.assert('Enumerable#includes cannot accept a second argument "startAt" as enumerable items are unordered.', arguments.length === 1);
+
+      var len = Ember.get(this, 'length');
+      var idx, next;
+      var last = null;
+      var found = false;
+
+      for (idx = 0; idx < len && !found; idx++) {
+        next = this.nextObject(idx, last);
+
+        found = obj === next || (obj !== obj && next !== next);
+
+        last = next;
+      }
+
+      next = last = null;
+
+      return found;
+    }
+  });
+
+  if ((Ember.EXTEND_PROTOTYPES === true || Ember.EXTEND_PROTOTYPES.Array) && !Array.prototype.includes) {
+    Array.prototype.includes = arrayIncludes;
+  }
+})();
+
 ;/* globals define */
 define('ember/load-initializers', ['exports', 'ember-load-initializers', 'ember'], function(exports, loadInitializers, Ember) {
   Ember['default'].deprecate(
@@ -72819,6 +72895,633 @@ define('ember-cli-cordova/utils/redirect', ['exports', 'ember'], function (expor
     }
   };
 });
+define('ember-cli-notifications/components/notification-container', ['exports', 'ember', 'ember-cli-notifications/templates/components/notification-container', 'ember-cli-notifications/styles/components/notification-container'], function (exports, _ember, _emberCliNotificationsTemplatesComponentsNotificationContainer, _emberCliNotificationsStylesComponentsNotificationContainer) {
+  'use strict';
+
+  var computed = _ember['default'].computed;
+
+  exports['default'] = _ember['default'].Component.extend({
+    layout: _emberCliNotificationsTemplatesComponentsNotificationContainer['default'],
+    styles: _emberCliNotificationsStylesComponentsNotificationContainer['default'],
+
+    classNameBindings: ['styles.c-notification__container', 'computedPosition'],
+
+    computedPosition: computed('position', function () {
+      if (this.get('position')) return this.get('styles.c-notification__container--' + this.get('position'));
+
+      return this.get('styles.c-notification__container--top');
+    })
+  });
+});
+define('ember-cli-notifications/components/notification-message', ['exports', 'ember', 'ember-cli-notifications/templates/components/notification-message', 'ember-cli-notifications/styles/components/notification-message'], function (exports, _ember, _emberCliNotificationsTemplatesComponentsNotificationMessage, _emberCliNotificationsStylesComponentsNotificationMessage) {
+  'use strict';
+
+  var computed = _ember['default'].computed;
+
+  exports['default'] = _ember['default'].Component.extend({
+    layout: _emberCliNotificationsTemplatesComponentsNotificationMessage['default'],
+    styles: _emberCliNotificationsStylesComponentsNotificationMessage['default'],
+
+    classNameBindings: ['styles.c-notification', 'dismissClass', 'clickableClass', 'processedType'],
+
+    paused: false,
+
+    dismissClass: computed('notification.dismiss', function () {
+      if (!this.get('notification.dismiss')) return this.get('styles.c-notification--in');
+    }),
+
+    clickableClass: computed('notification.onClick', function () {
+      if (this.get('notification.onClick')) return this.get('styles.c-notification--clickable');
+    }),
+
+    closeIcon: computed('icons', function () {
+      if (this.get('icons') === 'bootstrap') return 'glyphicon glyphicon-remove';
+
+      return 'fa fa-times';
+    }),
+
+    // Set icon depending on notification type
+    notificationIcon: computed('notification.type', 'icons', function () {
+      var icons = this.get('icons');
+
+      if (icons === 'bootstrap') {
+        switch (this.get('notification.type')) {
+          case "info":
+            return 'glyphicon glyphicon-info-sign';
+          case "success":
+            return 'glyphicon glyphicon-ok-sign';
+          case "warning":
+          case "error":
+            return 'glyphicon glyphicon-exclamation-sign';
+        }
+      }
+
+      switch (this.get('notification.type')) {
+        case "info":
+          return 'fa fa-info-circle';
+        case "success":
+          return 'fa fa-check';
+        case "warning":
+          return 'fa fa-warning';
+        case "error":
+          return 'fa fa-exclamation-circle';
+      }
+    }),
+
+    mouseDown: function mouseDown() {
+      if (this.get('notification.onClick')) {
+        this.get('notification.onClick')(this.get('notification'));
+      }
+    },
+    mouseEnter: function mouseEnter() {
+      if (this.get('notification.autoClear')) {
+        this.set('paused', true);
+        this.notifications.pauseAutoClear(this.get('notification'));
+      }
+    },
+
+    mouseLeave: function mouseLeave() {
+      if (this.get('notification.autoClear')) {
+        this.set('paused', false);
+        this.notifications.setupAutoClear(this.get('notification'));
+      }
+    },
+
+    processedType: computed('notification.type', function () {
+      if (this.get('notification.type') && _ember['default'].A(['info', 'success', 'warning', 'error']).includes(this.get('notification.type'))) {
+        return this.get('styles.c-notification--' + this.get('notification.type'));
+      }
+    }),
+
+    // Apply the clear animation duration rule inline
+    notificationClearDuration: computed('paused', 'notification.clearDuration', function () {
+      var duration = _ember['default'].Handlebars.Utils.escapeExpression(this.get('notification.clearDuration'));
+      var playState = this.get('paused') ? 'paused' : 'running';
+      return _ember['default'].String.htmlSafe('animation-duration: ' + duration + 'ms; -webkit-animation-duration: ' + duration + 'ms; animation-play-state: ' + playState + '; -webkit-animation-play-state: ' + playState);
+    }),
+
+    actions: {
+      removeNotification: function removeNotification() {
+        this.notifications.removeNotification(this.get('notification'));
+      }
+    }
+  });
+});
+define('ember-cli-notifications/services/notification-messages-service', ['exports', 'ember'], function (exports, _ember) {
+    'use strict';
+
+    var assign = _ember['default'].assign || _ember['default'].merge;
+
+    exports['default'] = _ember['default'].ArrayProxy.extend({
+        content: _ember['default'].A(),
+
+        defaultClearDuration: 3200,
+        defaultAutoClear: false,
+
+        addNotification: function addNotification(options) {
+            // If no message is set, throw an error
+            if (!options.message) {
+                throw new Error("No notification message set");
+            }
+
+            var notification = _ember['default'].Object.create({
+                message: options.message,
+                type: options.type || 'info', // info, success, warning, error
+                autoClear: _ember['default'].isEmpty(options.autoClear) ? this.get('defaultAutoClear') : options.autoClear,
+                clearDuration: options.clearDuration || this.get('defaultClearDuration'),
+                onClick: options.onClick,
+                htmlContent: options.htmlContent || false
+            });
+
+            this.pushObject(notification);
+
+            if (notification.autoClear) {
+                notification.set('remaining', notification.get('clearDuration'));
+                this.setupAutoClear(notification);
+            }
+
+            return notification;
+        },
+
+        // Helper methods for each type of notification
+        error: function error(message, options) {
+            this.addNotification(assign({
+                message: message,
+                type: 'error'
+            }, options));
+        },
+
+        success: function success(message, options) {
+            this.addNotification(assign({
+                message: message,
+                type: 'success'
+            }, options));
+        },
+
+        info: function info(message, options) {
+            this.addNotification(assign({
+                message: message,
+                type: 'info'
+            }, options));
+        },
+
+        warning: function warning(message, options) {
+            this.addNotification(assign({
+                message: message,
+                type: 'warning'
+            }, options));
+        },
+
+        removeNotification: function removeNotification(notification) {
+            var _this = this;
+
+            if (!notification) {
+                return;
+            }
+            notification.set('dismiss', true);
+            // Delay removal from DOM for dismissal animation
+            _ember['default'].run.later(this, function () {
+                _this.removeObject(notification);
+            }, 500);
+        },
+
+        setupAutoClear: function setupAutoClear(notification) {
+            var _this2 = this;
+
+            notification.set('startTime', Date.now());
+
+            var timer = _ember['default'].run.later(this, function () {
+                // Hasn't been closed manually
+                if (_this2.indexOf(notification) >= 0) {
+                    _this2.removeNotification(notification);
+                }
+            }, notification.get('remaining'));
+
+            notification.set('timer', timer);
+        },
+
+        pauseAutoClear: function pauseAutoClear(notification) {
+            _ember['default'].run.cancel(notification.get('timer'));
+
+            var elapsed = Date.now() - notification.get('startTime');
+            var remaining = notification.get('clearDuration') - elapsed;
+            notification.set('remaining', remaining);
+        },
+
+        clearAll: function clearAll() {
+            this.set('content', _ember['default'].A());
+        },
+
+        setDefaultAutoClear: function setDefaultAutoClear(autoClear) {
+            if (_ember['default'].typeOf(autoClear) !== 'boolean') {
+                throw new Error('Default auto clear preference must be a boolean');
+            }
+
+            this.set('defaultAutoClear', autoClear);
+        },
+
+        setDefaultClearNotification: function setDefaultClearNotification(clearDuration) {
+            if (_ember['default'].typeOf(clearDuration) !== 'number') {
+                throw new Error('Clear duration must be a number');
+            }
+
+            this.set('defaultClearDuration', clearDuration);
+        }
+    });
+});
+define("ember-cli-notifications/styles/addon", ["exports"], function (exports) {
+  "use strict";
+
+  exports["default"] = {};
+});
+define("ember-cli-notifications/styles/components/notification-container", ["exports"], function (exports) {
+  "use strict";
+
+  exports["default"] = {
+    "--container-position": "10px",
+    "--container-zindex": "1060",
+    "--container-width": "80%",
+    "--container-max-with": "400px",
+    "c-notification__container": "_c-notification__container_qmx12s mx-auto fixed",
+    "c-notification__container--top": "_c-notification__container--top_qmx12s right-0 left-0",
+    "c-notification__container--top-left": "_c-notification__container--top-left_qmx12s",
+    "c-notification__container--top-right": "_c-notification__container--top-right_qmx12s",
+    "c-notification__container--bottom": "_c-notification__container--bottom_qmx12s right-0 left-0",
+    "c-notification__container--bottom-left": "_c-notification__container--bottom-left_qmx12s",
+    "c-notification__container--bottom-right": "_c-notification__container--bottom-right_qmx12s"
+  };
+});
+define("ember-cli-notifications/styles/components/notification-message", ["exports"], function (exports) {
+  "use strict";
+
+  exports["default"] = {
+    "--icon-width": "30px",
+    "--icon-position": "10px",
+    "--icon-color": "color(#fff a(.74))",
+    "--icon-lighten-background": "color(#fff a(.2))",
+    "--countdown-lighten-background": "color(#fff a(.4))",
+    "--notification-max-height": "800px",
+    "c-notification": "_c-notification_1k7w9i relative overflow-hidden rounded mb2",
+    "notification-hide": "_notification-hide_1k7w9i",
+    "notification-shrink": "_notification-shrink_1k7w9i",
+    "c-notification--clickable": "_c-notification--clickable_1k7w9i",
+    "c-notification--in": "_c-notification--in_1k7w9i",
+    "notification-show": "_notification-show_1k7w9i",
+    "c-notification__content": "_c-notification__content_1k7w9i flex flex-auto justify-between py1 px2",
+    "c-notification__icon": "_c-notification__icon_1k7w9i flex-none py1 center",
+    "c-notification__close": "_c-notification__close_1k7w9i",
+    "c-notification__countdown": "_c-notification__countdown_1k7w9i absolute bottom-0",
+    "notification-countdown": "_notification-countdown_1k7w9i",
+    "c-notification--info": "_c-notification--info_1k7w9i bg-blue white",
+    "c-notification--success": "_c-notification--success_1k7w9i bg-green white",
+    "c-notification--warning": "_c-notification--warning_1k7w9i bg-orange white",
+    "c-notification--error": "_c-notification--error_1k7w9i bg-red white"
+  };
+});
+define("ember-cli-notifications/styles/globals", ["exports"], function (exports) {
+  "use strict";
+
+  exports["default"] = {
+    "--green": "#64ce83",
+    "--blue": "#3ea2ff",
+    "--orange": "#ff7f48",
+    "--red": "#e74c3c"
+  };
+});
+define("ember-cli-notifications/styles/third-party", ["exports"], function (exports) {
+  "use strict";
+
+  exports["default"] = {
+    "--green-value": "#64ce83",
+    "--blue-value": "#3ea2ff",
+    "--orange-value": "#ff7f48",
+    "--red-value": "#e74c3c"
+  };
+});
+define("ember-cli-notifications/templates/components/notification-container", ["exports"], function (exports) {
+  "use strict";
+
+  exports["default"] = Ember.HTMLBars.template((function () {
+    var child0 = (function () {
+      return {
+        meta: {
+          "fragmentReason": {
+            "name": "missing-wrapper",
+            "problems": ["wrong-type"]
+          },
+          "revision": "Ember@2.6.1",
+          "loc": {
+            "source": null,
+            "start": {
+              "line": 1,
+              "column": 0
+            },
+            "end": {
+              "line": 3,
+              "column": 0
+            }
+          },
+          "moduleName": "modules/ember-cli-notifications/templates/components/notification-container.hbs"
+        },
+        isEmpty: false,
+        arity: 1,
+        cachedFragment: null,
+        hasRendered: false,
+        buildFragment: function buildFragment(dom) {
+          var el0 = dom.createDocumentFragment();
+          var el1 = dom.createTextNode("  ");
+          dom.appendChild(el0, el1);
+          var el1 = dom.createComment("");
+          dom.appendChild(el0, el1);
+          var el1 = dom.createTextNode("\n");
+          dom.appendChild(el0, el1);
+          return el0;
+        },
+        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+          var morphs = new Array(1);
+          morphs[0] = dom.createMorphAt(fragment, 1, 1, contextualElement);
+          return morphs;
+        },
+        statements: [["inline", "notification-message", [], ["notification", ["subexpr", "@mut", [["get", "notification", ["loc", [null, [2, 38], [2, 50]]]]], [], []]], ["loc", [null, [2, 2], [2, 52]]]]],
+        locals: ["notification"],
+        templates: []
+      };
+    })();
+    return {
+      meta: {
+        "fragmentReason": {
+          "name": "missing-wrapper",
+          "problems": ["wrong-type"]
+        },
+        "revision": "Ember@2.6.1",
+        "loc": {
+          "source": null,
+          "start": {
+            "line": 1,
+            "column": 0
+          },
+          "end": {
+            "line": 4,
+            "column": 0
+          }
+        },
+        "moduleName": "modules/ember-cli-notifications/templates/components/notification-container.hbs"
+      },
+      isEmpty: false,
+      arity: 0,
+      cachedFragment: null,
+      hasRendered: false,
+      buildFragment: function buildFragment(dom) {
+        var el0 = dom.createDocumentFragment();
+        var el1 = dom.createComment("");
+        dom.appendChild(el0, el1);
+        return el0;
+      },
+      buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+        var morphs = new Array(1);
+        morphs[0] = dom.createMorphAt(fragment, 0, 0, contextualElement);
+        dom.insertBoundary(fragment, 0);
+        dom.insertBoundary(fragment, null);
+        return morphs;
+      },
+      statements: [["block", "each", [["get", "notifications", ["loc", [null, [1, 8], [1, 21]]]]], [], 0, null, ["loc", [null, [1, 0], [3, 9]]]]],
+      locals: [],
+      templates: [child0]
+    };
+  })());
+});
+define("ember-cli-notifications/templates/components/notification-message", ["exports"], function (exports) {
+  "use strict";
+
+  exports["default"] = Ember.HTMLBars.template((function () {
+    var child0 = (function () {
+      return {
+        meta: {
+          "fragmentReason": false,
+          "revision": "Ember@2.6.1",
+          "loc": {
+            "source": null,
+            "start": {
+              "line": 7,
+              "column": 6
+            },
+            "end": {
+              "line": 9,
+              "column": 6
+            }
+          },
+          "moduleName": "modules/ember-cli-notifications/templates/components/notification-message.hbs"
+        },
+        isEmpty: false,
+        arity: 0,
+        cachedFragment: null,
+        hasRendered: false,
+        buildFragment: function buildFragment(dom) {
+          var el0 = dom.createDocumentFragment();
+          var el1 = dom.createTextNode("        ");
+          dom.appendChild(el0, el1);
+          var el1 = dom.createComment("");
+          dom.appendChild(el0, el1);
+          var el1 = dom.createTextNode("\n");
+          dom.appendChild(el0, el1);
+          return el0;
+        },
+        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+          var morphs = new Array(1);
+          morphs[0] = dom.createUnsafeMorphAt(fragment, 1, 1, contextualElement);
+          return morphs;
+        },
+        statements: [["content", "notification.message", ["loc", [null, [8, 8], [8, 34]]]]],
+        locals: [],
+        templates: []
+      };
+    })();
+    var child1 = (function () {
+      return {
+        meta: {
+          "fragmentReason": false,
+          "revision": "Ember@2.6.1",
+          "loc": {
+            "source": null,
+            "start": {
+              "line": 9,
+              "column": 6
+            },
+            "end": {
+              "line": 11,
+              "column": 6
+            }
+          },
+          "moduleName": "modules/ember-cli-notifications/templates/components/notification-message.hbs"
+        },
+        isEmpty: false,
+        arity: 0,
+        cachedFragment: null,
+        hasRendered: false,
+        buildFragment: function buildFragment(dom) {
+          var el0 = dom.createDocumentFragment();
+          var el1 = dom.createTextNode("        ");
+          dom.appendChild(el0, el1);
+          var el1 = dom.createComment("");
+          dom.appendChild(el0, el1);
+          var el1 = dom.createTextNode("\n");
+          dom.appendChild(el0, el1);
+          return el0;
+        },
+        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+          var morphs = new Array(1);
+          morphs[0] = dom.createMorphAt(fragment, 1, 1, contextualElement);
+          return morphs;
+        },
+        statements: [["content", "notification.message", ["loc", [null, [10, 8], [10, 32]]]]],
+        locals: [],
+        templates: []
+      };
+    })();
+    var child2 = (function () {
+      return {
+        meta: {
+          "fragmentReason": false,
+          "revision": "Ember@2.6.1",
+          "loc": {
+            "source": null,
+            "start": {
+              "line": 18,
+              "column": 0
+            },
+            "end": {
+              "line": 20,
+              "column": 0
+            }
+          },
+          "moduleName": "modules/ember-cli-notifications/templates/components/notification-message.hbs"
+        },
+        isEmpty: false,
+        arity: 0,
+        cachedFragment: null,
+        hasRendered: false,
+        buildFragment: function buildFragment(dom) {
+          var el0 = dom.createDocumentFragment();
+          var el1 = dom.createTextNode("  ");
+          dom.appendChild(el0, el1);
+          var el1 = dom.createElement("div");
+          dom.appendChild(el0, el1);
+          var el1 = dom.createTextNode("\n");
+          dom.appendChild(el0, el1);
+          return el0;
+        },
+        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+          var element0 = dom.childAt(fragment, [1]);
+          var morphs = new Array(2);
+          morphs[0] = dom.createAttrMorph(element0, 'class');
+          morphs[1] = dom.createAttrMorph(element0, 'style');
+          return morphs;
+        },
+        statements: [["attribute", "class", ["get", "styles.c-notification__countdown", ["loc", [null, [19, 15], [19, 47]]]]], ["attribute", "style", ["get", "notificationClearDuration", ["loc", [null, [19, 58], [19, 83]]]]]],
+        locals: [],
+        templates: []
+      };
+    })();
+    return {
+      meta: {
+        "fragmentReason": {
+          "name": "missing-wrapper",
+          "problems": ["multiple-nodes", "wrong-type"]
+        },
+        "revision": "Ember@2.6.1",
+        "loc": {
+          "source": null,
+          "start": {
+            "line": 1,
+            "column": 0
+          },
+          "end": {
+            "line": 21,
+            "column": 0
+          }
+        },
+        "moduleName": "modules/ember-cli-notifications/templates/components/notification-message.hbs"
+      },
+      isEmpty: false,
+      arity: 0,
+      cachedFragment: null,
+      hasRendered: false,
+      buildFragment: function buildFragment(dom) {
+        var el0 = dom.createDocumentFragment();
+        var el1 = dom.createElement("div");
+        dom.setAttribute(el1, "class", "flex items-stretch");
+        var el2 = dom.createTextNode("\n  ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("div");
+        var el3 = dom.createTextNode("\n    ");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("i");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode("\n  ");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n  ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("div");
+        var el3 = dom.createTextNode("\n    ");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("div");
+        dom.setAttribute(el3, "class", "mr2");
+        var el4 = dom.createTextNode("\n");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createComment("");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("    ");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode("\n    ");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("div");
+        dom.setAttribute(el3, "title", "Dismiss this notification");
+        var el4 = dom.createTextNode("\n      ");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createElement("i");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n    ");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode("\n  ");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createComment("");
+        dom.appendChild(el0, el1);
+        return el0;
+      },
+      buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+        var element1 = dom.childAt(fragment, [0]);
+        var element2 = dom.childAt(element1, [1]);
+        var element3 = dom.childAt(element2, [1]);
+        var element4 = dom.childAt(element1, [3]);
+        var element5 = dom.childAt(element4, [3]);
+        var element6 = dom.childAt(element5, [1]);
+        var morphs = new Array(8);
+        morphs[0] = dom.createAttrMorph(element2, 'class');
+        morphs[1] = dom.createAttrMorph(element3, 'class');
+        morphs[2] = dom.createAttrMorph(element4, 'class');
+        morphs[3] = dom.createMorphAt(dom.childAt(element4, [1]), 1, 1);
+        morphs[4] = dom.createAttrMorph(element5, 'class');
+        morphs[5] = dom.createElementMorph(element5);
+        morphs[6] = dom.createAttrMorph(element6, 'class');
+        morphs[7] = dom.createMorphAt(fragment, 2, 2, contextualElement);
+        dom.insertBoundary(fragment, null);
+        return morphs;
+      },
+      statements: [["attribute", "class", ["get", "styles.c-notification__icon", ["loc", [null, [2, 15], [2, 42]]]]], ["attribute", "class", ["get", "notificationIcon", ["loc", [null, [3, 15], [3, 31]]]]], ["attribute", "class", ["get", "styles.c-notification__content", ["loc", [null, [5, 15], [5, 45]]]]], ["block", "if", [["get", "notification.htmlContent", ["loc", [null, [7, 12], [7, 36]]]]], [], 0, 1, ["loc", [null, [7, 6], [11, 13]]]], ["attribute", "class", ["get", "styles.c-notification__close", ["loc", [null, [13, 17], [13, 45]]]]], ["element", "action", ["removeNotification"], [], ["loc", [null, [13, 48], [13, 79]]]], ["attribute", "class", ["get", "closeIcon", ["loc", [null, [14, 17], [14, 26]]]]], ["block", "if", [["get", "notification.autoClear", ["loc", [null, [18, 6], [18, 28]]]]], [], 2, null, ["loc", [null, [18, 0], [20, 7]]]]],
+      locals: [],
+      templates: [child0, child1, child2]
+    };
+  })());
+});
 define('ember-computed-decorators/decorator-alias', ['exports', 'ember-computed-decorators/utils/extract-value'], function (exports, _emberComputedDecoratorsUtilsExtractValue) {
   'use strict';
 
@@ -73132,6 +73835,247 @@ define('ember-computed-decorators/utils/is-descriptor', ['exports'], function (e
   function isDescriptor(item) {
     return item && typeof item === 'object' && 'writable' in item && 'enumerable' in item && 'configurable' in item;
   }
+});
+define('ember-css-modules/extensions', ['exports', 'ember', 'ember-resolver', 'ember-css-modules/mixins/component-mixin', 'ember-css-modules/mixins/controller-mixin', 'ember-css-modules/mixins/component-lookup-mixin', 'ember-css-modules/mixins/resolver-mixin'], function (exports, _ember, _emberResolver, _emberCssModulesMixinsComponentMixin, _emberCssModulesMixinsControllerMixin, _emberCssModulesMixinsComponentLookupMixin, _emberCssModulesMixinsResolverMixin) {
+  'use strict';
+
+  _ember['default'].Component.reopen(_emberCssModulesMixinsComponentMixin['default']);
+  _ember['default'].Controller.reopen(_emberCssModulesMixinsControllerMixin['default']);
+  _ember['default'].ComponentLookup.reopen(_emberCssModulesMixinsComponentLookupMixin['default']);
+  _emberResolver['default'].reopen(_emberCssModulesMixinsResolverMixin['default']);
+});
+define('ember-css-modules/helpers/lookup-module-styles', ['exports', 'ember'], function (exports, _ember) {
+                       'use strict';
+
+                       var _slicedToArray = (function () {
+                                              function sliceIterator(arr, i) {
+                                                                     var _arr = [];var _n = true;var _d = false;var _e = undefined;try {
+                                                                                            for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) {
+                                                                                                                   _arr.push(_s.value);if (i && _arr.length === i) break;
+                                                                                            }
+                                                                     } catch (err) {
+                                                                                            _d = true;_e = err;
+                                                                     } finally {
+                                                                                            try {
+                                                                                                                   if (!_n && _i['return']) _i['return']();
+                                                                                            } finally {
+                                                                                                                   if (_d) throw _e;
+                                                                                            }
+                                                                     }return _arr;
+                                              }return function (arr, i) {
+                                                                     if (Array.isArray(arr)) {
+                                                                                            return arr;
+                                                                     } else if (Symbol.iterator in Object(arr)) {
+                                                                                            return sliceIterator(arr, i);
+                                                                     } else {
+                                                                                            throw new TypeError('Invalid attempt to destructure non-iterable instance');
+                                                                     }
+                                              };
+                       })();
+
+                       exports.lookupModuleStyles = lookupModuleStyles;
+
+                       function lookupModuleStyles(_ref) {
+                                              var _ref2 = _slicedToArray(_ref, 2);
+
+                                              var stylesMap = _ref2[0];
+                                              var localClassStyles = _ref2[1];
+
+                                              return localClassStyles.split(' ').map(function (style) {
+                                                                     return stylesMap[style];
+                                              }).filter(function (style) {
+                                                                     return style;
+                                              }).join(' ');
+                       }
+
+                       exports['default'] = _ember['default'].Helper.helper(lookupModuleStyles);
+});
+define('ember-css-modules/initializers/ember-css-modules', ['exports', 'ember-css-modules/extensions'], function (exports, _emberCssModulesExtensions) {
+  'use strict';
+
+  exports.initialize = initialize;
+
+  // Ensure our core extensions are loaded before the app boots
+
+  function initialize() {}
+
+  exports['default'] = {
+    name: 'ember-css-modules',
+    initialize: initialize
+  };
+});
+define('ember-css-modules/mixins/component-lookup-mixin', ['exports', 'ember'], function (exports, _ember) {
+  'use strict';
+
+  exports['default'] = _ember['default'].Mixin.create({
+    componentFor: function componentFor(name, owner, options) {
+      var component = this._super(name, owner, options);
+
+      // If we're doing a local lookup, don't interfere; wait for the global fallback if necessary
+      if (options && options.source) {
+        return component;
+      }
+
+      // Ensure components are always managed my the container and thus have a connection to their styles
+      if (!component && hasRegistration(owner, 'template:components/' + name)) {
+        findRegistry(owner).register('component:' + name, _ember['default'].Component);
+        component = this._super(name, owner, options);
+      }
+
+      return component;
+    }
+  });
+
+  // There are like a dozen different ways of registering something across our various supported versions of Ember,
+  // all varying levels of public-ish. This threads that needle without triggering deprecation warnings.
+  function findRegistry(owner) {
+    return owner._registry || (owner.register ? owner : owner.registry);
+  }
+
+  function hasRegistration(owner, name) {
+    var registry = findRegistry(owner);
+    return registry.hasRegistration ? registry.hasRegistration(name) : registry.has(name);
+  }
+});
+define('ember-css-modules/mixins/component-mixin', ['exports', 'ember', 'ember-getowner-polyfill'], function (exports, _ember, _emberGetownerPolyfill) {
+  'use strict';
+
+  var _slicedToArray = (function () {
+    function sliceIterator(arr, i) {
+      var _arr = [];var _n = true;var _d = false;var _e = undefined;try {
+        for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) {
+          _arr.push(_s.value);if (i && _arr.length === i) break;
+        }
+      } catch (err) {
+        _d = true;_e = err;
+      } finally {
+        try {
+          if (!_n && _i['return']) _i['return']();
+        } finally {
+          if (_d) throw _e;
+        }
+      }return _arr;
+    }return function (arr, i) {
+      if (Array.isArray(arr)) {
+        return arr;
+      } else if (Symbol.iterator in Object(arr)) {
+        return sliceIterator(arr, i);
+      } else {
+        throw new TypeError('Invalid attempt to destructure non-iterable instance');
+      }
+    };
+  })();
+
+  function _toConsumableArray(arr) {
+    if (Array.isArray(arr)) {
+      for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i];return arr2;
+    } else {
+      return Array.from(arr);
+    }
+  }
+
+  var dasherize = _ember['default'].String.dasherize;
+
+  exports['default'] = _ember['default'].Mixin.create({
+    localClassNames: null,
+    localClassNameBindings: null,
+
+    concatenatedProperties: ['localClassNames', 'localClassNameBindings'],
+
+    init: function init() {
+      this._super();
+      this.classNameBindings = [].concat(_toConsumableArray(this.classNameBindings), _toConsumableArray(localClassNames(this)), _toConsumableArray(localClassNameBindings(this)));
+    },
+
+    styles: _ember['default'].computed(function () {
+      var key = this._debugContainerKey;
+      if (!key) {
+        return;
+      }
+
+      return (0, _emberGetownerPolyfill['default'])(this).resolveRegistration('styles:components/' + key.split(':')[1]);
+    })
+  });
+
+  function localClassNames(component) {
+    return component.localClassNames.map(function (className) {
+      return 'styles.' + className;
+    });
+  }
+
+  function localClassNameBindings(component) {
+    return component.localClassNameBindings.reduce(function (bindings, bindingSource) {
+      return bindings.concat(buildBindings(component, bindingSource));
+    }, []);
+  }
+
+  function buildBindings(component, bindingSource) {
+    var styles = component.get('styles');
+
+    var _bindingSource$split = bindingSource.split(':');
+
+    var _bindingSource$split2 = _slicedToArray(_bindingSource$split, 3);
+
+    var property = _bindingSource$split2[0];
+    var _bindingSource$split2$1 = _bindingSource$split2[1];
+    var trueStyle = _bindingSource$split2$1 === undefined ? dasherize(property) : _bindingSource$split2$1;
+    var falseStyle = _bindingSource$split2[2];
+
+    var trueClasses = (styles[trueStyle] || '').split(/\s+/);
+    var falseClasses = (styles[falseStyle] || '').split(/\s+/);
+    var bindings = [];
+
+    for (var i = 0, len = Math.max(trueClasses.length, falseClasses.length); i < len; i++) {
+      bindings.push(bindingString(property, trueClasses[i], falseClasses[i]));
+    }
+
+    return bindings;
+  }
+
+  function bindingString(property) {
+    var trueClass = arguments.length <= 1 || arguments[1] === undefined ? '' : arguments[1];
+    var falseClass = arguments.length <= 2 || arguments[2] === undefined ? '' : arguments[2];
+
+    var binding = property + ':' + (trueClass || '');
+    if (falseClass) {
+      binding += ':' + falseClass;
+    }
+    return binding;
+  }
+});
+define('ember-css-modules/mixins/controller-mixin', ['exports', 'ember', 'ember-getowner-polyfill'], function (exports, _ember, _emberGetownerPolyfill) {
+  'use strict';
+
+  exports['default'] = _ember['default'].Mixin.create({
+    styles: _ember['default'].computed(function () {
+      var key = this._debugContainerKey;
+      if (!key) {
+        return;
+      }
+
+      return (0, _emberGetownerPolyfill['default'])(this)._lookupFactory('styles:' + key.split(':')[1]);
+    })
+  });
+});
+define('ember-css-modules/mixins/resolver-mixin', ['exports', 'ember'], function (exports, _ember) {
+  'use strict';
+
+  exports['default'] = _ember['default'].Mixin.create({
+    init: function init() {
+      this._super();
+      this.pluralizedTypes.styles = 'styles';
+    },
+
+    podBasedLookupWithPrefix: function podBasedLookupWithPrefix(podPrefix, parsedName) {
+      var fullNameWithoutType = parsedName.fullNameWithoutType;
+
+      if (parsedName.type === 'template' || parsedName.type === 'styles') {
+        fullNameWithoutType = fullNameWithoutType.replace(/^components\//, '');
+      }
+
+      return podPrefix + '/' + fullNameWithoutType + '/' + parsedName.type;
+    }
+  });
 });
 define("ember-data/-private/adapters", ["exports", "ember-data/adapters/json-api", "ember-data/adapters/rest"], function (exports, _emberDataAdaptersJsonApi, _emberDataAdaptersRest) {
   /**

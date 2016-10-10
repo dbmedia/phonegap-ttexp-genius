@@ -236,7 +236,7 @@ define('ttexp/tests/models/manifesto.jshint', ['exports'], function (exports) {
   QUnit.module('JSHint | models/manifesto.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(false, 'models/manifesto.js should pass jshint.\nmodels/manifesto.js: line 1, col 8, \'Ember\' is defined but never used.\n\n1 error');
+    assert.ok(true, 'models/manifesto.js should pass jshint.');
   });
 });
 define('ttexp/tests/models/media-file.jshint', ['exports'], function (exports) {
@@ -245,7 +245,7 @@ define('ttexp/tests/models/media-file.jshint', ['exports'], function (exports) {
   QUnit.module('JSHint | models/media-file.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(false, 'models/media-file.js should pass jshint.\nmodels/media-file.js: line 1, col 8, \'Ember\' is defined but never used.\n\n1 error');
+    assert.ok(true, 'models/media-file.js should pass jshint.');
   });
 });
 define('ttexp/tests/models/play-state.jshint', ['exports'], function (exports) {
@@ -272,7 +272,7 @@ define('ttexp/tests/models/scenario.jshint', ['exports'], function (exports) {
   QUnit.module('JSHint | models/scenario.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(false, 'models/scenario.js should pass jshint.\nmodels/scenario.js: line 75, col 33, Expected \'===\' and instead saw \'==\'.\nmodels/scenario.js: line 5, col 19, \'service\' is defined but never used.\n\n2 errors');
+    assert.ok(false, 'models/scenario.js should pass jshint.\nmodels/scenario.js: line 5, col 19, \'service\' is defined but never used.\n\n1 error');
   });
 });
 define('ttexp/tests/models/score.jshint', ['exports'], function (exports) {
@@ -281,7 +281,7 @@ define('ttexp/tests/models/score.jshint', ['exports'], function (exports) {
   QUnit.module('JSHint | models/score.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(false, 'models/score.js should pass jshint.\nmodels/score.js: line 2, col 8, \'Ember\' is defined but never used.\n\n1 error');
+    assert.ok(true, 'models/score.js should pass jshint.');
   });
 });
 define('ttexp/tests/models/setting.jshint', ['exports'], function (exports) {
@@ -371,7 +371,7 @@ define('ttexp/tests/routes/play.jshint', ['exports'], function (exports) {
   QUnit.module('JSHint | routes/play.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(false, 'routes/play.js should pass jshint.\nroutes/play.js: line 80, col 13, \'url\' is already defined.\nroutes/play.js: line 102, col 19, \'transition\' is defined but never used.\nroutes/play.js: line 68, col 9, \'resolveLocalFileSystemURL\' is not defined.\n\n3 errors');
+    assert.ok(false, 'routes/play.js should pass jshint.\nroutes/play.js: line 69, col 9, \'resolveLocalFileSystemURL\' is not defined.\n\n1 error');
   });
 });
 define('ttexp/tests/routes/scenarios.jshint', ['exports'], function (exports) {
@@ -380,7 +380,7 @@ define('ttexp/tests/routes/scenarios.jshint', ['exports'], function (exports) {
   QUnit.module('JSHint | routes/scenarios.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(false, 'routes/scenarios.js should pass jshint.\nroutes/scenarios.js: line 66, col 37, Expected \'!==\' and instead saw \'!=\'.\nroutes/scenarios.js: line 127, col 14, Missing semicolon.\nroutes/scenarios.js: line 137, col 19, \'transition\' is defined but never used.\nroutes/scenarios.js: line 73, col 15, \'$\' is not defined.\nroutes/scenarios.js: line 110, col 44, \'LocalFileSystem\' is not defined.\nroutes/scenarios.js: line 165, col 28, \'FileTransfer\' is not defined.\n\n6 errors');
+    assert.ok(false, 'routes/scenarios.js should pass jshint.\nroutes/scenarios.js: line 121, col 46, Expected \'!==\' and instead saw \'!=\'.\nroutes/scenarios.js: line 124, col 50, Missing semicolon.\nroutes/scenarios.js: line 155, col 44, \'LocalFileSystem\' is not defined.\nroutes/scenarios.js: line 226, col 28, \'FileTransfer\' is not defined.\n\n4 errors');
   });
 });
 define('ttexp/tests/routes/scores.jshint', ['exports'], function (exports) {
@@ -416,7 +416,7 @@ define('ttexp/tests/services/session.jshint', ['exports'], function (exports) {
   QUnit.module('JSHint | services/session.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(false, 'services/session.js should pass jshint.\nservices/session.js: line 2, col 8, \'DS\' is defined but never used.\n\n1 error');
+    assert.ok(true, 'services/session.js should pass jshint.');
   });
 });
 define('ttexp/tests/test-helper', ['exports', 'ttexp/tests/helpers/resolver', 'ember-qunit'], function (exports, _ttexpTestsHelpersResolver, _emberQunit) {
@@ -792,7 +792,7 @@ define('ttexp/tests/utils/pg-file-system.jshint', ['exports'], function (exports
   QUnit.module('JSHint | utils/pg-file-system.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(false, 'utils/pg-file-system.js should pass jshint.\nutils/pg-file-system.js: line 18, col 33, \'isAppend\' is defined but never used.\nutils/pg-file-system.js: line 93, col 13, \'blob\' is defined but never used.\nutils/pg-file-system.js: line 13, col 7, \'writeFile\' is not defined.\nutils/pg-file-system.js: line 47, col 7, \'writeFile\' is not defined.\nutils/pg-file-system.js: line 14, col 8, \'onErrorCreateFile\' is not defined.\nutils/pg-file-system.js: line 3, col 19, \'service\' is defined but never used.\n\n6 errors');
+    assert.ok(false, 'utils/pg-file-system.js should pass jshint.\nutils/pg-file-system.js: line 18, col 33, \'isAppend\' is defined but never used.\nutils/pg-file-system.js: line 92, col 13, \'blob\' is defined but never used.\nutils/pg-file-system.js: line 13, col 7, \'writeFile\' is not defined.\nutils/pg-file-system.js: line 47, col 7, \'writeFile\' is not defined.\nutils/pg-file-system.js: line 14, col 8, \'onErrorCreateFile\' is not defined.\nutils/pg-file-system.js: line 3, col 19, \'service\' is defined but never used.\n\n6 errors');
   });
 });
 /* jshint ignore:start */
