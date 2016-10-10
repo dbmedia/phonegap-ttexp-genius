@@ -1552,7 +1552,7 @@ define('ttexp/routes/scenarios', ['exports', 'ember', 'ember-simple-auth/mixins/
                     // Error
                     mediaFileCounter++;
                     mediaFileErrors++;
-                    if (mediaFileErrorsNames != "") {
+                    if (mediaFileErrorsNames !== "") {
                       mediaFileErrorsNames += ", ";
                     }
                     mediaFileErrorsNames += fileName;
@@ -1565,11 +1565,14 @@ define('ttexp/routes/scenarios', ['exports', 'ember', 'ember-simple-auth/mixins/
                     //                  self.controller.get('notifications').warning('Download di '+scenario.get('name')+' completato con '+mediaFileErrors+' error'+(mediaFileErrors > 1 ? 'i' : 'e')+': '+mediaFileErrorsNames, {
                     //                    autoClear: false
                     //                  });
+                    self.controller.get('notifications').success('Download di ' + scenario.get('name') + ' completato con successo', {
+                      autoClear: true
+                    });
                   } else {
-                      self.controller.get('notifications').success('Download di ' + scenario.get('name') + ' completato con successo', {
-                        autoClear: true
-                      });
-                    }
+                    self.controller.get('notifications').success('Download di ' + scenario.get('name') + ' completato con successo', {
+                      autoClear: true
+                    });
+                  }
 
                   if (window.cordova && false) {
                     var testFileData = {
