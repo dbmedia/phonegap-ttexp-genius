@@ -380,7 +380,7 @@ define('ttexp/tests/routes/scenarios.jshint', ['exports'], function (exports) {
   QUnit.module('JSHint | routes/scenarios.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(false, 'routes/scenarios.js should pass jshint.\nroutes/scenarios.js: line 121, col 46, Expected \'!==\' and instead saw \'!=\'.\nroutes/scenarios.js: line 124, col 50, Missing semicolon.\nroutes/scenarios.js: line 155, col 44, \'LocalFileSystem\' is not defined.\nroutes/scenarios.js: line 226, col 28, \'FileTransfer\' is not defined.\n\n4 errors');
+    assert.ok(false, 'routes/scenarios.js should pass jshint.\nroutes/scenarios.js: line 158, col 44, \'LocalFileSystem\' is not defined.\nroutes/scenarios.js: line 229, col 28, \'FileTransfer\' is not defined.\n\n2 errors');
   });
 });
 define('ttexp/tests/routes/scores.jshint', ['exports'], function (exports) {
