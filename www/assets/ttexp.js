@@ -1501,6 +1501,15 @@ define('ttexp/routes/scenarios', ['exports', 'ember', 'ember-simple-auth/mixins/
         scenarios: this.store.findAll('scenario', { reload: true })
       });
     },
+    //  didTransition: function() {
+    //    var fileSystemService = getOwner(self).lookup('controller:scenarios').get('fileSystem');
+    //    return fileSystemService.loadXXX();
+    //  },
+    activate: function activate() {
+      console.log("TRANSITIONING");
+      var fileSystemService = this.controllerFor('scenarios').get('fileSystem');
+      return fileSystemService.loadXXX();
+    },
     actions: {
       play: function play(scenario) {
         var self = this;
@@ -1788,8 +1797,8 @@ define('ttexp/services/file-system', ['exports', 'ember', 'ttexp/utils/pg-file-s
         this.set('pgFileSystemUtil', _ttexpUtilsPgFileSystem['default'].create());
       }
     },
-    load: function load() {
-      alert("INIZIALIZZAZIONE FILE SYSTEM");
+    load: function load() {},
+    loadXXX: function loadXXX() {
       var self = this;
       var pgFileSystemUtil = self.get('pgFileSystemUtil');
       var settings;
