@@ -1633,9 +1633,9 @@ define('ttexp/routes/scenarios', ['exports', 'ember', 'ember-simple-auth/mixins/
                     });
                   }
 
+                  var newVersion = scenario.get('version');
                   // Aggiornamento versione interna dello scenario
                   fileSystemService.setScenarioVersion(scenario.get('id'), newVersion).then(function (settings) {
-                    var newVersion = scenario.get('version');
                     scenario.set('localVersion', newVersion);
                     console.log("Scenario version set, new settings:");
                     console.log(settings);
@@ -8985,7 +8985,7 @@ define("ttexp/templates/scenarios", ["exports"], function (exports) {
                 var el1 = dom.createElement("i");
                 dom.setAttribute(el1, "class", "fa fa-check-circle-o");
                 dom.appendChild(el0, el1);
-                var el1 = dom.createTextNode("OK\n");
+                var el1 = dom.createTextNode("\n");
                 dom.appendChild(el0, el1);
                 return el0;
               },
@@ -9030,7 +9030,7 @@ define("ttexp/templates/scenarios", ["exports"], function (exports) {
                 dom.setAttribute(el2, "class", "fa fa-download");
                 dom.appendChild(el1, el2);
                 dom.appendChild(el0, el1);
-                var el1 = dom.createTextNode("D\n");
+                var el1 = dom.createTextNode("\n");
                 dom.appendChild(el0, el1);
                 return el0;
               },
@@ -9113,7 +9113,7 @@ define("ttexp/templates/scenarios", ["exports"], function (exports) {
               var el1 = dom.createElement("i");
               dom.setAttribute(el1, "class", "fa fa-question-circle");
               dom.appendChild(el0, el1);
-              var el1 = dom.createTextNode("?\n");
+              var el1 = dom.createTextNode("\n");
               dom.appendChild(el0, el1);
               return el0;
             },
@@ -10501,7 +10501,7 @@ catch(err) {
 /* jshint ignore:start */
 
 if (!runningTests) {
-  require("ttexp/app")["default"].create({"serverApiUrl":"http://demo.ttexp.net/api","LOG_ACTIVE_GENERATION":false,"LOG_VIEW_LOOKUPS":false,"name":"ttexp","version":"1.0.9+1781e6db"});
+  require("ttexp/app")["default"].create({"serverApiUrl":"http://demo.ttexp.net/api","LOG_ACTIVE_GENERATION":false,"LOG_VIEW_LOOKUPS":false,"name":"ttexp","version":"1.0.9+e6deccc6"});
 }
 
 /* jshint ignore:end */

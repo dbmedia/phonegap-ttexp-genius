@@ -380,7 +380,7 @@ define('ttexp/tests/routes/scenarios.jshint', ['exports'], function (exports) {
   QUnit.module('JSHint | routes/scenarios.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(false, 'routes/scenarios.js should pass jshint.\nroutes/scenarios.js: line 63, col 11, \'pgFileSystemUtil\' is defined but never used.\nroutes/scenarios.js: line 146, col 74, \'newVersion\' is not defined.\nroutes/scenarios.js: line 204, col 28, \'FileTransfer\' is not defined.\n\n3 errors');
+    assert.ok(false, 'routes/scenarios.js should pass jshint.\nroutes/scenarios.js: line 63, col 11, \'pgFileSystemUtil\' is defined but never used.\nroutes/scenarios.js: line 204, col 28, \'FileTransfer\' is not defined.\n\n2 errors');
   });
 });
 define('ttexp/tests/routes/scores.jshint', ['exports'], function (exports) {
