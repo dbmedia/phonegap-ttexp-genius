@@ -1374,7 +1374,13 @@ define("ttexp/routes/help", ["exports", "ember"], function (exports, _ember) {
   exports["default"] = _ember["default"].Route.extend({});
 });
 define("ttexp/routes/index", ["exports", "ember", "ember-simple-auth/mixins/authenticated-route-mixin"], function (exports, _ember, _emberSimpleAuthMixinsAuthenticatedRouteMixin) {
-  exports["default"] = _ember["default"].Route.extend(_emberSimpleAuthMixinsAuthenticatedRouteMixin["default"], {});
+  exports["default"] = _ember["default"].Route.extend(_emberSimpleAuthMixinsAuthenticatedRouteMixin["default"], {
+    activate: function activate() {
+      console.log("TRANSITIONING");
+      var fileSystemService = this.controllerFor('scenarios').get('fileSystem');
+      return fileSystemService.loadXXX();
+    }
+  });
 });
 
 //import ENV from 'ttexp/config/environment';
@@ -1505,11 +1511,6 @@ define('ttexp/routes/scenarios', ['exports', 'ember', 'ember-simple-auth/mixins/
     //    var fileSystemService = getOwner(self).lookup('controller:scenarios').get('fileSystem');
     //    return fileSystemService.loadXXX();
     //  },
-    activate: function activate() {
-      console.log("TRANSITIONING");
-      var fileSystemService = this.controllerFor('scenarios').get('fileSystem');
-      return fileSystemService.loadXXX();
-    },
     actions: {
       play: function play(scenario) {
         var self = this;
