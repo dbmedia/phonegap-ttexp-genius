@@ -1802,32 +1802,32 @@ define('ttexp/services/file-system', ['exports', 'ember', 'ttexp/utils/pg-file-s
               self.set('settingsFile', fileEntry);
               console.log(fileEntry);
 
-              pgFileSystemUtil.removeFile(fileEntry).then(function () {
-                // TODO: Togliere cancellazione settings una volta che funziona tutto
+              //            pgFileSystemUtil.removeFile(fileEntry).then(function() {  // TODO: Togliere cancellazione settings una volta che funziona tutto
 
-                ///////////////////////////////////////////////
+              ///////////////////////////////////////////////
 
-                pgFileSystemUtil.readFile(fileEntry).then(function (settingsData) {
-                  if (settingsData === "") {
-                    self.set('settings', {});
-                  } else {
-                    self.set('settings', _ember['default'].$.parseJSON(settingsData));
-                  }
-                  console.log("Starting settings:");
-                  console.log(self.get('settings'));
-                  resolve();
-                }, function (reason) {
-                  console.log("Error reading settings file");
-                  console.log(reason);
-                  reject(reason);
-                });
-
-                ///////////////////////////////////////////////
+              pgFileSystemUtil.readFile(fileEntry).then(function (settingsData) {
+                if (settingsData === "") {
+                  self.set('settings', {});
+                } else {
+                  self.set('settings', _ember['default'].$.parseJSON(settingsData));
+                }
+                console.log("Starting settings:");
+                console.log(self.get('settings'));
+                resolve();
               }, function (reason) {
-                console.log("Error deleting settings file");
+                console.log("Error reading settings file");
                 console.log(reason);
                 reject(reason);
               });
+
+              ///////////////////////////////////////////////
+
+              //            }, function(reason) {
+              //              console.log("Error deleting settings file");
+              //              console.log(reason);
+              //              reject(reason);
+              //            });
             }, reject); //onErrorCreateFile
           }, reject); // onErrorLoadFs
         } else {
@@ -10360,6 +10360,7 @@ define("ttexp/utils/pg-file-system", ["exports", "ember"], function (exports, _e
       var self = this;
 
       console.log("Start readFile promise");
+
       return new RSVP.Promise(function (resolve, reject) {
         fileEntry.file(function (file) {
           var reader = new FileReader();
