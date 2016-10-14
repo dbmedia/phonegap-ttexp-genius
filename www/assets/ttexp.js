@@ -1634,10 +1634,9 @@ define('ttexp/routes/scenarios', ['exports', 'ember', 'ember-simple-auth/mixins/
                   }
 
                   // Aggiornamento versione interna dello scenario
-                  var newVersion = scenario.get('version');
-                  scenario.set('localVersion', newVersion);
-
                   fileSystemService.setScenarioVersion(scenario.get('id'), newVersion).then(function (settings) {
+                    var newVersion = scenario.get('version');
+                    scenario.set('localVersion', newVersion);
                     console.log("Scenario version set, new settings:");
                     console.log(settings);
 
@@ -1882,6 +1881,7 @@ define('ttexp/services/file-system', ['exports', 'ember', 'ttexp/utils/pg-file-s
       console.log("fileSystem.setScenarioVersion()");
       var self = this;
       var settings = self.get('settings');
+      var pgFileSystemUtil = self.get('pgFileSystemUtil');
 
       var newSettingsData = {
         'scenarios': {}
@@ -1895,7 +1895,7 @@ define('ttexp/services/file-system', ['exports', 'ember', 'ttexp/utils/pg-file-s
         if (window.cordova) {
           var fileEntry = self.get('settingsFile');
 
-          self.writeFile(fileEntry, JSON.stringify(settings)).then(function (fileContent) {
+          pgFileSystemUtil.writeFile(fileEntry, JSON.stringify(settings)).then(function (fileContent) {
             resolve(fileContent);
           }, function (reason) {
             console.log("Error writing in settings file");
@@ -8985,7 +8985,7 @@ define("ttexp/templates/scenarios", ["exports"], function (exports) {
                 var el1 = dom.createElement("i");
                 dom.setAttribute(el1, "class", "fa fa-check-circle-o");
                 dom.appendChild(el0, el1);
-                var el1 = dom.createTextNode("\n");
+                var el1 = dom.createTextNode("OK\n");
                 dom.appendChild(el0, el1);
                 return el0;
               },
@@ -9030,7 +9030,7 @@ define("ttexp/templates/scenarios", ["exports"], function (exports) {
                 dom.setAttribute(el2, "class", "fa fa-download");
                 dom.appendChild(el1, el2);
                 dom.appendChild(el0, el1);
-                var el1 = dom.createTextNode("\n");
+                var el1 = dom.createTextNode("D\n");
                 dom.appendChild(el0, el1);
                 return el0;
               },
@@ -9113,7 +9113,7 @@ define("ttexp/templates/scenarios", ["exports"], function (exports) {
               var el1 = dom.createElement("i");
               dom.setAttribute(el1, "class", "fa fa-question-circle");
               dom.appendChild(el0, el1);
-              var el1 = dom.createTextNode("\n");
+              var el1 = dom.createTextNode("?\n");
               dom.appendChild(el0, el1);
               return el0;
             },
