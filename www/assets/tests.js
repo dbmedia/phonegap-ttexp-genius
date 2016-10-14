@@ -407,7 +407,7 @@ define('ttexp/tests/services/file-system.jshint', ['exports'], function (exports
   QUnit.module('JSHint | services/file-system.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(false, 'services/file-system.js should pass jshint.\nservices/file-system.js: line 88, col 39, \'reject\' is defined but never used.\nservices/file-system.js: line 24, col 34, \'LocalFileSystem\' is not defined.\n\n2 errors');
+    assert.ok(false, 'services/file-system.js should pass jshint.\nservices/file-system.js: line 89, col 39, \'reject\' is defined but never used.\nservices/file-system.js: line 25, col 34, \'LocalFileSystem\' is not defined.\n\n2 errors');
   });
 });
 define('ttexp/tests/services/session.jshint', ['exports'], function (exports) {

@@ -1789,6 +1789,7 @@ define('ttexp/services/file-system', ['exports', 'ember', 'ttexp/utils/pg-file-s
       }
     },
     load: function load() {
+      alert("INIZIALIZZAZIONE FILE SYSTEM");
       var self = this;
       var pgFileSystemUtil = self.get('pgFileSystemUtil');
       var settings;
