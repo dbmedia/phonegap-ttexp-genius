@@ -1374,13 +1374,7 @@ define("ttexp/routes/help", ["exports", "ember"], function (exports, _ember) {
   exports["default"] = _ember["default"].Route.extend({});
 });
 define("ttexp/routes/index", ["exports", "ember", "ember-simple-auth/mixins/authenticated-route-mixin"], function (exports, _ember, _emberSimpleAuthMixinsAuthenticatedRouteMixin) {
-  exports["default"] = _ember["default"].Route.extend(_emberSimpleAuthMixinsAuthenticatedRouteMixin["default"], {
-    activate: function activate() {
-      console.log("TRANSITIONING");
-      var fileSystemService = this.controllerFor('scenarios').get('fileSystem');
-      return fileSystemService.loadXXX();
-    }
-  });
+  exports["default"] = _ember["default"].Route.extend(_emberSimpleAuthMixinsAuthenticatedRouteMixin["default"], {});
 });
 
 //import ENV from 'ttexp/config/environment';
@@ -1507,10 +1501,6 @@ define('ttexp/routes/scenarios', ['exports', 'ember', 'ember-simple-auth/mixins/
         scenarios: this.store.findAll('scenario', { reload: true })
       });
     },
-    //  didTransition: function() {
-    //    var fileSystemService = getOwner(self).lookup('controller:scenarios').get('fileSystem');
-    //    return fileSystemService.loadXXX();
-    //  },
     actions: {
       play: function play(scenario) {
         var self = this;
@@ -1798,8 +1788,7 @@ define('ttexp/services/file-system', ['exports', 'ember', 'ttexp/utils/pg-file-s
         this.set('pgFileSystemUtil', _ttexpUtilsPgFileSystem['default'].create());
       }
     },
-    load: function load() {},
-    loadXXX: function loadXXX() {
+    load: function load() {
       var self = this;
       var pgFileSystemUtil = self.get('pgFileSystemUtil');
       var settings;
