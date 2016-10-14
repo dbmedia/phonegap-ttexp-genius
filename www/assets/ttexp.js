@@ -485,6 +485,20 @@ define('ttexp/helpers/app-version', ['exports', 'ember', 'ttexp/config/environme
 
   exports['default'] = _ember['default'].Helper.helper(appVersion);
 });
+define('ttexp/helpers/await', ['exports', 'ember-promise-helpers/helpers/await'], function (exports, _emberPromiseHelpersHelpersAwait) {
+  Object.defineProperty(exports, 'default', {
+    enumerable: true,
+    get: function get() {
+      return _emberPromiseHelpersHelpersAwait['default'];
+    }
+  });
+  Object.defineProperty(exports, 'await', {
+    enumerable: true,
+    get: function get() {
+      return _emberPromiseHelpersHelpersAwait.await;
+    }
+  });
+});
 define('ttexp/helpers/breaklines', ['exports', 'ember'], function (exports, _ember) {
   exports.breaklines = breaklines;
 
@@ -594,6 +608,48 @@ define('ttexp/helpers/floor', ['exports', 'ember-math-helpers/helpers/floor'], f
     }
   });
 });
+define('ttexp/helpers/is-fulfilled', ['exports', 'ember-promise-helpers/helpers/is-fulfilled'], function (exports, _emberPromiseHelpersHelpersIsFulfilled) {
+  Object.defineProperty(exports, 'default', {
+    enumerable: true,
+    get: function get() {
+      return _emberPromiseHelpersHelpersIsFulfilled['default'];
+    }
+  });
+  Object.defineProperty(exports, 'isFulfilled', {
+    enumerable: true,
+    get: function get() {
+      return _emberPromiseHelpersHelpersIsFulfilled.isFulfilled;
+    }
+  });
+});
+define('ttexp/helpers/is-pending', ['exports', 'ember-promise-helpers/helpers/is-pending'], function (exports, _emberPromiseHelpersHelpersIsPending) {
+  Object.defineProperty(exports, 'default', {
+    enumerable: true,
+    get: function get() {
+      return _emberPromiseHelpersHelpersIsPending['default'];
+    }
+  });
+  Object.defineProperty(exports, 'isPending', {
+    enumerable: true,
+    get: function get() {
+      return _emberPromiseHelpersHelpersIsPending.isPending;
+    }
+  });
+});
+define('ttexp/helpers/is-rejected', ['exports', 'ember-promise-helpers/helpers/is-rejected'], function (exports, _emberPromiseHelpersHelpersIsRejected) {
+  Object.defineProperty(exports, 'default', {
+    enumerable: true,
+    get: function get() {
+      return _emberPromiseHelpersHelpersIsRejected['default'];
+    }
+  });
+  Object.defineProperty(exports, 'isRejected', {
+    enumerable: true,
+    get: function get() {
+      return _emberPromiseHelpersHelpersIsRejected.isRejected;
+    }
+  });
+});
 define('ttexp/helpers/lookup-module-styles', ['exports', 'ember-css-modules/helpers/lookup-module-styles'], function (exports, _emberCssModulesHelpersLookupModuleStyles) {
   Object.defineProperty(exports, 'default', {
     enumerable: true,
@@ -678,6 +734,14 @@ define('ttexp/helpers/pow', ['exports', 'ember-math-helpers/helpers/pow'], funct
     enumerable: true,
     get: function get() {
       return _emberMathHelpersHelpersPow.pow;
+    }
+  });
+});
+define('ttexp/helpers/promise-rejected-reason', ['exports', 'ember-promise-helpers/helpers/promise-rejected-reason'], function (exports, _emberPromiseHelpersHelpersPromiseRejectedReason) {
+  Object.defineProperty(exports, 'default', {
+    enumerable: true,
+    get: function get() {
+      return _emberPromiseHelpersHelpersPromiseRejectedReason['default'];
     }
   });
 });
@@ -1127,67 +1191,61 @@ define('ttexp/models/scenario', ['exports', 'ember', 'ember-data'], function (ex
     manifesto: _emberData['default'].belongsTo('manifesto'),
     mediaFiles: _emberData['default'].hasMany('mediaFile'),
 
-    downloadVersion: _ember['default'].computed(function () {
-      console.log("Entered scenario.downloadVersion()");
-      var self = this;
+    //.volatile();
 
-      return new RSVP.Promise(function (resolve, reject) {
-        console.log("Download version promise");
-        if (window.cordova || true) {
+    localVersion: _ember['default'].computed({
+      get: function get(key) {
+        console.log("Entered scenario.localVersion()");
+        var self = this;
+
+        return new RSVP.Promise(function (resolve, reject) {
+          console.log("scenario.localVersion() promise start");
           var fileSystemService = getOwner(self).lookup('controller:scenarios').get('fileSystem');
           var pgFileSystemUtil = fileSystemService.get('pgFileSystemUtil');
-          if (fileSystemService.settingsFile) {
-            if (typeof fileSystemService.settingsFile === "string") {
-              var fileContent = fileSystemService.settingsFile;
-              var settings = _ember['default'].$.parseJSON(fileContent);
-              console.log("DownloadVersion attr:");
-              console.log(settings);
-              if (settings.scenarios[self.id]) {
-                resolve(settings.scenarios[self.id]);
-              } else {
-                resolve(0);
-              }
-            } else {
-              console.log(fileSystemService.settingsFile);
-              console.log("Trying to start readFile promise");
-              pgFileSystemUtil.readFile(fileSystemService.settingsFile).then(function (fileContent) {
-                console.log("resolved");
-                resolve(fileContent);
-              }, function (reason) {
-                console.log("Error reading file");
-                console.log(reason);
-                reject(reason);
-              });
-            }
-          } else {
-            resolve(0);
-          }
-        } else {
-          resolve(0);
-        }
-      });
-    }),
-    isUpdated: _ember['default'].computed(function () {
-      console.log("Entered scenario.isUpdated()");
-      var self = this;
-      return new RSVP.Promise(function (resolve, reject) {
-        if (window.cordova && false) {
-          var scenarioVersion = self.get('version');
-          self.get('downloadVersion').then(function (downloadVersion) {
-            if (downloadVersion === scenarioVersion) {
-              resolve(true);
-            } else {
-              resolve(false);
-            }
+
+          fileSystemService.getScenarioVersion(self.id).then(function (localVersion) {
+            resolve(localVersion);
           }, function (reason) {
-            console.log("Error checking scenario.downloadVersion");
+            console.log("Error getting scenario version");
             console.log(reason);
             reject(reason);
           });
-        } else {
-          resolve(true);
-        }
-      });
+        });
+      },
+      set: function set(key, value) {
+        console.log("Setting scenario localVersion to " + value);
+        //      this.set('isUpta', value / 2);
+        return new RSVP.Promise(function (resolve, reject) {
+          resolve(value);
+        });
+      }
+
+    }),
+    isUpdated: _ember['default'].computed('version', 'localVersion', {
+      get: function get(key) {
+        console.log("Entered scenario.isUpdated()");
+        var self = this;
+        return new RSVP.Promise(function (resolve, reject) {
+          if (window.cordova || true) {
+            var scenarioVersion = self.get('version');
+
+            self.get('localVersion').then(function (localVersion) {
+              console.log("localVersion for scenario " + self.id + ":" + localVersion);
+              if (localVersion === scenarioVersion) {
+                resolve(true);
+              } else {
+                resolve(false);
+              }
+            }, function (reason) {
+              console.log("Error checking scenario.localVersion");
+              console.log(reason);
+              reject(reason);
+            });
+          } else {
+            resolve(true);
+          }
+        });
+      }
     })
   });
 });
@@ -1446,21 +1504,18 @@ define('ttexp/routes/scenarios', ['exports', 'ember', 'ember-simple-auth/mixins/
     actions: {
       play: function play(scenario) {
         var self = this;
-        if (window.cordova || true) {
-          scenario.get('isUpdated').then(function (isUpdated) {
-            if (!isUpdated) {
-              // Check if version was not already downloaded or is older
-              self.send('download', scenario);
-            } else {
-              self.transitionTo('play', scenario.id);
-            }
-          }, function (reason) {
-            console.log("Error getting scenario.isUpdated");
-            console.log(reason);
-          });
-        } else {
-          self.transitionTo('play', scenario.id);
-        }
+
+        scenario.get('isUpdated').then(function (isUpdated) {
+          if (!isUpdated) {
+            // Check if version was not already downloaded or is older
+            self.send('download', scenario);
+          } else {
+            self.transitionTo('play', scenario.id);
+          }
+        }, function (reason) {
+          console.log("Error getting scenario.isUpdated");
+          console.log(reason);
+        });
       },
       downloadAll: function downloadAll(scenarios) {
         var self = this;
@@ -1495,6 +1550,9 @@ define('ttexp/routes/scenarios', ['exports', 'ember', 'ember-simple-auth/mixins/
       },
       download: function download(scenario, keepModalOpen, onComplete) {
         var self = this;
+        var fileSystemService = getOwner(self).lookup('controller:scenarios').get('fileSystem');
+        var pgFileSystemUtil = fileSystemService.get('pgFileSystemUtil');
+
         if (scenario) {
           //https://github.com/apache/cordova-plugin-file-transfer/blob/1882bfbd2d150c6db501b2092374d644cb056505/doc/index.md
           //https://github.com/apache/cordova-plugin-file-transfer
@@ -1515,7 +1573,7 @@ define('ttexp/routes/scenarios', ['exports', 'ember', 'ember-simple-auth/mixins/
             var mediaFiles = scenario.get('mediaFiles');
 
             var mediaFilesArray = mediaFiles.toArray();
-            console.log(mediaFilesArray);
+            //console.log(mediaFilesArray);
             console.log(mediaFilesArray.length);
 
             // TODO: aggiungere controllo, iniziare il download solo se la versione è superiore a quella corrente
@@ -1538,7 +1596,7 @@ define('ttexp/routes/scenarios', ['exports', 'ember', 'ember-simple-auth/mixins/
                 _ember['default'].$(".progress-bar").width(percentage + '%');
 
                 var mediaFile = mediaFilesArray[mediaFileCounter];
-                if (mediaFile) {
+                if (mediaFile && mediaFileCounter < 2) {
                   var fileName = mediaFile.get('fileName'); //"TEL-I0-T0-A.mp4";
                   var fileRemotePath = host + dir + fileName;
                   var fileLocalPath = localSource + dir + fileName;
@@ -1561,6 +1619,7 @@ define('ttexp/routes/scenarios', ['exports', 'ember', 'ember-simple-auth/mixins/
                   });
                 } else {
                   console.log("Download complete!!!");
+
                   if (mediaFileErrors) {
                     //                  self.controller.get('notifications').warning('Download di '+scenario.get('name')+' completato con '+mediaFileErrors+' error'+(mediaFileErrors > 1 ? 'i' : 'e')+': '+mediaFileErrorsNames, {
                     //                    autoClear: false
@@ -1574,48 +1633,24 @@ define('ttexp/routes/scenarios', ['exports', 'ember', 'ember-simple-auth/mixins/
                     });
                   }
 
-                  if (window.cordova && false) {
-                    var testFileData = {
-                      'topolino': 443311,
-                      'scenarios': {
-                        1: 1,
-                        2: 0,
-                        3: 0,
-                        4: 0,
-                        5: 0
-                      }
-                    };
+                  // Aggiornamento versione interna dello scenario
+                  var newVersion = scenario.get('version');
+                  scenario.set('localVersion', newVersion);
 
-                    var fileSystemService = getOwner(self).lookup('controller:scenarios').get('fileSystem');
-                    var pgFileSystemUtil = fileSystemService.get('pgFileSystemUtil');
+                  fileSystemService.setScenarioVersion(scenario.get('id'), newVersion).then(function (settings) {
+                    console.log("Scenario version set, new settings:");
+                    console.log(settings);
 
-                    window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, function (fs) {
-                      fs.root.getFile("settings.json", { create: true, exclusive: false }, function (fileEntry) {
-                        console.log("fileEntry" + fileEntry.isFile.toString());
-                        pgFileSystemUtil.writeFile(fileEntry, testFileData);
-                        if (!keepModalOpen) {
-                          self.controller.set('showDownloadModal', false); //TODO: Chiudere il modal solo dopo il writefile, modificare writefile per fargli ritornare una promise
-                        }
-                      }, function (e) {
-                        console.log("Error creating file");
-                        console.log(e);
-                      });
-                    }, function (e) {
-                      console.log("Error loading file system");
-                      console.log(e);
-                    });
-
+                    if (!keepModalOpen) {
+                      self.controller.set('showDownloadModal', false);
+                    }
                     if (onComplete) {
-                      onComplete(); // TODO: Da mettere al posto giusto
+                      onComplete();
                     }
-                  } else {
-                      if (!keepModalOpen) {
-                        self.controller.set('showDownloadModal', false);
-                      }
-                      if (onComplete) {
-                        onComplete();
-                      }
-                    }
+                  }, function (reason) {
+                    console.log("Error setting scenario version");
+                    console.log(reason);
+                  });
                 }
               };
 
@@ -1745,7 +1780,9 @@ define('ttexp/services/file-system', ['exports', 'ember', 'ttexp/utils/pg-file-s
   var RSVP = _ember['default'].RSVP;
   exports['default'] = _ember['default'].Service.extend({
     store: service(),
-    settingsFile: {},
+    settings: {},
+    settingsFile: null,
+    pgFileSystemUtil: null,
 
     init: function init() {
       if (!this.get('pgFileSystemUtil')) {
@@ -1754,37 +1791,125 @@ define('ttexp/services/file-system', ['exports', 'ember', 'ttexp/utils/pg-file-s
     },
     load: function load() {
       var self = this;
+      var pgFileSystemUtil = self.get('pgFileSystemUtil');
+      var settings;
 
       return new RSVP.Promise(function (resolve, reject) {
-        if (window.cordova || false) {
-
+        if (window.cordova) {
           window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, function (fs) {
             console.log('file system open: ' + fs.name);
             fs.root.getFile("settings.json", { create: true, exclusive: false }, function (fileEntry) {
-              console.log(fileEntry);
-              // fileEntry.name == 'someFile.txt'
-              // fileEntry.fullPath == '/someFile.txt'
-              //            self.get('mapUtil').createFile(fs.root, "newTempFile.txt", false);
-              self.get('pgFileSystemUtil').writeFile(fileEntry, null);
               self.set('settingsFile', fileEntry);
-              resolve();
+              console.log(fileEntry);
+
+              pgFileSystemUtil.removeFile(fileEntry).then(function () {
+                // TODO: Togliere cancellazione settings una volta che funziona tutto
+
+                ///////////////////////////////////////////////
+
+                pgFileSystemUtil.readFile(fileEntry).then(function (settingsData) {
+                  if (settingsData === "") {
+                    self.set('settings', {});
+                  } else {
+                    self.set('settings', _ember['default'].$.parseJSON(settingsData));
+                  }
+                  console.log("Starting settings:");
+                  console.log(self.get('settings'));
+                  resolve();
+                }, function (reason) {
+                  console.log("Error reading settings file");
+                  console.log(reason);
+                  reject(reason);
+                });
+
+                ///////////////////////////////////////////////
+              }, function (reason) {
+                console.log("Error deleting settings file");
+                console.log(reason);
+                reject(reason);
+              });
             }, reject); //onErrorCreateFile
           }, reject); // onErrorLoadFs
         } else {
-            var testFileData = {
-              'pippo': 11223344,
-              'scenarios': {
-                1: 1,
-                2: 0,
-                3: 0,
-                4: 0,
-                5: 0
-              }
-            };
+            //sessionStorage.removeItem('settings');
+            settings = sessionStorage.getItem('settings');
+            if (!settings) {
+              console.log("Settings file settings for first time");
+              var settingsData = {
+                'pippo': 11223344
+              };
+              //            'scenarios': {},
+              settings = JSON.stringify(settingsData);
+              sessionStorage.setItem('settings', settings);
+            } else {
+              console.log("Existing settings found!!!");
+            }
+            console.log(settings);
 
-            self.set('settingsFile', JSON.stringify(testFileData));
+            self.set('settings', _ember['default'].$.parseJSON(settings));
             resolve();
           }
+      });
+    },
+
+    getScenarioVersion: function getScenarioVersion(scenarioId) {
+      console.log("fileSystem.getScenarioVersion()");
+      var self = this;
+      return new RSVP.Promise(function (resolve, reject) {
+        var settings = self.get('settings');
+
+        console.log("Check settings:");
+        console.log(settings);
+        if (settings) {
+          try {
+            console.log("=====>ID:" + scenarioId);
+            var localVersion = settings.scenarios[scenarioId].version;
+            if (localVersion) {
+              resolve(localVersion);
+            } else {
+              resolve(0);
+            }
+          } catch (err) {
+            resolve(-1);
+          }
+        } else {
+          resolve(0);
+        }
+      });
+    },
+
+    setScenarioVersion: function setScenarioVersion(scenarioId, version) {
+      console.log("fileSystem.setScenarioVersion()");
+      var self = this;
+      var settings = self.get('settings');
+
+      var newSettingsData = {
+        'scenarios': {}
+      };
+      newSettingsData.scenarios[scenarioId] = {
+        'version': version
+      };
+      _ember['default'].$.extend(true, settings, newSettingsData);
+
+      return new RSVP.Promise(function (resolve, reject) {
+        if (window.cordova) {
+          var fileEntry = self.get('settingsFile');
+
+          self.writeFile(fileEntry, JSON.stringify(settings)).then(function (fileContent) {
+            resolve(fileContent);
+          }, function (reason) {
+            console.log("Error writing in settings file");
+            console.log(reason);
+            reject(reason);
+          });
+        } else {
+          sessionStorage.setItem('settings', JSON.stringify(settings));
+
+          console.log("new settings:");
+          console.log(sessionStorage.getItem('settings'));
+
+          resolve(settings);
+        }
       });
     }
   });
@@ -8231,9 +8356,9 @@ define("ttexp/templates/scenarios", ["exports"], function (exports) {
             return el0;
           },
           buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-            var element3 = dom.childAt(fragment, [1]);
+            var element4 = dom.childAt(fragment, [1]);
             var morphs = new Array(1);
-            morphs[0] = dom.createElementMorph(element3);
+            morphs[0] = dom.createElementMorph(element4);
             return morphs;
           },
           statements: [["element", "action", ["play", ["get", "scenario", ["loc", [null, [43, 43], [43, 51]]]]], [], ["loc", [null, [43, 27], [43, 53]]]]],
@@ -8322,10 +8447,10 @@ define("ttexp/templates/scenarios", ["exports"], function (exports) {
             return el0;
           },
           buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-            var element2 = dom.childAt(fragment, [1]);
+            var element3 = dom.childAt(fragment, [1]);
             var morphs = new Array(2);
-            morphs[0] = dom.createElementMorph(element2);
-            morphs[1] = dom.createMorphAt(element2, 0, 0);
+            morphs[0] = dom.createElementMorph(element3);
+            morphs[1] = dom.createMorphAt(element3, 0, 0);
             return morphs;
           },
           statements: [["element", "action", ["play", ["get", "scenario", ["loc", [null, [50, 43], [50, 51]]]]], [], ["loc", [null, [50, 27], [50, 53]]]], ["content", "scenario.name", ["loc", [null, [50, 71], [50, 88]]]]],
@@ -8391,7 +8516,7 @@ define("ttexp/templates/scenarios", ["exports"], function (exports) {
                   "column": 14
                 },
                 "end": {
-                  "line": 61,
+                  "line": 60,
                   "column": 14
                 }
               },
@@ -8403,7 +8528,7 @@ define("ttexp/templates/scenarios", ["exports"], function (exports) {
             hasRendered: false,
             buildFragment: function buildFragment(dom) {
               var el0 = dom.createDocumentFragment();
-              var el1 = dom.createTextNode("															/ ");
+              var el1 = dom.createTextNode(" / ");
               dom.appendChild(el0, el1);
               var el1 = dom.createComment("");
               dom.appendChild(el0, el1);
@@ -8416,7 +8541,7 @@ define("ttexp/templates/scenarios", ["exports"], function (exports) {
               morphs[0] = dom.createMorphAt(fragment, 1, 1, contextualElement);
               return morphs;
             },
-            statements: [["content", "scenario.requiredPlays", ["loc", [null, [60, 17], [60, 43]]]]],
+            statements: [["content", "scenario.requiredPlays", ["loc", [null, [59, 47], [59, 73]]]]],
             locals: [],
             templates: []
           };
@@ -8432,7 +8557,7 @@ define("ttexp/templates/scenarios", ["exports"], function (exports) {
                 "column": 12
               },
               "end": {
-                "line": 63,
+                "line": 62,
                 "column": 12
               }
             },
@@ -8451,7 +8576,7 @@ define("ttexp/templates/scenarios", ["exports"], function (exports) {
             dom.appendChild(el1, el2);
             var el2 = dom.createComment("");
             dom.appendChild(el1, el2);
-            var el2 = dom.createTextNode("\n");
+            var el2 = dom.createTextNode("\n														");
             dom.appendChild(el1, el2);
             var el2 = dom.createComment("");
             dom.appendChild(el1, el2);
@@ -8463,13 +8588,13 @@ define("ttexp/templates/scenarios", ["exports"], function (exports) {
             return el0;
           },
           buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-            var element1 = dom.childAt(fragment, [1]);
+            var element2 = dom.childAt(fragment, [1]);
             var morphs = new Array(2);
-            morphs[0] = dom.createMorphAt(element1, 1, 1);
-            morphs[1] = dom.createMorphAt(element1, 3, 3);
+            morphs[0] = dom.createMorphAt(element2, 1, 1);
+            morphs[1] = dom.createMorphAt(element2, 3, 3);
             return morphs;
           },
-          statements: [["content", "scenario.attempts", ["loc", [null, [58, 16], [58, 37]]]], ["block", "if", [["get", "scenario.requiredPlays", ["loc", [null, [59, 20], [59, 42]]]]], [], 0, null, ["loc", [null, [59, 14], [61, 21]]]]],
+          statements: [["content", "scenario.attempts", ["loc", [null, [58, 16], [58, 37]]]], ["block", "if", [["get", "scenario.requiredPlays", ["loc", [null, [59, 20], [59, 42]]]]], [], 0, null, ["loc", [null, [59, 14], [60, 21]]]]],
           locals: [],
           templates: [child0]
         };
@@ -8483,11 +8608,11 @@ define("ttexp/templates/scenarios", ["exports"], function (exports) {
               "loc": {
                 "source": null,
                 "start": {
-                  "line": 66,
+                  "line": 65,
                   "column": 14
                 },
                 "end": {
-                  "line": 68,
+                  "line": 66,
                   "column": 14
                 }
               },
@@ -8499,7 +8624,7 @@ define("ttexp/templates/scenarios", ["exports"], function (exports) {
             hasRendered: false,
             buildFragment: function buildFragment(dom) {
               var el0 = dom.createDocumentFragment();
-              var el1 = dom.createTextNode("															/ ");
+              var el1 = dom.createTextNode(" / ");
               dom.appendChild(el0, el1);
               var el1 = dom.createComment("");
               dom.appendChild(el0, el1);
@@ -8512,7 +8637,7 @@ define("ttexp/templates/scenarios", ["exports"], function (exports) {
               morphs[0] = dom.createMorphAt(fragment, 1, 1, contextualElement);
               return morphs;
             },
-            statements: [["content", "scenario.requiredPlays", ["loc", [null, [67, 17], [67, 43]]]]],
+            statements: [["content", "scenario.requiredPlays", ["loc", [null, [65, 47], [65, 73]]]]],
             locals: [],
             templates: []
           };
@@ -8524,11 +8649,11 @@ define("ttexp/templates/scenarios", ["exports"], function (exports) {
             "loc": {
               "source": null,
               "start": {
-                "line": 63,
+                "line": 62,
                 "column": 12
               },
               "end": {
-                "line": 70,
+                "line": 68,
                 "column": 12
               }
             },
@@ -8548,7 +8673,7 @@ define("ttexp/templates/scenarios", ["exports"], function (exports) {
             dom.appendChild(el1, el2);
             var el2 = dom.createComment("");
             dom.appendChild(el1, el2);
-            var el2 = dom.createTextNode("\n");
+            var el2 = dom.createTextNode("\n														");
             dom.appendChild(el1, el2);
             var el2 = dom.createComment("");
             dom.appendChild(el1, el2);
@@ -8560,13 +8685,13 @@ define("ttexp/templates/scenarios", ["exports"], function (exports) {
             return el0;
           },
           buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-            var element0 = dom.childAt(fragment, [1]);
+            var element1 = dom.childAt(fragment, [1]);
             var morphs = new Array(2);
-            morphs[0] = dom.createMorphAt(element0, 1, 1);
-            morphs[1] = dom.createMorphAt(element0, 3, 3);
+            morphs[0] = dom.createMorphAt(element1, 1, 1);
+            morphs[1] = dom.createMorphAt(element1, 3, 3);
             return morphs;
           },
-          statements: [["content", "scenario.attempts", ["loc", [null, [65, 16], [65, 37]]]], ["block", "if", [["get", "scenario.requiredPlays", ["loc", [null, [66, 20], [66, 42]]]]], [], 0, null, ["loc", [null, [66, 14], [68, 21]]]]],
+          statements: [["content", "scenario.attempts", ["loc", [null, [64, 16], [64, 37]]]], ["block", "if", [["get", "scenario.requiredPlays", ["loc", [null, [65, 20], [65, 42]]]]], [], 0, null, ["loc", [null, [65, 14], [66, 21]]]]],
           locals: [],
           templates: [child0]
         };
@@ -8580,11 +8705,11 @@ define("ttexp/templates/scenarios", ["exports"], function (exports) {
               "loc": {
                 "source": null,
                 "start": {
-                  "line": 74,
+                  "line": 72,
                   "column": 13
                 },
                 "end": {
-                  "line": 76,
+                  "line": 74,
                   "column": 13
                 }
               },
@@ -8613,7 +8738,7 @@ define("ttexp/templates/scenarios", ["exports"], function (exports) {
               morphs[0] = dom.createMorphAt(dom.childAt(fragment, [1]), 0, 0);
               return morphs;
             },
-            statements: [["inline", "round", [["get", "scenario.rating", ["loc", [null, [75, 25], [75, 40]]]]], [], ["loc", [null, [75, 17], [75, 42]]]]],
+            statements: [["inline", "round", [["get", "scenario.rating", ["loc", [null, [73, 25], [73, 40]]]]], [], ["loc", [null, [73, 17], [73, 42]]]]],
             locals: [],
             templates: []
           };
@@ -8626,11 +8751,11 @@ define("ttexp/templates/scenarios", ["exports"], function (exports) {
               "loc": {
                 "source": null,
                 "start": {
-                  "line": 76,
+                  "line": 74,
                   "column": 13
                 },
                 "end": {
-                  "line": 78,
+                  "line": 76,
                   "column": 13
                 }
               },
@@ -8667,11 +8792,11 @@ define("ttexp/templates/scenarios", ["exports"], function (exports) {
             "loc": {
               "source": null,
               "start": {
-                "line": 73,
+                "line": 71,
                 "column": 12
               },
               "end": {
-                "line": 79,
+                "line": 77,
                 "column": 12
               }
             },
@@ -8694,13 +8819,60 @@ define("ttexp/templates/scenarios", ["exports"], function (exports) {
             dom.insertBoundary(fragment, null);
             return morphs;
           },
-          statements: [["block", "if", [["get", "scenario.attempts", ["loc", [null, [74, 19], [74, 36]]]]], [], 0, 1, ["loc", [null, [74, 13], [78, 20]]]]],
+          statements: [["block", "if", [["get", "scenario.attempts", ["loc", [null, [72, 19], [72, 36]]]]], [], 0, 1, ["loc", [null, [72, 13], [76, 20]]]]],
           locals: [],
           templates: [child0, child1]
         };
       })();
       var child7 = (function () {
         var child0 = (function () {
+          return {
+            meta: {
+              "fragmentReason": false,
+              "revision": "Ember@2.6.1",
+              "loc": {
+                "source": null,
+                "start": {
+                  "line": 78,
+                  "column": 13
+                },
+                "end": {
+                  "line": 80,
+                  "column": 13
+                }
+              },
+              "moduleName": "ttexp/templates/scenarios.hbs"
+            },
+            isEmpty: false,
+            arity: 0,
+            cachedFragment: null,
+            hasRendered: false,
+            buildFragment: function buildFragment(dom) {
+              var el0 = dom.createDocumentFragment();
+              var el1 = dom.createTextNode("														");
+              dom.appendChild(el0, el1);
+              var el1 = dom.createElement("a");
+              dom.setAttribute(el1, "class", "disabled");
+              var el2 = dom.createComment("");
+              dom.appendChild(el1, el2);
+              var el2 = dom.createTextNode("%");
+              dom.appendChild(el1, el2);
+              dom.appendChild(el0, el1);
+              var el1 = dom.createTextNode("\n");
+              dom.appendChild(el0, el1);
+              return el0;
+            },
+            buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+              var morphs = new Array(1);
+              morphs[0] = dom.createMorphAt(dom.childAt(fragment, [1]), 0, 0);
+              return morphs;
+            },
+            statements: [["inline", "round", [["get", "scenario.rating", ["loc", [null, [79, 42], [79, 57]]]]], [], ["loc", [null, [79, 34], [79, 59]]]]],
+            locals: [],
+            templates: []
+          };
+        })();
+        var child1 = (function () {
           return {
             meta: {
               "fragmentReason": false,
@@ -8728,53 +8900,6 @@ define("ttexp/templates/scenarios", ["exports"], function (exports) {
               dom.appendChild(el0, el1);
               var el1 = dom.createElement("a");
               dom.setAttribute(el1, "class", "disabled");
-              var el2 = dom.createComment("");
-              dom.appendChild(el1, el2);
-              var el2 = dom.createTextNode("%");
-              dom.appendChild(el1, el2);
-              dom.appendChild(el0, el1);
-              var el1 = dom.createTextNode("\n");
-              dom.appendChild(el0, el1);
-              return el0;
-            },
-            buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-              var morphs = new Array(1);
-              morphs[0] = dom.createMorphAt(dom.childAt(fragment, [1]), 0, 0);
-              return morphs;
-            },
-            statements: [["inline", "round", [["get", "scenario.rating", ["loc", [null, [81, 42], [81, 57]]]]], [], ["loc", [null, [81, 34], [81, 59]]]]],
-            locals: [],
-            templates: []
-          };
-        })();
-        var child1 = (function () {
-          return {
-            meta: {
-              "fragmentReason": false,
-              "revision": "Ember@2.6.1",
-              "loc": {
-                "source": null,
-                "start": {
-                  "line": 82,
-                  "column": 13
-                },
-                "end": {
-                  "line": 84,
-                  "column": 13
-                }
-              },
-              "moduleName": "ttexp/templates/scenarios.hbs"
-            },
-            isEmpty: false,
-            arity: 0,
-            cachedFragment: null,
-            hasRendered: false,
-            buildFragment: function buildFragment(dom) {
-              var el0 = dom.createDocumentFragment();
-              var el1 = dom.createTextNode("														");
-              dom.appendChild(el0, el1);
-              var el1 = dom.createElement("a");
-              dom.setAttribute(el1, "class", "disabled");
               var el2 = dom.createTextNode("-");
               dom.appendChild(el1, el2);
               dom.appendChild(el0, el1);
@@ -8797,11 +8922,11 @@ define("ttexp/templates/scenarios", ["exports"], function (exports) {
             "loc": {
               "source": null,
               "start": {
-                "line": 79,
+                "line": 77,
                 "column": 12
               },
               "end": {
-                "line": 85,
+                "line": 83,
                 "column": 12
               }
             },
@@ -8824,7 +8949,217 @@ define("ttexp/templates/scenarios", ["exports"], function (exports) {
             dom.insertBoundary(fragment, null);
             return morphs;
           },
-          statements: [["block", "if", [["get", "scenario.attempts", ["loc", [null, [80, 19], [80, 36]]]]], [], 0, 1, ["loc", [null, [80, 13], [84, 20]]]]],
+          statements: [["block", "if", [["get", "scenario.attempts", ["loc", [null, [78, 19], [78, 36]]]]], [], 0, 1, ["loc", [null, [78, 13], [82, 20]]]]],
+          locals: [],
+          templates: [child0, child1]
+        };
+      })();
+      var child8 = (function () {
+        var child0 = (function () {
+          var child0 = (function () {
+            return {
+              meta: {
+                "fragmentReason": false,
+                "revision": "Ember@2.6.1",
+                "loc": {
+                  "source": null,
+                  "start": {
+                    "line": 88,
+                    "column": 14
+                  },
+                  "end": {
+                    "line": 90,
+                    "column": 14
+                  }
+                },
+                "moduleName": "ttexp/templates/scenarios.hbs"
+              },
+              isEmpty: false,
+              arity: 0,
+              cachedFragment: null,
+              hasRendered: false,
+              buildFragment: function buildFragment(dom) {
+                var el0 = dom.createDocumentFragment();
+                var el1 = dom.createTextNode("															");
+                dom.appendChild(el0, el1);
+                var el1 = dom.createElement("i");
+                dom.setAttribute(el1, "class", "fa fa-check-circle-o");
+                dom.appendChild(el0, el1);
+                var el1 = dom.createTextNode("\n");
+                dom.appendChild(el0, el1);
+                return el0;
+              },
+              buildRenderNodes: function buildRenderNodes() {
+                return [];
+              },
+              statements: [],
+              locals: [],
+              templates: []
+            };
+          })();
+          var child1 = (function () {
+            return {
+              meta: {
+                "fragmentReason": false,
+                "revision": "Ember@2.6.1",
+                "loc": {
+                  "source": null,
+                  "start": {
+                    "line": 90,
+                    "column": 14
+                  },
+                  "end": {
+                    "line": 92,
+                    "column": 14
+                  }
+                },
+                "moduleName": "ttexp/templates/scenarios.hbs"
+              },
+              isEmpty: false,
+              arity: 0,
+              cachedFragment: null,
+              hasRendered: false,
+              buildFragment: function buildFragment(dom) {
+                var el0 = dom.createDocumentFragment();
+                var el1 = dom.createTextNode("															");
+                dom.appendChild(el0, el1);
+                var el1 = dom.createElement("a");
+                dom.setAttribute(el1, "href", "#");
+                dom.setAttribute(el1, "class", "btn-link");
+                var el2 = dom.createElement("i");
+                dom.setAttribute(el2, "class", "fa fa-download");
+                dom.appendChild(el1, el2);
+                dom.appendChild(el0, el1);
+                var el1 = dom.createTextNode("\n");
+                dom.appendChild(el0, el1);
+                return el0;
+              },
+              buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+                var element0 = dom.childAt(fragment, [1]);
+                var morphs = new Array(1);
+                morphs[0] = dom.createElementMorph(element0);
+                return morphs;
+              },
+              statements: [["element", "action", ["download", ["get", "scenario", ["loc", [null, [91, 47], [91, 55]]]]], [], ["loc", [null, [91, 27], [91, 57]]]]],
+              locals: [],
+              templates: []
+            };
+          })();
+          return {
+            meta: {
+              "fragmentReason": false,
+              "revision": "Ember@2.6.1",
+              "loc": {
+                "source": null,
+                "start": {
+                  "line": 87,
+                  "column": 13
+                },
+                "end": {
+                  "line": 93,
+                  "column": 13
+                }
+              },
+              "moduleName": "ttexp/templates/scenarios.hbs"
+            },
+            isEmpty: false,
+            arity: 0,
+            cachedFragment: null,
+            hasRendered: false,
+            buildFragment: function buildFragment(dom) {
+              var el0 = dom.createDocumentFragment();
+              var el1 = dom.createComment("");
+              dom.appendChild(el0, el1);
+              return el0;
+            },
+            buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+              var morphs = new Array(1);
+              morphs[0] = dom.createMorphAt(fragment, 0, 0, contextualElement);
+              dom.insertBoundary(fragment, 0);
+              dom.insertBoundary(fragment, null);
+              return morphs;
+            },
+            statements: [["block", "if", [["get", "scenario.isUpdated._result", ["loc", [null, [88, 20], [88, 46]]]]], [], 0, 1, ["loc", [null, [88, 14], [92, 21]]]]],
+            locals: [],
+            templates: [child0, child1]
+          };
+        })();
+        var child1 = (function () {
+          return {
+            meta: {
+              "fragmentReason": false,
+              "revision": "Ember@2.6.1",
+              "loc": {
+                "source": null,
+                "start": {
+                  "line": 93,
+                  "column": 13
+                },
+                "end": {
+                  "line": 95,
+                  "column": 13
+                }
+              },
+              "moduleName": "ttexp/templates/scenarios.hbs"
+            },
+            isEmpty: false,
+            arity: 0,
+            cachedFragment: null,
+            hasRendered: false,
+            buildFragment: function buildFragment(dom) {
+              var el0 = dom.createDocumentFragment();
+              var el1 = dom.createTextNode("														");
+              dom.appendChild(el0, el1);
+              var el1 = dom.createElement("i");
+              dom.setAttribute(el1, "class", "fa fa-question-circle");
+              dom.appendChild(el0, el1);
+              var el1 = dom.createTextNode("\n");
+              dom.appendChild(el0, el1);
+              return el0;
+            },
+            buildRenderNodes: function buildRenderNodes() {
+              return [];
+            },
+            statements: [],
+            locals: [],
+            templates: []
+          };
+        })();
+        return {
+          meta: {
+            "fragmentReason": false,
+            "revision": "Ember@2.6.1",
+            "loc": {
+              "source": null,
+              "start": {
+                "line": 86,
+                "column": 12
+              },
+              "end": {
+                "line": 96,
+                "column": 12
+              }
+            },
+            "moduleName": "ttexp/templates/scenarios.hbs"
+          },
+          isEmpty: false,
+          arity: 0,
+          cachedFragment: null,
+          hasRendered: false,
+          buildFragment: function buildFragment(dom) {
+            var el0 = dom.createDocumentFragment();
+            var el1 = dom.createComment("");
+            dom.appendChild(el0, el1);
+            return el0;
+          },
+          buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+            var morphs = new Array(1);
+            morphs[0] = dom.createMorphAt(fragment, 0, 0, contextualElement);
+            dom.insertBoundary(fragment, 0);
+            dom.insertBoundary(fragment, null);
+            return morphs;
+          },
+          statements: [["block", "if", [["subexpr", "is-fulfilled", [["get", "scenario.isUpdated", ["loc", [null, [87, 33], [87, 51]]]]], [], ["loc", [null, [87, 19], [87, 52]]]]], [], 0, 1, ["loc", [null, [87, 13], [95, 20]]]]],
           locals: [],
           templates: [child0, child1]
         };
@@ -8840,7 +9175,7 @@ define("ttexp/templates/scenarios", ["exports"], function (exports) {
               "column": 9
             },
             "end": {
-              "line": 91,
+              "line": 99,
               "column": 9
             }
           },
@@ -8901,16 +9236,11 @@ define("ttexp/templates/scenarios", ["exports"], function (exports) {
           var el2 = dom.createTextNode("\n									  		");
           dom.appendChild(el1, el2);
           var el2 = dom.createElement("td");
-          var el3 = dom.createTextNode("\n									  			");
+          var el3 = dom.createTextNode("\n");
           dom.appendChild(el2, el3);
-          var el3 = dom.createElement("a");
-          dom.setAttribute(el3, "href", "#");
-          dom.setAttribute(el3, "class", "btn-link hidden");
-          var el4 = dom.createElement("i");
-          dom.setAttribute(el4, "class", "fa fa-download");
-          dom.appendChild(el3, el4);
+          var el3 = dom.createComment("");
           dom.appendChild(el2, el3);
-          var el3 = dom.createTextNode("\n								  			");
+          var el3 = dom.createTextNode("								  			");
           dom.appendChild(el2, el3);
           dom.appendChild(el1, el2);
           var el2 = dom.createTextNode("\n									  	");
@@ -8921,19 +9251,18 @@ define("ttexp/templates/scenarios", ["exports"], function (exports) {
           return el0;
         },
         buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-          var element4 = dom.childAt(fragment, [1]);
-          var element5 = dom.childAt(element4, [9, 1]);
+          var element5 = dom.childAt(fragment, [1]);
           var morphs = new Array(5);
-          morphs[0] = dom.createMorphAt(dom.childAt(element4, [1]), 1, 1);
-          morphs[1] = dom.createMorphAt(dom.childAt(element4, [3]), 1, 1);
-          morphs[2] = dom.createMorphAt(dom.childAt(element4, [5]), 1, 1);
-          morphs[3] = dom.createMorphAt(dom.childAt(element4, [7]), 1, 1);
-          morphs[4] = dom.createElementMorph(element5);
+          morphs[0] = dom.createMorphAt(dom.childAt(element5, [1]), 1, 1);
+          morphs[1] = dom.createMorphAt(dom.childAt(element5, [3]), 1, 1);
+          morphs[2] = dom.createMorphAt(dom.childAt(element5, [5]), 1, 1);
+          morphs[3] = dom.createMorphAt(dom.childAt(element5, [7]), 1, 1);
+          morphs[4] = dom.createMorphAt(dom.childAt(element5, [9]), 1, 1);
           return morphs;
         },
-        statements: [["block", "if", [["get", "scenario.enabled", ["loc", [null, [42, 18], [42, 34]]]]], [], 0, 1, ["loc", [null, [42, 12], [46, 19]]]], ["block", "if", [["get", "scenario.enabled", ["loc", [null, [49, 18], [49, 34]]]]], [], 2, 3, ["loc", [null, [49, 12], [53, 19]]]], ["block", "if", [["get", "scenario.enabled", ["loc", [null, [56, 18], [56, 34]]]]], [], 4, 5, ["loc", [null, [56, 12], [70, 19]]]], ["block", "if", [["get", "scenario.enabled", ["loc", [null, [73, 18], [73, 34]]]]], [], 6, 7, ["loc", [null, [73, 12], [85, 19]]]], ["element", "action", ["download", ["get", "scenario", ["loc", [null, [88, 46], [88, 54]]]]], [], ["loc", [null, [88, 26], [88, 56]]]]],
+        statements: [["block", "if", [["get", "scenario.enabled", ["loc", [null, [42, 18], [42, 34]]]]], [], 0, 1, ["loc", [null, [42, 12], [46, 19]]]], ["block", "if", [["get", "scenario.enabled", ["loc", [null, [49, 18], [49, 34]]]]], [], 2, 3, ["loc", [null, [49, 12], [53, 19]]]], ["block", "if", [["get", "scenario.enabled", ["loc", [null, [56, 18], [56, 34]]]]], [], 4, 5, ["loc", [null, [56, 12], [68, 19]]]], ["block", "if", [["get", "scenario.enabled", ["loc", [null, [71, 18], [71, 34]]]]], [], 6, 7, ["loc", [null, [71, 12], [83, 19]]]], ["block", "unless", [["subexpr", "is-pending", [["get", "scenario.isUpdated", ["loc", [null, [86, 34], [86, 52]]]]], [], ["loc", [null, [86, 22], [86, 53]]]]], [], 8, null, ["loc", [null, [86, 12], [96, 23]]]]],
         locals: ["scenario"],
-        templates: [child0, child1, child2, child3, child4, child5, child6, child7]
+        templates: [child0, child1, child2, child3, child4, child5, child6, child7, child8]
       };
     })();
     var child1 = (function () {
@@ -8944,11 +9273,11 @@ define("ttexp/templates/scenarios", ["exports"], function (exports) {
           "loc": {
             "source": null,
             "start": {
-              "line": 91,
+              "line": 99,
               "column": 9
             },
             "end": {
-              "line": 95,
+              "line": 103,
               "column": 9
             }
           },
@@ -8993,11 +9322,11 @@ define("ttexp/templates/scenarios", ["exports"], function (exports) {
           "loc": {
             "source": null,
             "start": {
-              "line": 108,
+              "line": 116,
               "column": 1
             },
             "end": {
-              "line": 112,
+              "line": 120,
               "column": 1
             }
           },
@@ -9051,7 +9380,7 @@ define("ttexp/templates/scenarios", ["exports"], function (exports) {
             "column": 0
           },
           "end": {
-            "line": 117,
+            "line": 125,
             "column": 0
           }
         },
@@ -9299,7 +9628,7 @@ define("ttexp/templates/scenarios", ["exports"], function (exports) {
         morphs[5] = dom.createMorphAt(fragment, 8, 8, contextualElement);
         return morphs;
       },
-      statements: [["inline", "partial", ["layout/menu"], [], ["loc", [null, [5, 4], [5, 29]]]], ["element", "action", ["downloadAll", ["get", "model.scenarios", ["loc", [null, [34, 48], [34, 63]]]]], [], ["loc", [null, [34, 25], [34, 65]]]], ["block", "each", [["get", "model.scenarios", ["loc", [null, [39, 17], [39, 32]]]]], [], 0, 1, ["loc", [null, [39, 9], [95, 18]]]], ["block", "bs-modal", [], ["footer", false, "open", ["subexpr", "@mut", [["get", "showDownloadModal", ["loc", [null, [108, 31], [108, 48]]]]], [], []], "closeAction", ["subexpr", "action", ["closeDownloadModal"], [], ["loc", [null, [108, 61], [108, 90]]]], "backdropClose", false, "elementId", "downloadModal", "title", ["subexpr", "@mut", [["get", "downloadModalTitle", ["loc", [null, [108, 143], [108, 161]]]]], [], []]], 2, null, ["loc", [null, [108, 1], [112, 14]]]], ["inline", "notification-container", [], ["position", "top-right"], ["loc", [null, [114, 1], [114, 48]]]], ["content", "outlet", ["loc", [null, [116, 0], [116, 10]]]]],
+      statements: [["inline", "partial", ["layout/menu"], [], ["loc", [null, [5, 4], [5, 29]]]], ["element", "action", ["downloadAll", ["get", "model.scenarios", ["loc", [null, [34, 48], [34, 63]]]]], [], ["loc", [null, [34, 25], [34, 65]]]], ["block", "each", [["get", "model.scenarios", ["loc", [null, [39, 17], [39, 32]]]]], [], 0, 1, ["loc", [null, [39, 9], [103, 18]]]], ["block", "bs-modal", [], ["footer", false, "open", ["subexpr", "@mut", [["get", "showDownloadModal", ["loc", [null, [116, 31], [116, 48]]]]], [], []], "closeAction", ["subexpr", "action", ["closeDownloadModal"], [], ["loc", [null, [116, 61], [116, 90]]]], "backdropClose", false, "elementId", "downloadModal", "title", ["subexpr", "@mut", [["get", "downloadModalTitle", ["loc", [null, [116, 143], [116, 161]]]]], [], []]], 2, null, ["loc", [null, [116, 1], [120, 14]]]], ["inline", "notification-container", [], ["position", "top-right"], ["loc", [null, [122, 1], [122, 48]]]], ["content", "outlet", ["loc", [null, [124, 0], [124, 10]]]]],
       locals: [],
       templates: [child0, child1, child2]
     };
@@ -9988,50 +10317,48 @@ define("ttexp/utils/pg-file-system", ["exports", "ember"], function (exports, _e
 
     init: function init() {},
 
-    createFile: function createFile(dirEntry, fileName, isAppend) {
-      // Creates a new file or returns the file if it already exists.
-      dirEntry.getFile(fileName, { create: true, exclusive: false }, function (fileEntry) {
-        writeFile(fileEntry, null, isAppend);
-      }, onErrorCreateFile);
-    },
-
     writeFile: function writeFile(fileEntry, dataObj, isAppend) {
       var self = this;
-      // Create a FileWriter object for our FileEntry (log.txt).
-      fileEntry.createWriter(function (fileWriter) {
 
-        fileWriter.onwriteend = function () {
-          console.log("Successful file write...");
-          if (dataObj.type === "image/png") {
-            self.readBinaryFile(fileEntry);
-          } else {
-            self.readFile(fileEntry);
+      return new RSVP.Promise(function (resolve, reject) {
+
+        fileEntry.createWriter(function (fileWriter) {
+
+          fileWriter.onwriteend = function () {
+            console.log("Successful file write...");
+            if (dataObj.type === "image/png") {
+              //self.readBinaryFile(fileEntry);
+              // TODO: Non gestito ancora
+              reject("Immagini non gestite");
+            } else {
+              self.readFile(fileEntry).then(function (fileContent) {
+                resolve(fileContent);
+              }, function (reason) {
+                console.log("Error reading file after write");
+                console.log(reason);
+                reject(reason);
+              });
+            }
+          };
+
+          fileWriter.onerror = function (e) {
+            console.log("Failed file write: " + e.toString());
+            reject("Failed file write: " + e.toString());
+          };
+
+          // If data object is not passed in, create a new Blob instead.
+          if (!dataObj) {
+            dataObj = new Blob([{ 'pluto': 12345 }], { type: 'text/plain' });
           }
-        };
 
-        fileWriter.onerror = function (e) {
-          console.log("Failed file write: " + e.toString());
-        };
-
-        // If data object is not passed in, create a new Blob instead.
-        if (!dataObj) {
-          dataObj = new Blob([{ 'pluto': 12345 }], { type: 'text/plain' });
-        }
-
-        fileWriter.write(dataObj);
+          fileWriter.write(dataObj);
+        });
       });
     },
 
-    saveFile: function saveFile(dirEntry, fileData, fileName) {
-      dirEntry.getFile(fileName, { create: true, exclusive: false }, function (fileEntry) {
-        writeFile(fileEntry, fileData);
-      }, function (e) {
-        console.log("Error saving file");
-        console.log(e);
-      });
-    },
+    readFile: function readFile(fileEntry, initFileContent) {
+      var self = this;
 
-    readFile: function readFile(fileEntry) {
       console.log("Start readFile promise");
       return new RSVP.Promise(function (resolve, reject) {
         fileEntry.file(function (file) {
@@ -10051,51 +10378,96 @@ define("ttexp/utils/pg-file-system", ["exports", "ember"], function (exports, _e
           };
 
           reader.readAsText(file);
-        }, function (e) {
-          console.log("Error reading file");
-          console.log(e);
-          reject(e);
+        }, function (reason) {
+          console.log("Error reading file, creating missing file");
+          console.log(reason);
+          reject(reason);
+          /*
+          
+          if (typeof initFileContent === "undefined") {
+            initFileContent = "";
+          }
+          
+          self.writeFile(fileEntry, initFileContent).then(function(fileContent) {
+            resolve(fileContent);
+          }, function(reason) {
+            console.log("Error creating missing file");
+            console.log(reason);
+            reject(reason);
+          });
+          */
         });
       });
     },
 
-    readBinaryFile: function readBinaryFile(fileEntry) {
-      fileEntry.file(function (file) {
-        var reader = new FileReader();
-
-        reader.onloadend = function () {
-          console.log("Successful file write:");
-          console.log(this);
-          console.log(this.result);
-
-          var blob = new Blob([new Uint8Array(this.result)], { type: "image/png" });
-          //displayImage(blob);
-        };
-
-        reader.readAsArrayBuffer(file);
-      }, function (e) {
-        console.log("Error reading file");
-        console.log(e);
-      });
-    },
-
-    createDirectory: function createDirectory(rootDirEntry) {
+    removeFile: function removeFile(fileEntry) {
       var self = this;
-      rootDirEntry.getDirectory('NewDirInRoot', { create: true }, function (dirEntry) {
-        dirEntry.getDirectory('images', { create: true }, function (subDirEntry) {
-          self.createFile(subDirEntry, "fileInNewSubDir.txt");
-        }, function (e) {
-          console.log("Error creating directory");
-          console.log(e);
+
+      return new RSVP.Promise(function (resolve, reject) {
+        fileEntry.remove(function () {
+          // The file has been removed succesfully
+          resolve();
+        }, function (error) {
+          // Error deleting the file
+          reject();
+        }, function () {
+          // The file doesn't exist
+          resolve();
         });
-      }, function (e) {
-        console.log("Error creating directory");
-        console.log(e);
       });
     }
 
   });
 });
+/*
+createFile(dirEntry, fileName, isAppend) {
+  // Creates a new file or returns the file if it already exists.
+  dirEntry.getFile(fileName, {create: true, exclusive: false}, function(fileEntry) {
+    writeFile(fileEntry, null, isAppend);
+  }, function(e) {
+    console.log("Error creating file: " + e.toString());
+    reject("Error creating file: " + e.toString());
+  });
+},
+  saveFile(dirEntry, fileData, fileName) {
+  dirEntry.getFile(fileName, { create: true, exclusive: false }, function (fileEntry) {
+    writeFile(fileEntry, fileData);
+  }, function(e) {
+    console.log("Error saving file");
+    console.log(e);
+  });
+},
+  readBinaryFile(fileEntry) {
+  fileEntry.file(function (file) {
+    var reader = new FileReader();
+      reader.onloadend = function() {
+      console.log("Successful file write:");
+      console.log(this);
+      console.log(this.result);
+        var blob = new Blob([new Uint8Array(this.result)], { type: "image/png" });
+      //displayImage(blob);
+    };
+      reader.readAsArrayBuffer(file);
+    }, function(e) {
+    console.log("Error reading file");
+    console.log(e);
+  });
+},
+  createDirectory(rootDirEntry) {
+  var self = this;
+  rootDirEntry.getDirectory('NewDirInRoot', { create: true }, function (dirEntry) {
+    dirEntry.getDirectory('images', { create: true }, function (subDirEntry) {
+      self.createFile(subDirEntry, "fileInNewSubDir.txt");
+    }, function(e) {
+      console.log("Error creating directory");
+      console.log(e);
+    });
+  }, function(e) {
+    console.log("Error creating directory");
+    console.log(e);
+  });
+},
+*/
 /* jshint ignore:start */
 
 
@@ -10128,7 +10500,7 @@ catch(err) {
 /* jshint ignore:start */
 
 if (!runningTests) {
-  require("ttexp/app")["default"].create({"serverApiUrl":"http://demo.ttexp.net/api","LOG_ACTIVE_GENERATION":false,"LOG_VIEW_LOOKUPS":false,"name":"ttexp","version":"1.0.9+4644f949"});
+  require("ttexp/app")["default"].create({"serverApiUrl":"http://demo.ttexp.net/api","LOG_ACTIVE_GENERATION":false,"LOG_VIEW_LOOKUPS":false,"name":"ttexp","version":"1.0.9+1781e6db"});
 }
 
 /* jshint ignore:end */

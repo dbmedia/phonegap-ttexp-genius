@@ -272,7 +272,7 @@ define('ttexp/tests/models/scenario.jshint', ['exports'], function (exports) {
   QUnit.module('JSHint | models/scenario.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(false, 'models/scenario.js should pass jshint.\nmodels/scenario.js: line 5, col 19, \'service\' is defined but never used.\n\n1 error');
+    assert.ok(false, 'models/scenario.js should pass jshint.\nmodels/scenario.js: line 37, col 13, \'pgFileSystemUtil\' is defined but never used.\nmodels/scenario.js: line 30, col 9, \'key\' is defined but never used.\nmodels/scenario.js: line 51, col 41, \'reject\' is defined but never used.\nmodels/scenario.js: line 58, col 11, \'key\' is defined but never used.\nmodels/scenario.js: line 5, col 19, \'service\' is defined but never used.\n\n5 errors');
   });
 });
 define('ttexp/tests/models/score.jshint', ['exports'], function (exports) {
@@ -380,7 +380,7 @@ define('ttexp/tests/routes/scenarios.jshint', ['exports'], function (exports) {
   QUnit.module('JSHint | routes/scenarios.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(false, 'routes/scenarios.js should pass jshint.\nroutes/scenarios.js: line 158, col 44, \'LocalFileSystem\' is not defined.\nroutes/scenarios.js: line 229, col 28, \'FileTransfer\' is not defined.\n\n2 errors');
+    assert.ok(false, 'routes/scenarios.js should pass jshint.\nroutes/scenarios.js: line 63, col 11, \'pgFileSystemUtil\' is defined but never used.\nroutes/scenarios.js: line 205, col 28, \'FileTransfer\' is not defined.\n\n2 errors');
   });
 });
 define('ttexp/tests/routes/scores.jshint', ['exports'], function (exports) {
@@ -407,7 +407,7 @@ define('ttexp/tests/services/file-system.jshint', ['exports'], function (exports
   QUnit.module('JSHint | services/file-system.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(false, 'services/file-system.js should pass jshint.\nservices/file-system.js: line 21, col 34, \'LocalFileSystem\' is not defined.\n\n1 error');
+    assert.ok(false, 'services/file-system.js should pass jshint.\nservices/file-system.js: line 88, col 39, \'reject\' is defined but never used.\nservices/file-system.js: line 24, col 34, \'LocalFileSystem\' is not defined.\n\n2 errors');
   });
 });
 define('ttexp/tests/services/session.jshint', ['exports'], function (exports) {
@@ -792,7 +792,7 @@ define('ttexp/tests/utils/pg-file-system.jshint', ['exports'], function (exports
   QUnit.module('JSHint | utils/pg-file-system.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(false, 'utils/pg-file-system.js should pass jshint.\nutils/pg-file-system.js: line 18, col 33, \'isAppend\' is defined but never used.\nutils/pg-file-system.js: line 92, col 13, \'blob\' is defined but never used.\nutils/pg-file-system.js: line 13, col 7, \'writeFile\' is not defined.\nutils/pg-file-system.js: line 47, col 7, \'writeFile\' is not defined.\nutils/pg-file-system.js: line 14, col 8, \'onErrorCreateFile\' is not defined.\nutils/pg-file-system.js: line 3, col 19, \'service\' is defined but never used.\n\n6 errors');
+    assert.ok(false, 'utils/pg-file-system.js should pass jshint.\nutils/pg-file-system.js: line 10, col 33, \'isAppend\' is defined but never used.\nutils/pg-file-system.js: line 52, col 9, \'self\' is defined but never used.\nutils/pg-file-system.js: line 51, col 23, \'initFileContent\' is defined but never used.\nutils/pg-file-system.js: line 103, col 18, \'error\' is defined but never used.\nutils/pg-file-system.js: line 97, col 9, \'self\' is defined but never used.\nutils/pg-file-system.js: line 3, col 19, \'service\' is defined but never used.\n\n6 errors');
   });
 });
 /* jshint ignore:start */
