@@ -66,6 +66,9 @@
 		<icon src="icon-40.png" width="40" height="40" />
 		<icon src="icon-40@2x.png" width="80" height="80" />
     </platform>
+	
+    <platform name="winphone">
+	</platform>
     
 	<plugin name="cordova-plugin-whitelist" spec="1.2.2" />
 	<plugin name="cordova-plugin-file-transfer" spec="1.5.1" />

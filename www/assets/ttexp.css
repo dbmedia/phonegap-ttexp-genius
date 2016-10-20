@@ -187,45 +187,30 @@ html, body {
   /* Non-prefixed version, currently not supported by any browser */ }
 
 /* http://willschenk.com/bootstrap-advanced-grid-tricks/ */
-.page-index .container-fluid,
-.page-index .row {
+.page-home .container-fluid,
+.page-home .row {
   height: 100%; }
 
-.page-index #content {
+.page-home #content {
   padding-right: 0;
   margin-left: 25%; }
 
-.page-index #main-content {
+.page-home #main-content {
   margin: 30px 0 0 5px;
   min-height: 200px; }
-  .page-index #main-content .panel-body {
+  .page-home #main-content .panel-body {
     padding: 10px;
     text-align: justify;
     text-justify: inter-word; }
 
-/* http://willschenk.com/bootstrap-advanced-grid-tricks/ */
-.page-scenarios .container-fluid,
-.page-scenarios .row {
-  height: 100%; }
+.page-index #main-content {
+  margin: 30px 0 0 0; }
 
-.page-scenarios #content {
-  padding-right: 0;
-  margin-left: 25%; }
+.page-index #buttons-container button {
+  margin: 0 5px; }
 
-.page-scenarios #main-content {
-  margin: 30px 0 0 5px;
-  min-height: 200px; }
-  .page-scenarios #main-content .panel-body {
-    padding-left: 0;
-    padding-right: 0;
-    text-align: justify;
-    text-justify: inter-word; }
-    .page-scenarios #main-content .panel-body .intro-text {
-      padding: 0 10px 10px 10px; }
-    .page-scenarios #main-content .panel-body hr {
-      margin: 0; }
-    .page-scenarios #main-content .panel-body .table {
-      margin-bottom: 0; }
+.page-index #progress-bar-container {
+  display: none; }
 
 .page-play {
   background-color: #000000; }
@@ -441,6 +426,30 @@ html, body {
   .page-play #button-audio {
     top: 32px;
     right: 32px; }
+
+/* http://willschenk.com/bootstrap-advanced-grid-tricks/ */
+.page-scenarios .container-fluid,
+.page-scenarios .row {
+  height: 100%; }
+
+.page-scenarios #content {
+  padding-right: 0;
+  margin-left: 25%; }
+
+.page-scenarios #main-content {
+  margin: 30px 0 0 5px;
+  min-height: 200px; }
+  .page-scenarios #main-content .panel-body {
+    padding-left: 0;
+    padding-right: 0;
+    text-align: justify;
+    text-justify: inter-word; }
+    .page-scenarios #main-content .panel-body .intro-text {
+      padding: 0 10px 10px 10px; }
+    .page-scenarios #main-content .panel-body hr {
+      margin: 0; }
+    .page-scenarios #main-content .panel-body .table {
+      margin-bottom: 0; }
 
 .page-scores {
   background-color: #000000; }
@@ -9305,13 +9314,13 @@ h6,
   line-height: inherit;
   color: inherit; }
 
-.btn,
+.btn-link,
 a,
 a:visited,
 a:hover {
   text-decoration: none;
   color: #ffffff; }
-  .btn:focus, .btn:hover,
+  .btn-link:focus, .btn-link:hover,
   a:focus,
   a:hover,
   a:visited:focus,
@@ -9319,12 +9328,12 @@ a:hover {
   a:hover:focus,
   a:hover:hover {
     color: #ffffff; }
-  .btn[href]:active:not(.disabled),
+  .btn-link[href]:active:not(.disabled),
   a[href]:active:not(.disabled),
   a:visited[href]:active:not(.disabled),
   a:hover[href]:active:not(.disabled) {
     text-shadow: 0px 0px 4px #c21b17; }
-  .btn.disabled,
+  .btn-link.disabled,
   a.disabled,
   a:visited.disabled,
   a:hover.disabled {
