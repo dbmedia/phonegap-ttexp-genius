@@ -6763,7 +6763,7 @@ define("ttexp/templates/index", ["exports"], function (exports) {
             "column": 0
           },
           "end": {
-            "line": 36,
+            "line": 34,
             "column": 10
           }
         },
@@ -6910,14 +6910,6 @@ define("ttexp/templates/index", ["exports"], function (exports) {
         dom.appendChild(el0, el1);
         var el1 = dom.createTextNode("\n\n");
         dom.appendChild(el0, el1);
-        var el1 = dom.createElement("div");
-        dom.setAttribute(el1, "id", "customer-logo");
-        var el2 = dom.createElement("img");
-        dom.setAttribute(el2, "src", "assets/images/logo-customer.png");
-        dom.appendChild(el1, el2);
-        dom.appendChild(el0, el1);
-        var el1 = dom.createTextNode("\n\n");
-        dom.appendChild(el0, el1);
         var el1 = dom.createComment("");
         dom.appendChild(el0, el1);
         return el0;
@@ -6930,11 +6922,11 @@ define("ttexp/templates/index", ["exports"], function (exports) {
         morphs[0] = dom.createElementMorph(element1);
         morphs[1] = dom.createElementMorph(element2);
         morphs[2] = dom.createMorphAt(fragment, 2, 2, contextualElement);
-        morphs[3] = dom.createMorphAt(fragment, 6, 6, contextualElement);
+        morphs[3] = dom.createMorphAt(fragment, 4, 4, contextualElement);
         dom.insertBoundary(fragment, null);
         return morphs;
       },
-      statements: [["element", "action", ["startUpdate", ["get", "model", ["loc", [null, [19, 62], [19, 67]]]]], [], ["loc", [null, [19, 39], [19, 69]]]], ["element", "action", ["invalidateSession"], [], ["loc", [null, [20, 39], [20, 69]]]], ["inline", "notification-container", [], ["position", "top-right"], ["loc", [null, [32, 0], [32, 47]]]], ["content", "outlet", ["loc", [null, [36, 0], [36, 10]]]]],
+      statements: [["element", "action", ["startUpdate", ["get", "model", ["loc", [null, [19, 62], [19, 67]]]]], [], ["loc", [null, [19, 39], [19, 69]]]], ["element", "action", ["invalidateSession"], [], ["loc", [null, [20, 39], [20, 69]]]], ["inline", "notification-container", [], ["position", "top-right"], ["loc", [null, [32, 0], [32, 47]]]], ["content", "outlet", ["loc", [null, [34, 0], [34, 10]]]]],
       locals: [],
       templates: []
     };
@@ -10976,7 +10968,7 @@ catch(err) {
 /* jshint ignore:start */
 
 if (!runningTests) {
-  require("ttexp/app")["default"].create({"serverApiUrl":"http://demo.ttexp.net/api","LOG_ACTIVE_GENERATION":false,"LOG_VIEW_LOOKUPS":false,"name":"ttexp","version":"1.0.9+e335ed89"});
+  require("ttexp/app")["default"].create({"serverApiUrl":"http://demo.ttexp.net/api","LOG_ACTIVE_GENERATION":false,"LOG_VIEW_LOOKUPS":false,"name":"ttexp","version":"1.0.9+76f0095c"});
 }
 
 /* jshint ignore:end */
