@@ -2,7 +2,7 @@
 <widget xmlns       = "http://www.w3.org/ns/widgets"
         xmlns:gap   = "http://phonegap.com/ns/1.0"
         id          = "it.gruppoina.agmonza.genius"
-        versionCode = "62"
+        versionCode = "63"
         version     = "1.0.10" >
     
     <name>GENius</name>
@@ -43,7 +43,7 @@
     <platform name="ios">
         <allow-intent href="itms:*" />
         <allow-intent href="itms-apps:*" />
-		
+    
 		<!-- iPhone 6 / 6+ -->
 		<icon src="res/icons/ios/icon-60@3x.png" width="180" height="180" />
 

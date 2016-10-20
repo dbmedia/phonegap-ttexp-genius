@@ -344,7 +344,7 @@ define('ttexp/tests/routes/application.jshint', ['exports'], function (exports) 
   QUnit.module('JSHint | routes/application.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(true, 'routes/application.js should pass jshint.');
+    assert.ok(false, 'routes/application.js should pass jshint.\nroutes/application.js: line 37, col 41, Missing semicolon.\n\n1 error');
   });
 });
 define('ttexp/tests/routes/help.jshint', ['exports'], function (exports) {

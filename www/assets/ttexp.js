@@ -1399,6 +1399,19 @@ define('ttexp/routes/application', ['exports', 'ember', 'ember-simple-auth/mixin
     },
     _loadFileSystem: function _loadFileSystem() {
       return this.get('fileSystem').load();
+    },
+
+    sessionInvalidated: function sessionInvalidated() {
+      alert("LOGOUT OVERRIDE");
+      if (this.get('session.skipRedirectOnInvalidation')) {
+        this.set('session.skipRedirectOnInvalidation', false);
+      } else {
+        if (window.cordova) {
+          document.location = "index.html";
+        } else {
+          this._super.apply(this, arguments);
+        }
+      }
     }
   });
 });
@@ -8071,7 +8084,7 @@ define("ttexp/templates/login", ["exports"], function (exports) {
         dom.insertBoundary(fragment, null);
         return morphs;
       },
-      statements: [["element", "action", ["authenticate"], ["on", "submit", "method", "get"], ["loc", [null, [9, 7], [9, 57]]]], ["inline", "input", [], ["class", "form-control", "id", "identification", "placeholder", "Email / Username", "autocapitalize", "none", "autocorrect", "off", "value", ["subexpr", "@mut", [["get", "identification", ["loc", [null, [13, 129], [13, 143]]]]], [], []]], ["loc", [null, [13, 3], [13, 145]]]], ["inline", "input", [], ["class", "form-control", "id", "password", "placeholder", "Password", "type", "password", "autocapitalize", "none", "autocorrect", "off", "value", ["subexpr", "@mut", [["get", "password", ["loc", [null, [17, 131], [17, 139]]]]], [], []]], ["loc", [null, [17, 3], [17, 141]]]], ["block", "if", [["get", "errorMessage", ["loc", [null, [23, 9], [23, 21]]]]], [], 0, null, ["loc", [null, [23, 3], [25, 10]]]], ["block", "bs-modal", [], ["body", false, "footer", false, "open", true, "elementId", "downloadModal", "title", "Termini di utilizzo", "closeButton", false], 1, null, ["loc", [null, [31, 0], [208, 14]]]]],
+      statements: [["element", "action", ["authenticate"], ["on", "submit", "method", "get"], ["loc", [null, [9, 7], [9, 57]]]], ["inline", "input", [], ["class", "form-control", "id", "identification", "placeholder", "Email / Username", "autocapitalize", "none", "autocorrect", "off", "value", ["subexpr", "@mut", [["get", "identification", ["loc", [null, [13, 129], [13, 143]]]]], [], []]], ["loc", [null, [13, 3], [13, 145]]]], ["inline", "input", [], ["class", "form-control", "id", "password", "placeholder", "Password", "type", "password", "autocapitalize", "none", "autocorrect", "off", "value", ["subexpr", "@mut", [["get", "password", ["loc", [null, [17, 131], [17, 139]]]]], [], []]], ["loc", [null, [17, 3], [17, 141]]]], ["block", "if", [["get", "errorMessage", ["loc", [null, [23, 9], [23, 21]]]]], [], 0, null, ["loc", [null, [23, 3], [25, 10]]]], ["block", "bs-modal", [], ["body", false, "footer", false, "open", true, "backdropClose", false, "elementId", "downloadModal", "title", "Termini di utilizzo", "closeButton", false], 1, null, ["loc", [null, [31, 0], [208, 14]]]]],
       locals: [],
       templates: [child0, child1]
     };
