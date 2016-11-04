@@ -2,7 +2,7 @@
 <widget xmlns       = "http://www.w3.org/ns/widgets"
         xmlns:gap   = "http://phonegap.com/ns/1.0"
         id          = "it.gruppoina.agmonza.genius"
-        versionCode = "66"
+        versionCode = "67"
         version     = "1.1.0" >
     
     <name>GENius</name>
@@ -66,11 +66,13 @@
 		<icon src="res/icons/ios/icon-40.png" width="40" height="40" />
 		<icon src="res/icons/ios/icon-40@2x.png" width="80" height="80" />
     </platform>
+	
     <platform name="winphone">
 	</platform>
     
 	<plugin name="cordova-plugin-whitelist" spec="1.2.2" />
 	<plugin name="cordova-plugin-file-transfer" spec="1.5.1" />
+	<plugin name="cordova-plugin-insomnia" version="4.1.0" source="npm" />
 	
     <hook type="before_build" src="scripts/build_ember_app.sh" />
 </widget>
