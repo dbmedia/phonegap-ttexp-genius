@@ -1859,7 +1859,7 @@ define('ttexp/services/download-scenario', ['exports', 'ember'], function (expor
 
                 downloadAttempts++;
                 var mediaFile = mediaFilesArray[mediaFileCounter];
-                if (mediaFile && downloadAttempts < 4) {
+                if (mediaFile && mediaFileCounter < 4) {
                   var fileName = mediaFile.get('fileName');
                   var fileRemotePath = host + dir + fileName;
                   var fileLocalPath = localSource + dir + fileName;
