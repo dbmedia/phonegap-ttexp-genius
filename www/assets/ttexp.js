@@ -1230,7 +1230,9 @@ define('ttexp/models/scenario', ['exports', 'ember', 'ember-data'], function (ex
     rating: _emberData['default'].attr('number'),
     version: _emberData['default'].attr('number'),
     filesHost: _emberData['default'].attr('string'),
-    filesDir: _emberData['default'].attr('string'),
+    filesDir: _emberData['default'].attr('string'), // Retrocompatibilità
+    filesDirectoryVideo: _emberData['default'].attr('string'),
+    filesDirectoryAudio: _emberData['default'].attr('string'),
     enabled: _emberData['default'].attr('boolean', { defaultValue: true }),
     requiredPlays: _emberData['default'].attr('number'),
     showHints: _emberData['default'].attr('boolean', { defaultValue: true }),
@@ -1624,6 +1626,7 @@ define("ttexp/routes/play", ["exports", "ember", "ember-simple-auth/mixins/authe
       // https://www.icanlocalize.com/site/2010/03/using-amazon-s3-to-host-streaming-videos/
       // http://www.inwebson.com/html5/custom-html5-video-controls-with-jquery/ (BUFFERING)
       startVideo: function startVideo() {
+        console.log("startVideo()");
         _ember["default"].$("#overlay").hide();
         var url = "";
         var model = this.currentModel;
@@ -1642,6 +1645,7 @@ define("ttexp/routes/play", ["exports", "ember", "ember-simple-auth/mixins/authe
             videoPlayer.get(0).play();
             videoPlayer.show();
           }, function () {
+            console.log("video non trovato al percorso " + url);
             videoPlayer.attr("src", "");
             //          videoPlayer.trigger('error');
           });
@@ -1654,6 +1658,7 @@ define("ttexp/routes/play", ["exports", "ember", "ember-simple-auth/mixins/authe
           }
       },
       startAudio: function startAudio(item) {
+        console.log("startAudio()");
         var url = "";
         var model = this.currentModel;
         var subPath = item.get('fullPath');
@@ -1663,13 +1668,16 @@ define("ttexp/routes/play", ["exports", "ember", "ember-simple-auth/mixins/authe
         videoPlayer.get(0).pause();
         if (window.cordova && true) {
           url = "cdvfile://localhost/persistent/" + subPath;
+          console.log(url);
           resolveLocalFileSystemURL(url, function (entry) {
             var localUrl = entry.toURL();
+            console.log("Converted local url: " + localUrl);
 
             audioPlayer.attr("src", localUrl);
             audioPlayer.get(0).play();
             audioPlayer.show();
           }, function () {
+            console.log("audio non trovato al percorso " + url);
             audioPlayer.attr("src", "");
           });
         } else {
@@ -1886,7 +1894,7 @@ define('ttexp/services/download-scenario', ['exports', 'ember'], function (expor
     fileSystem: _ember['default'].inject.service('file-system'),
     downloadSession: 0,
     abortOnDownloadError: false,
-    retryLimit: 1, // Max download attempts for a single file, 0 = limitless
+    retryLimit: 3, // Max download attempts for a single file, 0 = limitless
 
     init: function init() {},
     load: function load() {},
@@ -1909,7 +1917,8 @@ define('ttexp/services/download-scenario', ['exports', 'ember'], function (expor
 
             var host = scenario.get('filesHost') + "/";
             var localSource = "cdvfile://localhost/persistent/";
-            var dir = scenario.get('filesDir');
+            var dirVideo = scenario.get('filesDirectoryVideo');
+            var dirAudio = scenario.get('filesDirectoryAudio');
             var mediaFiles = manifesto.get('mediaFiles');
 
             var mediaFilesArray = mediaFiles.toArray();
@@ -1939,8 +1948,14 @@ define('ttexp/services/download-scenario', ['exports', 'ember'], function (expor
                 //if (mediaFile && mediaFileCounter < 4) {
                 if (mediaFile) {
                   var fileName = mediaFile.get('fileName');
-                  var fileRemotePath = host + dir + fileName;
-                  var fileLocalPath = localSource + dir + fileName;
+                  var fileType = mediaFile.get('fileType');
+                  if (fileType == "audio") {
+                    var fileRemotePath = host + dirAudio + fileName;
+                    var fileLocalPath = localSource + dirAudio + fileName;
+                  } else {
+                    var fileRemotePath = host + dirVideo + fileName;
+                    var fileLocalPath = localSource + dirVideo + fileName;
+                  }
 
                   confirmOrDownloadFile(fileRemotePath, fileLocalPath, function () {
                     // TODO: usare promise e then
@@ -11139,7 +11154,7 @@ catch(err) {
 /* jshint ignore:start */
 
 if (!runningTests) {
-  require("ttexp/app")["default"].create({"serverApiUrl":"http://demo.ttexp.net/api","LOG_ACTIVE_GENERATION":false,"LOG_VIEW_LOOKUPS":false,"name":"ttexp","version":"1.2.0+7ba8ce23"});
+  require("ttexp/app")["default"].create({"serverApiUrl":"http://demo.ttexp.net/api","LOG_ACTIVE_GENERATION":false,"LOG_VIEW_LOOKUPS":false,"name":"ttexp","version":"1.2.0+f8ef6f6b"});
 }
 
 /* jshint ignore:end */
