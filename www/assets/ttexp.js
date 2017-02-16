@@ -1886,7 +1886,7 @@ define('ttexp/services/download-scenario', ['exports', 'ember'], function (expor
     fileSystem: _ember['default'].inject.service('file-system'),
     downloadSession: 0,
     abortOnDownloadError: false,
-    retryLimit: 10, // Max download attempts for a single file, 0 = limitless
+    retryLimit: 1, // Max download attempts for a single file, 0 = limitless
 
     init: function init() {},
     load: function load() {},
