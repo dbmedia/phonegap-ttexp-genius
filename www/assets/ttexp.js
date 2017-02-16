@@ -1175,8 +1175,6 @@ define('ttexp/models/manifesto', ['exports', 'ember-data'], function (exports, _
 //import Ember from 'ember';
 define('ttexp/models/media-file', ['exports', 'ember-data'], function (exports, _emberData) {
   exports['default'] = _emberData['default'].Model.extend({
-    video: _emberData['default'].belongsTo('video'),
-
     fileName: _emberData['default'].attr('string'),
     fileType: _emberData['default'].attr('string'),
     size: _emberData['default'].attr('number'),
@@ -1685,7 +1683,6 @@ define("ttexp/routes/play", ["exports", "ember", "ember-simple-auth/mixins/authe
 
           audioPlayer.attr("src", url);
           audioPlayer.get(0).play();
-          audioPlayer.show();
         }
       },
       toggleSideChat: function toggleSideChat() {
