@@ -1,8 +1,8 @@
 <?xml version='1.0' encoding='utf-8'?>
 <widget xmlns       = "http://www.w3.org/ns/widgets"
         xmlns:gap   = "http://phonegap.com/ns/1.0"
-        id          = "it.gruppoina.agmonza.genius"
-        versionCode = "82"
+        id          = "it.gruppoina.agmonza.genius.test"
+        versionCode = "83"
         version     = "1.2.0" >
     
     <name>GENius TEST</name>
