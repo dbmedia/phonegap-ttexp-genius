@@ -13,7 +13,7 @@ define('ttexp/tests/app.jshint', ['exports'], function (exports) {
   QUnit.module('JSHint | app.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(true, 'app.js should pass jshint.');
+    assert.ok(false, 'app.js should pass jshint.\napp.js: line 10, col 23, \'i\' is defined but never used.\n\n1 error');
   });
 });
 define('ttexp/tests/authenticators/oauth2.jshint', ['exports'], function (exports) {
@@ -115,6 +115,15 @@ define('ttexp/tests/controllers/scores.jshint', ['exports'], function (exports) 
     assert.ok(true, 'controllers/scores.js should pass jshint.');
   });
 });
+define('ttexp/tests/controllers/statistics.jshint', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('JSHint | controllers/statistics.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'controllers/statistics.js should pass jshint.');
+  });
+});
 define('ttexp/tests/helpers/breaklines.jshint', ['exports'], function (exports) {
   'use strict';
 
@@ -164,6 +173,15 @@ define('ttexp/tests/helpers/ember-simple-auth', ['exports', 'ember-simple-auth/a
   }
 
   ;
+});
+define('ttexp/tests/helpers/print-statistic-title.jshint', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('JSHint | helpers/print-statistic-title.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'helpers/print-statistic-title.js should pass jshint.');
+  });
 });
 define('ttexp/tests/helpers/resolver', ['exports', 'ember/resolver', 'ttexp/config/environment'], function (exports, _emberResolver, _ttexpConfigEnvironment) {
 
@@ -236,7 +254,7 @@ define('ttexp/tests/models/item.jshint', ['exports'], function (exports) {
   QUnit.module('JSHint | models/item.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(false, 'models/item.js should pass jshint.\nmodels/item.js: line 10, col 13, \'Ember\' is not defined.\n\n1 error');
+    assert.ok(false, 'models/item.js should pass jshint.\nmodels/item.js: line 11, col 13, \'Ember\' is not defined.\n\n1 error');
   });
 });
 define('ttexp/tests/models/manifesto.jshint', ['exports'], function (exports) {
@@ -302,6 +320,15 @@ define('ttexp/tests/models/setting.jshint', ['exports'], function (exports) {
     assert.ok(true, 'models/setting.js should pass jshint.');
   });
 });
+define('ttexp/tests/models/statistic.jshint', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('JSHint | models/statistic.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(false, 'models/statistic.js should pass jshint.\nmodels/statistic.js: line 1, col 8, \'Ember\' is defined but never used.\n\n1 error');
+  });
+});
 define('ttexp/tests/models/tank.jshint', ['exports'], function (exports) {
   'use strict';
 
@@ -344,7 +371,7 @@ define('ttexp/tests/routes/application.jshint', ['exports'], function (exports) 
   QUnit.module('JSHint | routes/application.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(false, 'routes/application.js should pass jshint.\nroutes/application.js: line 36, col 41, Missing semicolon.\n\n1 error');
+    assert.ok(true, 'routes/application.js should pass jshint.');
   });
 });
 define('ttexp/tests/routes/help.jshint', ['exports'], function (exports) {
@@ -398,7 +425,7 @@ define('ttexp/tests/routes/play.jshint', ['exports'], function (exports) {
   QUnit.module('JSHint | routes/play.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(false, 'routes/play.js should pass jshint.\nroutes/play.js: line 73, col 9, \'resolveLocalFileSystemURL\' is not defined.\nroutes/play.js: line 105, col 9, \'resolveLocalFileSystemURL\' is not defined.\n\n2 errors');
+    assert.ok(false, 'routes/play.js should pass jshint.\nroutes/play.js: line 77, col 9, \'resolveLocalFileSystemURL\' is not defined.\nroutes/play.js: line 112, col 9, \'resolveLocalFileSystemURL\' is not defined.\n\n2 errors');
   });
 });
 define('ttexp/tests/routes/scenarios.jshint', ['exports'], function (exports) {
@@ -419,6 +446,15 @@ define('ttexp/tests/routes/scores.jshint', ['exports'], function (exports) {
     assert.ok(true, 'routes/scores.js should pass jshint.');
   });
 });
+define('ttexp/tests/routes/statistics.jshint', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('JSHint | routes/statistics.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(false, 'routes/statistics.js should pass jshint.\nroutes/statistics.js: line 9, col 9, \'params\' is defined but never used.\nroutes/statistics.js: line 5, col 19, \'service\' is defined but never used.\nroutes/statistics.js: line 5, col 30, \'RSVP\' is defined but never used.\nroutes/statistics.js: line 5, col 36, \'getOwner\' is defined but never used.\n\n4 errors');
+  });
+});
 define('ttexp/tests/services/current-user.jshint', ['exports'], function (exports) {
   'use strict';
 
@@ -434,7 +470,7 @@ define('ttexp/tests/services/download-scenario.jshint', ['exports'], function (e
   QUnit.module('JSHint | services/download-scenario.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(false, 'services/download-scenario.js should pass jshint.\nservices/download-scenario.js: line 65, col 32, Expected \'===\' and instead saw \'==\'.\nservices/download-scenario.js: line 69, col 23, \'fileRemotePath\' is already defined.\nservices/download-scenario.js: line 70, col 23, \'fileLocalPath\' is already defined.\nservices/download-scenario.js: line 73, col 39, \'fileRemotePath\' used out of scope.\nservices/download-scenario.js: line 73, col 55, \'fileLocalPath\' used out of scope.\nservices/download-scenario.js: line 219, col 9, \'self\' is defined but never used.\nservices/download-scenario.js: line 279, col 28, \'FileTransfer\' is not defined.\n\n7 errors');
+    assert.ok(false, 'services/download-scenario.js should pass jshint.\nservices/download-scenario.js: line 70, col 23, \'fileRemotePath\' is already defined.\nservices/download-scenario.js: line 71, col 23, \'fileLocalPath\' is already defined.\nservices/download-scenario.js: line 74, col 39, \'fileRemotePath\' used out of scope.\nservices/download-scenario.js: line 74, col 55, \'fileLocalPath\' used out of scope.\nservices/download-scenario.js: line 241, col 9, \'self\' is defined but never used.\nservices/download-scenario.js: line 301, col 28, \'FileTransfer\' is not defined.\n\n6 errors');
   });
 });
 define('ttexp/tests/services/file-system.jshint', ['exports'], function (exports) {
@@ -529,6 +565,25 @@ define('ttexp/tests/unit/helpers/breaklines-test.jshint', ['exports'], function 
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
     assert.ok(true, 'unit/helpers/breaklines-test.js should pass jshint.');
+  });
+});
+define('ttexp/tests/unit/helpers/print-statistic-title-test', ['exports', 'ttexp/helpers/print-statistic-title', 'qunit'], function (exports, _ttexpHelpersPrintStatisticTitle, _qunit) {
+
+  (0, _qunit.module)('Unit | Helper | print statistic title');
+
+  // Replace this with your real tests.
+  (0, _qunit.test)('it works', function (assert) {
+    var result = (0, _ttexpHelpersPrintStatisticTitle.printStatisticTitle)([42]);
+    assert.ok(result);
+  });
+});
+define('ttexp/tests/unit/helpers/print-statistic-title-test.jshint', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('JSHint | unit/helpers/print-statistic-title-test.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'unit/helpers/print-statistic-title-test.js should pass jshint.');
   });
 });
 define('ttexp/tests/unit/initializers/cordova-test', ['exports', 'ember', 'ttexp/initializers/cordova', 'qunit'], function (exports, _ember, _ttexpInitializersCordova, _qunit) {
@@ -693,6 +748,28 @@ define('ttexp/tests/unit/models/scenario-test.jshint', ['exports'], function (ex
     assert.ok(true, 'unit/models/scenario-test.js should pass jshint.');
   });
 });
+define('ttexp/tests/unit/models/statistic-test', ['exports', 'ember-qunit'], function (exports, _emberQunit) {
+
+  (0, _emberQunit.moduleForModel)('statistic', 'Unit | Model | statistic', {
+    // Specify the other units that are required for this test.
+    needs: []
+  });
+
+  (0, _emberQunit.test)('it exists', function (assert) {
+    var model = this.subject();
+    // let store = this.store();
+    assert.ok(!!model);
+  });
+});
+define('ttexp/tests/unit/models/statistic-test.jshint', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('JSHint | unit/models/statistic-test.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'unit/models/statistic-test.js should pass jshint.');
+  });
+});
 define('ttexp/tests/unit/models/tank-test', ['exports', 'ember-qunit'], function (exports, _emberQunit) {
 
   (0, _emberQunit.moduleForModel)('tank', 'Unit | Model | tank', {
@@ -757,6 +834,27 @@ define('ttexp/tests/unit/models/video-test.jshint', ['exports'], function (expor
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
     assert.ok(true, 'unit/models/video-test.js should pass jshint.');
+  });
+});
+define('ttexp/tests/unit/routes/statistics-test', ['exports', 'ember-qunit'], function (exports, _emberQunit) {
+
+  (0, _emberQunit.moduleFor)('route:statistics', 'Unit | Route | statistics', {
+    // Specify the other units that are required for this test.
+    // needs: ['controller:foo']
+  });
+
+  (0, _emberQunit.test)('it exists', function (assert) {
+    var route = this.subject();
+    assert.ok(route);
+  });
+});
+define('ttexp/tests/unit/routes/statistics-test.jshint', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('JSHint | unit/routes/statistics-test.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'unit/routes/statistics-test.js should pass jshint.');
   });
 });
 define('ttexp/tests/unit/services/download-scenario-test', ['exports', 'ember-qunit'], function (exports, _emberQunit) {

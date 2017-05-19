@@ -68,10 +68,10 @@ body {
   border: 4px solid transparent;
   background-clip: padding-box;
   -webkit-border-radius: 7px;
-  background-color: rgba(255, 255, 255, 0.6); }
+  background-color: rgba(194, 27, 23, 0.6); }
 
 ::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(255, 255, 255, 0.8); }
+  background-color: rgba(194, 27, 23, 0.8); }
 
 ::-webkit-scrollbar-button {
   width: 0;
@@ -214,6 +214,10 @@ html, body {
 
 .page-play {
   background-color: #000000; }
+  .page-play ::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.6); }
+  .page-play ::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(255, 255, 255, 0.8); }
   .page-play #video-container {
     overflow: hidden;
     width: 100%;
@@ -467,7 +471,9 @@ html, body {
     padding-left: 0;
     padding-right: 0;
     text-align: justify;
-    text-justify: inter-word; }
+    text-justify: inter-word;
+    max-height: 510px;
+    overflow-y: auto; }
     .page-scenarios #main-content .panel-body .intro-text {
       padding: 0 10px 10px 10px; }
     .page-scenarios #main-content .panel-body hr {
@@ -572,6 +578,72 @@ html, body {
     top: 32px;
     right: 32px; }
 
+/* http://willschenk.com/bootstrap-advanced-grid-tricks/ */
+.page-statistics .container-fluid,
+.page-statistics .row {
+  height: 100%; }
+
+.page-statistics #content {
+  padding-right: 0;
+  margin-left: 25%; }
+
+.page-statistics #main-content {
+  margin: 30px 0 0 5px;
+  min-height: 200px; }
+  .page-statistics #main-content .panel-body {
+    padding: 10px;
+    text-align: justify;
+    text-justify: inter-word;
+    max-height: 510px;
+    overflow-y: auto; }
+
+.page-statistics .statistics-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center; }
+  .page-statistics .statistics-container .statistics-group-title {
+    border-top: 10px solid white;
+    text-align: center;
+    font-weight: bold;
+    text-transform: uppercase;
+    width: 100%;
+    box-sizing: border-box; }
+  .page-statistics .statistics-container .statistic-box {
+    position: relative;
+    height: 110px;
+    flex: 1;
+    min-width: 25%;
+    /* 			max-width: 25%; */
+    width: 25%;
+    border: 3px solid white;
+    box-sizing: border-box;
+    list-style-type: none;
+    vertical-align: middle;
+    background-color: #C21B17;
+    color: #ffffff; }
+    .page-statistics .statistics-container .statistic-box .statistic-description {
+      box-sizing: border-box;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      font-size: 90%;
+      padding: 1.5%;
+      text-align: center;
+      vertical-align: middle;
+      font-weight: bold; }
+    .page-statistics .statistics-container .statistic-box .statistic-value {
+      box-sizing: border-box;
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      font-size: 125%;
+      padding: 1.5%;
+      text-align: center;
+      vertical-align: middle;
+      text-transform: uppercase; }
+
 @media all and (max-width: 1279px) {
   html,
   body,
@@ -579,7 +651,7 @@ html, body {
     font-size: 20px; }
   .page-application .ttexp-btn span,
   .page-application .ttexp-btn i {
-    font-size: 28px; }
+    font-size: 20px; }
   .page-application #customer-logo {
     bottom: 28px;
     left: 28px;
@@ -621,7 +693,7 @@ html, body {
     font-size: 16px; }
   .page-application .ttexp-btn span,
   .page-application .ttexp-btn i {
-    font-size: 18px; }
+    font-size: 16px; }
   .page-application #customer-logo {
     bottom: 18px;
     left: 18px;
@@ -665,7 +737,7 @@ html, body {
     font-size: 12px; }
   .page-application .ttexp-btn span,
   .page-application .ttexp-btn i {
-    font-size: 14px; }
+    font-size: 12px; }
   .page-application #customer-logo {
     bottom: 14px;
     left: 14px;
