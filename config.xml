@@ -1,16 +1,16 @@
 <?xml version='1.0' encoding='utf-8'?>
 <widget xmlns       = "http://www.w3.org/ns/widgets"
         xmlns:gap   = "http://phonegap.com/ns/1.0"
-        id          = "it.gruppoina.agmonza.genius"
-        versionCode = "81"
-        version     = "1.1.1" >
+        id          = "it.gruppoina.agmonza.genius.test"
+        versionCode = "89"
+        version     = "1.2.0" >
     
-    <name>GENius</name>
+    <name>GENius TEST</name>
     <description>
         Agents Training
     </description>
     <author email="dbmedia.marketing@gmail.com" href="http://www.dbmediaweb.net/">
-        DBMedia
+        DBMSoftware
     </author>
     <content src="index.html" />
     <access origin="*" />
