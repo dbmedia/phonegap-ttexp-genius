@@ -1,11 +1,11 @@
 <?xml version='1.0' encoding='utf-8'?>
 <widget xmlns       = "http://www.w3.org/ns/widgets"
         xmlns:gap   = "http://phonegap.com/ns/1.0"
-        id          = "it.gruppoina.agmonza.genius.test"
+        id          = "it.gruppoina.agmonza.genius"
         versionCode = "91"
         version     = "1.3.0" >
     
-    <name>GENius TEST</name>
+    <name>GENius</name>
     <description>
         Agents Training
     </description>
