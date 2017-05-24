@@ -53,7 +53,8 @@ body {
 .ttexp-btn {
   padding: 0; }
   .ttexp-btn span,
-  .ttexp-btn i {
+  .ttexp-btn i,
+  .ttexp-btn .gliphicon {
     font-size: 32px; }
 
 .btn-link {
@@ -650,7 +651,8 @@ html, body {
   body.page-application {
     font-size: 20px; }
   .page-application .ttexp-btn span,
-  .page-application .ttexp-btn i {
+  .page-application .ttexp-btn i,
+  .page-application .ttexp-btn .gliphicon {
     font-size: 20px; }
   .page-application #customer-logo {
     bottom: 28px;
@@ -692,7 +694,8 @@ html, body {
   body.page-application {
     font-size: 16px; }
   .page-application .ttexp-btn span,
-  .page-application .ttexp-btn i {
+  .page-application .ttexp-btn i,
+  .page-application .ttexp-btn .gliphicon {
     font-size: 16px; }
   .page-application #customer-logo {
     bottom: 18px;
@@ -736,7 +739,8 @@ html, body {
   body.page-application {
     font-size: 12px; }
   .page-application .ttexp-btn span,
-  .page-application .ttexp-btn i {
+  .page-application .ttexp-btn i,
+  .page-application .ttexp-btn .gliphicon {
     font-size: 12px; }
   .page-application #customer-logo {
     bottom: 14px;

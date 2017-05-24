@@ -94,7 +94,7 @@ define('ttexp/tests/controllers/play.jshint', ['exports'], function (exports) {
   QUnit.module('JSHint | controllers/play.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(true, 'controllers/play.js should pass jshint.');
+    assert.ok(false, 'controllers/play.js should pass jshint.\ncontrollers/play.js: line 17, col 24, \'component\' is defined but never used.\ncontrollers/play.js: line 27, col 25, \'component\' is defined but never used.\n\n2 errors');
   });
 });
 define('ttexp/tests/controllers/scenarios.jshint', ['exports'], function (exports) {
@@ -425,7 +425,7 @@ define('ttexp/tests/routes/play.jshint', ['exports'], function (exports) {
   QUnit.module('JSHint | routes/play.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(false, 'routes/play.js should pass jshint.\nroutes/play.js: line 96, col 34, Expected \'===\' and instead saw \'==\'.\nroutes/play.js: line 129, col 9, \'resolveLocalFileSystemURL\' is not defined.\nroutes/play.js: line 164, col 9, \'resolveLocalFileSystemURL\' is not defined.\nroutes/play.js: line 6, col 19, \'service\' is defined but never used.\n\n4 errors');
+    assert.ok(false, 'routes/play.js should pass jshint.\nroutes/play.js: line 186, col 9, \'resolveLocalFileSystemURL\' is not defined.\nroutes/play.js: line 226, col 9, \'resolveLocalFileSystemURL\' is not defined.\nroutes/play.js: line 6, col 19, \'service\' is defined but never used.\n\n3 errors');
   });
 });
 define('ttexp/tests/routes/scenarios.jshint', ['exports'], function (exports) {
