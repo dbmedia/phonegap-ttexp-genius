@@ -1791,6 +1791,7 @@ define("ttexp/routes/play", ["exports", "ember", "ember-simple-auth/mixins/authe
         var subPath = model.scenario.get('playState').get('video').get('fullPath');
         var videoPlayer = _ember["default"].$("#video-player");
         videoPlayer.hide();
+        videoPlayer.get(0).pause();
 
         if (window.cordova && true) {
           url = "cdvfile://localhost/persistent/" + subPath;
@@ -1799,15 +1800,13 @@ define("ttexp/routes/play", ["exports", "ember", "ember-simple-auth/mixins/authe
             var localUrl = entry.toURL();
             console.log("Converted local url: " + localUrl);
 
-            videoPlayer.get(0).pause();
             videoPlayer.attr("src", localUrl);
-            videoPlayer.get(0).load();
+            //          videoPlayer.get(0).load();
             self.send('playVideo');
 
             if (videoPlayer.get(0).readyState == 4) {
               self.send('playVideo');
             } else {
-              //            alert("Problemi di caricamento del video, tentativo di ripristino in corso");
               self.send('delayPlayVideoUntilReady', 8);
             }
           }, function () {
@@ -1830,13 +1829,13 @@ define("ttexp/routes/play", ["exports", "ember", "ember-simple-auth/mixins/authe
           }
       },
       delayPlayVideoUntilReady: function delayPlayVideoUntilReady(delay, totalTime) {
-        console.log("delayPlayVideoUntilReady(): " + delay);
         var self = this;
         var videoPlayer = _ember["default"].$("#video-player");
         if (typeof totalTime === "undefined") {
           totalTime = 0;
         }
         totalTime += delay;
+        console.log("delayPlayVideoUntilReady(): " + delay + " status(" + videoPlayer.get(0).readyState + ")");
 
         if (totalTime < 5000) {
           _ember["default"].run.later(function () {
@@ -1857,13 +1856,13 @@ define("ttexp/routes/play", ["exports", "ember", "ember-simple-auth/mixins/authe
       },
       playVideo: function playVideo() {
         var videoPlayer = _ember["default"].$("#video-player");
+        console.log("playVideo(): status(" + videoPlayer.get(0).readyState + ")");
         if (videoPlayer.get(0).paused) {
           videoPlayer.get(0).play();
           videoPlayer.show();
         }
       },
       startAudio: function startAudio(item) {
-        console.log("startAudio()");
         var url = "";
         var model = this.currentModel;
         var subPath = item.get('fullPath');
@@ -11669,7 +11668,7 @@ catch(err) {
 /* jshint ignore:start */
 
 if (!runningTests) {
-  require("ttexp/app")["default"].create({"serverApiUrl":"http://demo.ttexp.net/api","LOG_ACTIVE_GENERATION":false,"LOG_VIEW_LOOKUPS":false,"name":"ttexp","version":"1.3.0+c4bfcf41"});
+  require("ttexp/app")["default"].create({"serverApiUrl":"http://demo.ttexp.net/api","LOG_ACTIVE_GENERATION":false,"LOG_VIEW_LOOKUPS":false,"name":"ttexp","version":"1.3.0+914cfb51"});
 }
 
 /* jshint ignore:end */
