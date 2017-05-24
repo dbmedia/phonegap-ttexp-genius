@@ -1803,12 +1803,6 @@ define("ttexp/routes/play", ["exports", "ember", "ember-simple-auth/mixins/authe
             videoPlayer.attr("src", localUrl);
             //          videoPlayer.get(0).load();
             self.send('playVideo');
-
-            if (videoPlayer.get(0).readyState == 4) {
-              self.send('playVideo');
-            } else {
-              self.send('delayPlayVideoUntilReady', 8);
-            }
           }, function () {
             console.log("video non trovato al percorso " + url);
             videoPlayer.attr("src", "");
@@ -1820,12 +1814,6 @@ define("ttexp/routes/play", ["exports", "ember", "ember-simple-auth/mixins/authe
             videoPlayer.attr("src", url);
             videoPlayer.get(0).load();
             self.send('playVideo');
-
-            if (videoPlayer.get(0).readyState == 4) {
-              self.send('playVideo');
-            } else {
-              self.send('delayPlayVideoUntilReady', 8);
-            }
           }
       },
       delayPlayVideoUntilReady: function delayPlayVideoUntilReady(delay, totalTime) {
@@ -1842,9 +1830,9 @@ define("ttexp/routes/play", ["exports", "ember", "ember-simple-auth/mixins/authe
             if (videoPlayer.get(0).readyState == 4) {
               self.send('playVideo');
             } else {
-              var newDelay = delay * 2; // delay progressivo cappato a 1000
-              if (newDelay > 1000) {
-                newDelay = 1000;
+              var newDelay = delay + 5; // delay progressivo cappato a 1000
+              if (newDelay > 250) {
+                newDelay = 250;
               }
               self.send('delayPlayVideoUntilReady', newDelay, totalTime);
             }
@@ -1855,11 +1843,19 @@ define("ttexp/routes/play", ["exports", "ember", "ember-simple-auth/mixins/authe
         }
       },
       playVideo: function playVideo() {
+        var self = this;
         var videoPlayer = _ember["default"].$("#video-player");
         console.log("playVideo(): status(" + videoPlayer.get(0).readyState + ")");
         if (videoPlayer.get(0).paused) {
-          videoPlayer.get(0).play();
-          videoPlayer.show();
+          if (videoPlayer.get(0).readyState != 4) {
+            self.send('delayPlayVideoUntilReady', 5);
+          } else {
+            videoPlayer.get(0).play();
+            videoPlayer.show();
+          }
+        } else {
+          // already playing
+          console.log(alreadyPlaying);
         }
       },
       startAudio: function startAudio(item) {

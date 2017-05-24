@@ -425,7 +425,7 @@ define('ttexp/tests/routes/play.jshint', ['exports'], function (exports) {
   QUnit.module('JSHint | routes/play.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(false, 'routes/play.js should pass jshint.\nroutes/play.js: line 145, col 34, Expected \'===\' and instead saw \'==\'.\nroutes/play.js: line 188, col 47, Expected \'===\' and instead saw \'==\'.\nroutes/play.js: line 205, col 45, Expected \'===\' and instead saw \'==\'.\nroutes/play.js: line 223, col 47, Expected \'===\' and instead saw \'==\'.\nroutes/play.js: line 180, col 9, \'resolveLocalFileSystemURL\' is not defined.\nroutes/play.js: line 258, col 9, \'resolveLocalFileSystemURL\' is not defined.\nroutes/play.js: line 6, col 19, \'service\' is defined but never used.\n\n7 errors');
+    assert.ok(false, 'routes/play.js should pass jshint.\nroutes/play.js: line 145, col 34, Expected \'===\' and instead saw \'==\'.\nroutes/play.js: line 211, col 47, Expected \'===\' and instead saw \'==\'.\nroutes/play.js: line 231, col 45, Expected \'!==\' and instead saw \'!=\'.\nroutes/play.js: line 232, col 50, Missing semicolon.\nroutes/play.js: line 180, col 9, \'resolveLocalFileSystemURL\' is not defined.\nroutes/play.js: line 254, col 9, \'resolveLocalFileSystemURL\' is not defined.\nroutes/play.js: line 239, col 21, \'alreadyPlaying\' is not defined.\nroutes/play.js: line 6, col 19, \'service\' is defined but never used.\n\n8 errors');
   });
 });
 define('ttexp/tests/routes/scenarios.jshint', ['exports'], function (exports) {
