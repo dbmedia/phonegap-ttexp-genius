@@ -1801,7 +1801,7 @@ define("ttexp/routes/play", ["exports", "ember", "ember-simple-auth/mixins/authe
             console.log("Converted local url: " + localUrl);
 
             videoPlayer.attr("src", localUrl);
-            //          videoPlayer.get(0).load();
+            videoPlayer.get(0).load();
             self.send('playVideo');
           }, function () {
             console.log("video non trovato al percorso " + url);
@@ -1845,7 +1845,8 @@ define("ttexp/routes/play", ["exports", "ember", "ember-simple-auth/mixins/authe
       playVideo: function playVideo() {
         var self = this;
         var videoPlayer = _ember["default"].$("#video-player");
-        console.log("playVideo(): status(" + videoPlayer.get(0).readyState + ")");
+        console.log("playVideo(): status(" + videoPlayer.get(0).readyState + ") paused(" + (videoPlayer.get(0).paused ? 'true' : 'false') + ")");
+
         if (videoPlayer.get(0).paused) {
           if (videoPlayer.get(0).readyState != 4) {
             self.send('delayPlayVideoUntilReady', 5);
@@ -1855,7 +1856,7 @@ define("ttexp/routes/play", ["exports", "ember", "ember-simple-auth/mixins/authe
           }
         } else {
           // already playing
-          console.log(alreadyPlaying);
+          console.log("already playing");
         }
       },
       startAudio: function startAudio(item) {
