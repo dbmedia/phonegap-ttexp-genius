@@ -1634,8 +1634,8 @@ define("ttexp/routes/play", ["exports", "ember", "ember-simple-auth/mixins/authe
       });
     },
     activate: function activate() {
-      _ember["default"].$(window).unbind('resize');
-      _ember["default"].$(window).on('resize', function () {
+      _ember["default"].$(window).unbind('restore');
+      _ember["default"].$(window).on('restore', function () {
         // Fix IOS bug che rende nero il video se è arrivato alla fine e viene fatto il resume dell'applicazione
         var videoPlayer = _ember["default"].$("#video-player");
         if (videoPlayer && typeof videoPlayer[0] !== "undefined") {
@@ -1653,7 +1653,7 @@ define("ttexp/routes/play", ["exports", "ember", "ember-simple-auth/mixins/authe
       this._super.apply(this, arguments);
     },
     deactivate: function deactivate() {
-      _ember["default"].$(window).unbind('resize');
+      _ember["default"].$(window).unbind('restore');
 
       this._super.apply(this, arguments);
     },
