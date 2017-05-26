@@ -14,28 +14,25 @@ define('ttexp/adapters/application', ['exports', 'ember-data', 'ttexp/config/env
 });
 define('ttexp/app', ['exports', 'ember', 'ember/resolver', 'ember/load-initializers', 'ttexp/config/environment'], function (exports, _ember, _emberResolver, _emberLoadInitializers, _ttexpConfigEnvironment) {
 
-	var App;
+  var App;
 
-	_ember['default'].MODEL_FACTORY_INJECTIONS = true;
-	_ember['default'].deprecate = function () {};
-	_ember['default'].warn = function (i) {};
+  _ember['default'].MODEL_FACTORY_INJECTIONS = true;
+  _ember['default'].deprecate = function () {};
+  _ember['default'].warn = function (i) {};
 
-	App = _ember['default'].Application.extend({
-		modulePrefix: _ttexpConfigEnvironment['default'].modulePrefix,
-		podModulePrefix: _ttexpConfigEnvironment['default'].podModulePrefix,
-		Resolver: _emberResolver['default'],
-		customEvents: {
-			pause: 'pause',
-			resume: 'resume'
-		},
+  App = _ember['default'].Application.extend({
+    modulePrefix: _ttexpConfigEnvironment['default'].modulePrefix,
+    podModulePrefix: _ttexpConfigEnvironment['default'].podModulePrefix,
+    Resolver: _emberResolver['default'],
+    customEvents: {
+      pause: 'pause',
+      resume: 'resume'
+    }
+  });
 
-		LOG_TRANSITIONS: true,
-		LOG_TRANSITIONS_INTERNAL: true
-	});
+  (0, _emberLoadInitializers['default'])(App, _ttexpConfigEnvironment['default'].modulePrefix);
 
-	(0, _emberLoadInitializers['default'])(App, _ttexpConfigEnvironment['default'].modulePrefix);
-
-	exports['default'] = App;
+  exports['default'] = App;
 });
 define('ttexp/authenticators/oauth2', ['exports', 'ember-simple-auth/authenticators/oauth2-password-grant', 'ttexp/config/environment'], function (exports, _emberSimpleAuthAuthenticatorsOauth2PasswordGrant, _ttexpConfigEnvironment) {
 	exports['default'] = _emberSimpleAuthAuthenticatorsOauth2PasswordGrant['default'].extend({
@@ -1636,16 +1633,41 @@ define("ttexp/routes/play", ["exports", "ember", "ember-simple-auth/mixins/authe
         scenario: this.store.findRecord('scenario', params.scenario_id, { reload: true })
       });
     },
+    activate: function activate() {
+      _ember["default"].$(window).unbind('resize');
+      _ember["default"].$(window).on('resize', function () {
+        // Fix IOS bug che rende nero il video se è arrivato alla fine e viene fatto il resume dell'applicazione
+        var videoPlayer = _ember["default"].$("#video-player");
+        if (videoPlayer && typeof videoPlayer[0] !== "undefined") {
+          console.log("CHECK VIDEO RESUME");
+          var penultimateFrame = videoPlayer[0].duration - 0.042;
+          if (videoPlayer[0].currentTime > penultimateFrame) {
+            videoPlayer[0].pause();
+            videoPlayer[0].currentTime = penultimateFrame;
+
+            console.log("VIDEO FIXED");
+          }
+        }
+      });
+
+      this._super.apply(this, arguments);
+    },
+    deactivate: function deactivate() {
+      _ember["default"].$(window).unbind('resize');
+
+      this._super.apply(this, arguments);
+    },
 
     /*
     // Manda al penultimo frame una volta tornato all'applicazione dopo un lock o un resume
     document.addEventListener("resume", function() {
-      if (typeof $("#video-player")[0] !== "undefined") {
+      var videoPlayer = Ember.$("#video-player");
+      if (typeof videoPlayer[0] !== "undefined") {
         console.log("CHECK VIDEO RESUME");
-        var penultimateFrame = $("#video-player")[0].duration - 0.042;
-        if ($("#video-player")[0].currentTime >= penultimateFrame) {
-          $("#video-player")[0].pause();
-          $("#video-player")[0].currentTime = penultimateFrame;
+        var penultimateFrame = videoPlayer[0].duration - 0.042;
+        if (videoPlayer[0].currentTime >= penultimateFrame) {
+          videoPlayer[0].pause();
+          videoPlayer[0].currentTime = penultimateFrame;
           
           console.log("VIDEO FIXED");
         }
@@ -1785,11 +1807,13 @@ define("ttexp/routes/play", ["exports", "ember", "ember-simple-auth/mixins/authe
       startVideo: function startVideo() {
         console.log("startVideo()");
         _ember["default"].$("#overlay").hide();
+        var self = this;
         var url = "";
         var model = this.currentModel;
         var subPath = model.scenario.get('playState').get('video').get('fullPath');
         var videoPlayer = _ember["default"].$("#video-player");
         videoPlayer.hide();
+        videoPlayer.get(0).pause();
 
         if (window.cordova && true) {
           url = "cdvfile://localhost/persistent/" + subPath;
@@ -1798,12 +1822,9 @@ define("ttexp/routes/play", ["exports", "ember", "ember-simple-auth/mixins/authe
             var localUrl = entry.toURL();
             console.log("Converted local url: " + localUrl);
 
-            videoPlayer.get(0).pause();
             videoPlayer.attr("src", localUrl);
-            // Aggiungere load e play all'evento canplay
             videoPlayer.get(0).load();
-            videoPlayer.get(0).play();
-            videoPlayer.show();
+            self.send('playVideo');
           }, function () {
             console.log("video non trovato al percorso " + url);
             videoPlayer.attr("src", "");
@@ -1813,12 +1834,54 @@ define("ttexp/routes/play", ["exports", "ember", "ember-simple-auth/mixins/authe
             url = model.scenario.get('filesHost') + "/" + subPath;
 
             videoPlayer.attr("src", url);
+            videoPlayer.get(0).load();
+            self.send('playVideo');
+          }
+      },
+      delayPlayVideoUntilReady: function delayPlayVideoUntilReady(delay, totalTime) {
+        var self = this;
+        var videoPlayer = _ember["default"].$("#video-player");
+        if (typeof totalTime === "undefined") {
+          totalTime = 0;
+        }
+        totalTime += delay;
+        console.log("delayPlayVideoUntilReady(): " + delay + " status(" + videoPlayer.get(0).readyState + ")");
+
+        if (totalTime < 5000) {
+          _ember["default"].run.later(function () {
+            if (videoPlayer.get(0).readyState == 4) {
+              self.send('playVideo');
+            } else {
+              var newDelay = delay + 5; // delay progressivo cappato a 1000
+              if (newDelay > 250) {
+                newDelay = 250;
+              }
+              self.send('delayPlayVideoUntilReady', newDelay, totalTime);
+            }
+          }, delay);
+        } else {
+          alert('Problemi di caricamento del video, la pagina verrà ricaricata');
+          window.location.reload();
+        }
+      },
+      playVideo: function playVideo() {
+        var self = this;
+        var videoPlayer = _ember["default"].$("#video-player");
+        console.log("playVideo(): status(" + videoPlayer.get(0).readyState + ") paused(" + (videoPlayer.get(0).paused ? 'true' : 'false') + ")");
+
+        if (videoPlayer.get(0).paused) {
+          if (videoPlayer.get(0).readyState != 4) {
+            self.send('delayPlayVideoUntilReady', 5);
+          } else {
             videoPlayer.get(0).play();
             videoPlayer.show();
           }
+        } else {
+          // already playing
+          console.log("already playing");
+        }
       },
       startAudio: function startAudio(item) {
-        console.log("startAudio()");
         var url = "";
         var model = this.currentModel;
         var subPath = item.get('fullPath');
@@ -2584,7 +2647,7 @@ define("ttexp/templates/action", ["exports"], function (exports) {
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.6.2",
+        "revision": "Ember@2.6.1",
         "loc": {
           "source": null,
           "start": {
@@ -2625,7 +2688,7 @@ define("ttexp/templates/application", ["exports"], function (exports) {
           "name": "missing-wrapper",
           "problems": ["wrong-type", "multiple-nodes"]
         },
-        "revision": "Ember@2.6.2",
+        "revision": "Ember@2.6.1",
         "loc": {
           "source": null,
           "start": {
@@ -2672,7 +2735,7 @@ define("ttexp/templates/cdv-generic-nav-bar", ["exports"], function (exports) {
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.6.2",
+            "revision": "Ember@2.6.1",
             "loc": {
               "source": null,
               "start": {
@@ -2717,7 +2780,7 @@ define("ttexp/templates/cdv-generic-nav-bar", ["exports"], function (exports) {
             "name": "modifiers",
             "modifiers": ["action"]
           },
-          "revision": "Ember@2.6.2",
+          "revision": "Ember@2.6.1",
           "loc": {
             "source": null,
             "start": {
@@ -2772,7 +2835,7 @@ define("ttexp/templates/cdv-generic-nav-bar", ["exports"], function (exports) {
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.6.2",
+          "revision": "Ember@2.6.1",
           "loc": {
             "source": null,
             "start": {
@@ -2821,7 +2884,7 @@ define("ttexp/templates/cdv-generic-nav-bar", ["exports"], function (exports) {
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.6.2",
+            "revision": "Ember@2.6.1",
             "loc": {
               "source": null,
               "start": {
@@ -2863,7 +2926,7 @@ define("ttexp/templates/cdv-generic-nav-bar", ["exports"], function (exports) {
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.6.2",
+          "revision": "Ember@2.6.1",
           "loc": {
             "source": null,
             "start": {
@@ -2920,7 +2983,7 @@ define("ttexp/templates/cdv-generic-nav-bar", ["exports"], function (exports) {
           "name": "missing-wrapper",
           "problems": ["wrong-type", "multiple-nodes"]
         },
-        "revision": "Ember@2.6.2",
+        "revision": "Ember@2.6.1",
         "loc": {
           "source": null,
           "start": {
@@ -2973,7 +3036,7 @@ define("ttexp/templates/components/bs-accordion-item", ["exports"], function (ex
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.6.2",
+          "revision": "Ember@2.6.1",
           "loc": {
             "source": null,
             "start": {
@@ -3024,7 +3087,7 @@ define("ttexp/templates/components/bs-accordion-item", ["exports"], function (ex
           "name": "missing-wrapper",
           "problems": ["multiple-nodes", "wrong-type"]
         },
-        "revision": "Ember@2.6.2",
+        "revision": "Ember@2.6.1",
         "loc": {
           "source": null,
           "start": {
@@ -3096,7 +3159,7 @@ define("ttexp/templates/components/bs-alert", ["exports"], function (exports) {
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.6.2",
+            "revision": "Ember@2.6.1",
             "loc": {
               "source": null,
               "start": {
@@ -3149,7 +3212,7 @@ define("ttexp/templates/components/bs-alert", ["exports"], function (exports) {
             "name": "missing-wrapper",
             "problems": ["wrong-type", "multiple-nodes"]
           },
-          "revision": "Ember@2.6.2",
+          "revision": "Ember@2.6.1",
           "loc": {
             "source": null,
             "start": {
@@ -3195,7 +3258,7 @@ define("ttexp/templates/components/bs-alert", ["exports"], function (exports) {
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.6.2",
+        "revision": "Ember@2.6.1",
         "loc": {
           "source": null,
           "start": {
@@ -3240,7 +3303,7 @@ define("ttexp/templates/components/bs-button", ["exports"], function (exports) {
           "fragmentReason": {
             "name": "triple-curlies"
           },
-          "revision": "Ember@2.6.2",
+          "revision": "Ember@2.6.1",
           "loc": {
             "source": null,
             "start": {
@@ -3283,7 +3346,7 @@ define("ttexp/templates/components/bs-button", ["exports"], function (exports) {
           "name": "missing-wrapper",
           "problems": ["wrong-type", "multiple-nodes"]
         },
-        "revision": "Ember@2.6.2",
+        "revision": "Ember@2.6.1",
         "loc": {
           "source": null,
           "start": {
@@ -3334,7 +3397,7 @@ define("ttexp/templates/components/bs-form-element", ["exports"], function (expo
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.6.2",
+        "revision": "Ember@2.6.1",
         "loc": {
           "source": null,
           "start": {
@@ -3377,7 +3440,7 @@ define("ttexp/templates/components/bs-form-group", ["exports"], function (export
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.6.2",
+          "revision": "Ember@2.6.1",
           "loc": {
             "source": null,
             "start": {
@@ -3423,7 +3486,7 @@ define("ttexp/templates/components/bs-form-group", ["exports"], function (export
           "name": "missing-wrapper",
           "problems": ["wrong-type", "multiple-nodes"]
         },
-        "revision": "Ember@2.6.2",
+        "revision": "Ember@2.6.1",
         "loc": {
           "source": null,
           "start": {
@@ -3473,7 +3536,7 @@ define("ttexp/templates/components/bs-form", ["exports"], function (exports) {
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.6.2",
+        "revision": "Ember@2.6.1",
         "loc": {
           "source": null,
           "start": {
@@ -3516,7 +3579,7 @@ define("ttexp/templates/components/bs-modal-dialog", ["exports"], function (expo
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.6.2",
+          "revision": "Ember@2.6.1",
           "loc": {
             "source": null,
             "start": {
@@ -3559,7 +3622,7 @@ define("ttexp/templates/components/bs-modal-dialog", ["exports"], function (expo
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.6.2",
+            "revision": "Ember@2.6.1",
             "loc": {
               "source": null,
               "start": {
@@ -3600,7 +3663,7 @@ define("ttexp/templates/components/bs-modal-dialog", ["exports"], function (expo
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.6.2",
+          "revision": "Ember@2.6.1",
           "loc": {
             "source": null,
             "start": {
@@ -3640,7 +3703,7 @@ define("ttexp/templates/components/bs-modal-dialog", ["exports"], function (expo
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.6.2",
+          "revision": "Ember@2.6.1",
           "loc": {
             "source": null,
             "start": {
@@ -3682,7 +3745,7 @@ define("ttexp/templates/components/bs-modal-dialog", ["exports"], function (expo
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.6.2",
+          "revision": "Ember@2.6.1",
           "loc": {
             "source": null,
             "start": {
@@ -3725,7 +3788,7 @@ define("ttexp/templates/components/bs-modal-dialog", ["exports"], function (expo
         "fragmentReason": {
           "name": "triple-curlies"
         },
-        "revision": "Ember@2.6.2",
+        "revision": "Ember@2.6.1",
         "loc": {
           "source": null,
           "start": {
@@ -3793,7 +3856,7 @@ define("ttexp/templates/components/bs-modal-footer", ["exports"], function (expo
             "name": "missing-wrapper",
             "problems": ["wrong-type"]
           },
-          "revision": "Ember@2.6.2",
+          "revision": "Ember@2.6.1",
           "loc": {
             "source": null,
             "start": {
@@ -3837,7 +3900,7 @@ define("ttexp/templates/components/bs-modal-footer", ["exports"], function (expo
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.6.2",
+              "revision": "Ember@2.6.1",
               "loc": {
                 "source": null,
                 "start": {
@@ -3877,7 +3940,7 @@ define("ttexp/templates/components/bs-modal-footer", ["exports"], function (expo
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.6.2",
+              "revision": "Ember@2.6.1",
               "loc": {
                 "source": null,
                 "start": {
@@ -3916,7 +3979,7 @@ define("ttexp/templates/components/bs-modal-footer", ["exports"], function (expo
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.6.2",
+            "revision": "Ember@2.6.1",
             "loc": {
               "source": null,
               "start": {
@@ -3964,7 +4027,7 @@ define("ttexp/templates/components/bs-modal-footer", ["exports"], function (expo
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.6.2",
+              "revision": "Ember@2.6.1",
               "loc": {
                 "source": null,
                 "start": {
@@ -4003,7 +4066,7 @@ define("ttexp/templates/components/bs-modal-footer", ["exports"], function (expo
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.6.2",
+            "revision": "Ember@2.6.1",
             "loc": {
               "source": null,
               "start": {
@@ -4044,7 +4107,7 @@ define("ttexp/templates/components/bs-modal-footer", ["exports"], function (expo
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.6.2",
+          "revision": "Ember@2.6.1",
           "loc": {
             "source": null,
             "start": {
@@ -4086,7 +4149,7 @@ define("ttexp/templates/components/bs-modal-footer", ["exports"], function (expo
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.6.2",
+        "revision": "Ember@2.6.1",
         "loc": {
           "source": null,
           "start": {
@@ -4132,7 +4195,7 @@ define("ttexp/templates/components/bs-modal-header", ["exports"], function (expo
             "name": "modifiers",
             "modifiers": ["action"]
           },
-          "revision": "Ember@2.6.2",
+          "revision": "Ember@2.6.1",
           "loc": {
             "source": null,
             "start": {
@@ -4183,7 +4246,7 @@ define("ttexp/templates/components/bs-modal-header", ["exports"], function (expo
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.6.2",
+          "revision": "Ember@2.6.1",
           "loc": {
             "source": null,
             "start": {
@@ -4225,7 +4288,7 @@ define("ttexp/templates/components/bs-modal-header", ["exports"], function (expo
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.6.2",
+          "revision": "Ember@2.6.1",
           "loc": {
             "source": null,
             "start": {
@@ -4272,7 +4335,7 @@ define("ttexp/templates/components/bs-modal-header", ["exports"], function (expo
           "name": "missing-wrapper",
           "problems": ["wrong-type", "multiple-nodes"]
         },
-        "revision": "Ember@2.6.2",
+        "revision": "Ember@2.6.1",
         "loc": {
           "source": null,
           "start": {
@@ -4319,7 +4382,7 @@ define("ttexp/templates/components/bs-modal", ["exports"], function (exports) {
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.6.2",
+            "revision": "Ember@2.6.1",
             "loc": {
               "source": null,
               "start": {
@@ -4361,7 +4424,7 @@ define("ttexp/templates/components/bs-modal", ["exports"], function (exports) {
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.6.2",
+            "revision": "Ember@2.6.1",
             "loc": {
               "source": null,
               "start": {
@@ -4407,7 +4470,7 @@ define("ttexp/templates/components/bs-modal", ["exports"], function (exports) {
             "name": "missing-wrapper",
             "problems": ["wrong-type", "multiple-nodes"]
           },
-          "revision": "Ember@2.6.2",
+          "revision": "Ember@2.6.1",
           "loc": {
             "source": null,
             "start": {
@@ -4460,7 +4523,7 @@ define("ttexp/templates/components/bs-modal", ["exports"], function (exports) {
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.6.2",
+        "revision": "Ember@2.6.1",
         "loc": {
           "source": null,
           "start": {
@@ -4504,7 +4567,7 @@ define("ttexp/templates/components/bs-progress-bar", ["exports"], function (expo
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.6.2",
+            "revision": "Ember@2.6.1",
             "loc": {
               "source": null,
               "start": {
@@ -4546,7 +4609,7 @@ define("ttexp/templates/components/bs-progress-bar", ["exports"], function (expo
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.6.2",
+            "revision": "Ember@2.6.1",
             "loc": {
               "source": null,
               "start": {
@@ -4587,7 +4650,7 @@ define("ttexp/templates/components/bs-progress-bar", ["exports"], function (expo
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.6.2",
+          "revision": "Ember@2.6.1",
           "loc": {
             "source": null,
             "start": {
@@ -4628,7 +4691,7 @@ define("ttexp/templates/components/bs-progress-bar", ["exports"], function (expo
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.6.2",
+            "revision": "Ember@2.6.1",
             "loc": {
               "source": null,
               "start": {
@@ -4673,7 +4736,7 @@ define("ttexp/templates/components/bs-progress-bar", ["exports"], function (expo
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.6.2",
+            "revision": "Ember@2.6.1",
             "loc": {
               "source": null,
               "start": {
@@ -4719,7 +4782,7 @@ define("ttexp/templates/components/bs-progress-bar", ["exports"], function (expo
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.6.2",
+          "revision": "Ember@2.6.1",
           "loc": {
             "source": null,
             "start": {
@@ -4762,7 +4825,7 @@ define("ttexp/templates/components/bs-progress-bar", ["exports"], function (expo
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.6.2",
+        "revision": "Ember@2.6.1",
         "loc": {
           "source": null,
           "start": {
@@ -4808,7 +4871,7 @@ define("ttexp/templates/components/bs-progress", ["exports"], function (exports)
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.6.2",
+        "revision": "Ember@2.6.1",
         "loc": {
           "source": null,
           "start": {
@@ -4854,7 +4917,7 @@ define("ttexp/templates/components/bs-select", ["exports"], function (exports) {
           "fragmentReason": {
             "name": "triple-curlies"
           },
-          "revision": "Ember@2.6.2",
+          "revision": "Ember@2.6.1",
           "loc": {
             "source": null,
             "start": {
@@ -4905,7 +4968,7 @@ define("ttexp/templates/components/bs-select", ["exports"], function (exports) {
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.6.2",
+          "revision": "Ember@2.6.1",
           "loc": {
             "source": null,
             "start": {
@@ -4958,7 +5021,7 @@ define("ttexp/templates/components/bs-select", ["exports"], function (exports) {
           "name": "missing-wrapper",
           "problems": ["wrong-type", "multiple-nodes"]
         },
-        "revision": "Ember@2.6.2",
+        "revision": "Ember@2.6.1",
         "loc": {
           "source": null,
           "start": {
@@ -5008,7 +5071,7 @@ define("ttexp/templates/components/cdv-nav-bar", ["exports"], function (exports)
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.6.2",
+        "revision": "Ember@2.6.1",
         "loc": {
           "source": null,
           "start": {
@@ -5054,7 +5117,7 @@ define("ttexp/templates/components/form-element/errors", ["exports"], function (
           "fragmentReason": {
             "name": "triple-curlies"
           },
-          "revision": "Ember@2.6.2",
+          "revision": "Ember@2.6.1",
           "loc": {
             "source": null,
             "start": {
@@ -5101,7 +5164,7 @@ define("ttexp/templates/components/form-element/errors", ["exports"], function (
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.6.2",
+        "revision": "Ember@2.6.1",
         "loc": {
           "source": null,
           "start": {
@@ -5146,7 +5209,7 @@ define("ttexp/templates/components/form-element/feedback-icon", ["exports"], fun
           "fragmentReason": {
             "name": "triple-curlies"
           },
-          "revision": "Ember@2.6.2",
+          "revision": "Ember@2.6.1",
           "loc": {
             "source": null,
             "start": {
@@ -5192,7 +5255,7 @@ define("ttexp/templates/components/form-element/feedback-icon", ["exports"], fun
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.6.2",
+        "revision": "Ember@2.6.1",
         "loc": {
           "source": null,
           "start": {
@@ -5236,7 +5299,7 @@ define("ttexp/templates/components/form-element/horizontal/checkbox", ["exports"
         "fragmentReason": {
           "name": "triple-curlies"
         },
-        "revision": "Ember@2.6.2",
+        "revision": "Ember@2.6.1",
         "loc": {
           "source": null,
           "start": {
@@ -5310,7 +5373,7 @@ define("ttexp/templates/components/form-element/horizontal/default", ["exports"]
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.6.2",
+            "revision": "Ember@2.6.1",
             "loc": {
               "source": null,
               "start": {
@@ -5352,7 +5415,7 @@ define("ttexp/templates/components/form-element/horizontal/default", ["exports"]
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.6.2",
+            "revision": "Ember@2.6.1",
             "loc": {
               "source": null,
               "start": {
@@ -5396,7 +5459,7 @@ define("ttexp/templates/components/form-element/horizontal/default", ["exports"]
             "name": "missing-wrapper",
             "problems": ["multiple-nodes"]
           },
-          "revision": "Ember@2.6.2",
+          "revision": "Ember@2.6.1",
           "loc": {
             "source": null,
             "start": {
@@ -5467,7 +5530,7 @@ define("ttexp/templates/components/form-element/horizontal/default", ["exports"]
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.6.2",
+            "revision": "Ember@2.6.1",
             "loc": {
               "source": null,
               "start": {
@@ -5509,7 +5572,7 @@ define("ttexp/templates/components/form-element/horizontal/default", ["exports"]
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.6.2",
+            "revision": "Ember@2.6.1",
             "loc": {
               "source": null,
               "start": {
@@ -5550,7 +5613,7 @@ define("ttexp/templates/components/form-element/horizontal/default", ["exports"]
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.6.2",
+          "revision": "Ember@2.6.1",
           "loc": {
             "source": null,
             "start": {
@@ -5612,7 +5675,7 @@ define("ttexp/templates/components/form-element/horizontal/default", ["exports"]
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.6.2",
+        "revision": "Ember@2.6.1",
         "loc": {
           "source": null,
           "start": {
@@ -5658,7 +5721,7 @@ define("ttexp/templates/components/form-element/horizontal/select", ["exports"],
             "name": "missing-wrapper",
             "problems": ["multiple-nodes"]
           },
-          "revision": "Ember@2.6.2",
+          "revision": "Ember@2.6.1",
           "loc": {
             "source": null,
             "start": {
@@ -5728,7 +5791,7 @@ define("ttexp/templates/components/form-element/horizontal/select", ["exports"],
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.6.2",
+          "revision": "Ember@2.6.1",
           "loc": {
             "source": null,
             "start": {
@@ -5790,7 +5853,7 @@ define("ttexp/templates/components/form-element/horizontal/select", ["exports"],
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.6.2",
+        "revision": "Ember@2.6.1",
         "loc": {
           "source": null,
           "start": {
@@ -5836,7 +5899,7 @@ define("ttexp/templates/components/form-element/horizontal/textarea", ["exports"
             "name": "missing-wrapper",
             "problems": ["multiple-nodes"]
           },
-          "revision": "Ember@2.6.2",
+          "revision": "Ember@2.6.1",
           "loc": {
             "source": null,
             "start": {
@@ -5906,7 +5969,7 @@ define("ttexp/templates/components/form-element/horizontal/textarea", ["exports"
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.6.2",
+          "revision": "Ember@2.6.1",
           "loc": {
             "source": null,
             "start": {
@@ -5968,7 +6031,7 @@ define("ttexp/templates/components/form-element/horizontal/textarea", ["exports"
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.6.2",
+        "revision": "Ember@2.6.1",
         "loc": {
           "source": null,
           "start": {
@@ -6012,7 +6075,7 @@ define("ttexp/templates/components/form-element/inline/checkbox", ["exports"], f
         "fragmentReason": {
           "name": "triple-curlies"
         },
-        "revision": "Ember@2.6.2",
+        "revision": "Ember@2.6.1",
         "loc": {
           "source": null,
           "start": {
@@ -6074,7 +6137,7 @@ define("ttexp/templates/components/form-element/inline/default", ["exports"], fu
           "fragmentReason": {
             "name": "triple-curlies"
           },
-          "revision": "Ember@2.6.2",
+          "revision": "Ember@2.6.1",
           "loc": {
             "source": null,
             "start": {
@@ -6121,7 +6184,7 @@ define("ttexp/templates/components/form-element/inline/default", ["exports"], fu
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.6.2",
+          "revision": "Ember@2.6.1",
           "loc": {
             "source": null,
             "start": {
@@ -6163,7 +6226,7 @@ define("ttexp/templates/components/form-element/inline/default", ["exports"], fu
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.6.2",
+          "revision": "Ember@2.6.1",
           "loc": {
             "source": null,
             "start": {
@@ -6207,7 +6270,7 @@ define("ttexp/templates/components/form-element/inline/default", ["exports"], fu
           "name": "missing-wrapper",
           "problems": ["wrong-type", "multiple-nodes"]
         },
-        "revision": "Ember@2.6.2",
+        "revision": "Ember@2.6.1",
         "loc": {
           "source": null,
           "start": {
@@ -6259,7 +6322,7 @@ define("ttexp/templates/components/form-element/inline/select", ["exports"], fun
           "fragmentReason": {
             "name": "triple-curlies"
           },
-          "revision": "Ember@2.6.2",
+          "revision": "Ember@2.6.1",
           "loc": {
             "source": null,
             "start": {
@@ -6308,7 +6371,7 @@ define("ttexp/templates/components/form-element/inline/select", ["exports"], fun
           "name": "missing-wrapper",
           "problems": ["wrong-type", "multiple-nodes"]
         },
-        "revision": "Ember@2.6.2",
+        "revision": "Ember@2.6.1",
         "loc": {
           "source": null,
           "start": {
@@ -6362,7 +6425,7 @@ define("ttexp/templates/components/form-element/inline/textarea", ["exports"], f
           "fragmentReason": {
             "name": "triple-curlies"
           },
-          "revision": "Ember@2.6.2",
+          "revision": "Ember@2.6.1",
           "loc": {
             "source": null,
             "start": {
@@ -6411,7 +6474,7 @@ define("ttexp/templates/components/form-element/inline/textarea", ["exports"], f
           "name": "missing-wrapper",
           "problems": ["wrong-type", "multiple-nodes"]
         },
-        "revision": "Ember@2.6.2",
+        "revision": "Ember@2.6.1",
         "loc": {
           "source": null,
           "start": {
@@ -6470,7 +6533,7 @@ define("ttexp/templates/components/form-element/vertical/checkbox", ["exports"],
           "name": "missing-wrapper",
           "problems": ["multiple-nodes", "wrong-type"]
         },
-        "revision": "Ember@2.6.2",
+        "revision": "Ember@2.6.1",
         "loc": {
           "source": null,
           "start": {
@@ -6538,7 +6601,7 @@ define("ttexp/templates/components/form-element/vertical/default", ["exports"], 
           "fragmentReason": {
             "name": "triple-curlies"
           },
-          "revision": "Ember@2.6.2",
+          "revision": "Ember@2.6.1",
           "loc": {
             "source": null,
             "start": {
@@ -6585,7 +6648,7 @@ define("ttexp/templates/components/form-element/vertical/default", ["exports"], 
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.6.2",
+          "revision": "Ember@2.6.1",
           "loc": {
             "source": null,
             "start": {
@@ -6627,7 +6690,7 @@ define("ttexp/templates/components/form-element/vertical/default", ["exports"], 
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.6.2",
+          "revision": "Ember@2.6.1",
           "loc": {
             "source": null,
             "start": {
@@ -6671,7 +6734,7 @@ define("ttexp/templates/components/form-element/vertical/default", ["exports"], 
           "name": "missing-wrapper",
           "problems": ["wrong-type", "multiple-nodes"]
         },
-        "revision": "Ember@2.6.2",
+        "revision": "Ember@2.6.1",
         "loc": {
           "source": null,
           "start": {
@@ -6728,7 +6791,7 @@ define("ttexp/templates/components/form-element/vertical/select", ["exports"], f
           "fragmentReason": {
             "name": "triple-curlies"
           },
-          "revision": "Ember@2.6.2",
+          "revision": "Ember@2.6.1",
           "loc": {
             "source": null,
             "start": {
@@ -6777,7 +6840,7 @@ define("ttexp/templates/components/form-element/vertical/select", ["exports"], f
           "name": "missing-wrapper",
           "problems": ["wrong-type", "multiple-nodes"]
         },
-        "revision": "Ember@2.6.2",
+        "revision": "Ember@2.6.1",
         "loc": {
           "source": null,
           "start": {
@@ -6836,7 +6899,7 @@ define("ttexp/templates/components/form-element/vertical/textarea", ["exports"],
           "fragmentReason": {
             "name": "triple-curlies"
           },
-          "revision": "Ember@2.6.2",
+          "revision": "Ember@2.6.1",
           "loc": {
             "source": null,
             "start": {
@@ -6885,7 +6948,7 @@ define("ttexp/templates/components/form-element/vertical/textarea", ["exports"],
           "name": "missing-wrapper",
           "problems": ["wrong-type", "multiple-nodes"]
         },
-        "revision": "Ember@2.6.2",
+        "revision": "Ember@2.6.1",
         "loc": {
           "source": null,
           "start": {
@@ -6944,7 +7007,7 @@ define("ttexp/templates/help", ["exports"], function (exports) {
           "name": "missing-wrapper",
           "problems": ["multiple-nodes", "wrong-type"]
         },
-        "revision": "Ember@2.6.2",
+        "revision": "Ember@2.6.1",
         "loc": {
           "source": null,
           "start": {
@@ -6994,7 +7057,7 @@ define("ttexp/templates/home", ["exports"], function (exports) {
           "name": "missing-wrapper",
           "problems": ["multiple-nodes", "wrong-type"]
         },
-        "revision": "Ember@2.6.2",
+        "revision": "Ember@2.6.1",
         "loc": {
           "source": null,
           "start": {
@@ -7156,7 +7219,7 @@ define("ttexp/templates/index", ["exports"], function (exports) {
           "name": "missing-wrapper",
           "problems": ["multiple-nodes", "wrong-type"]
         },
-        "revision": "Ember@2.6.2",
+        "revision": "Ember@2.6.1",
         "loc": {
           "source": null,
           "start": {
@@ -7331,7 +7394,7 @@ define("ttexp/templates/layout/menu", ["exports"], function (exports) {
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.6.2",
+          "revision": "Ember@2.6.1",
           "loc": {
             "source": null,
             "start": {
@@ -7373,7 +7436,7 @@ define("ttexp/templates/layout/menu", ["exports"], function (exports) {
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.6.2",
+          "revision": "Ember@2.6.1",
           "loc": {
             "source": null,
             "start": {
@@ -7409,7 +7472,7 @@ define("ttexp/templates/layout/menu", ["exports"], function (exports) {
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.6.2",
+          "revision": "Ember@2.6.1",
           "loc": {
             "source": null,
             "start": {
@@ -7445,7 +7508,7 @@ define("ttexp/templates/layout/menu", ["exports"], function (exports) {
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.6.2",
+          "revision": "Ember@2.6.1",
           "loc": {
             "source": null,
             "start": {
@@ -7481,7 +7544,7 @@ define("ttexp/templates/layout/menu", ["exports"], function (exports) {
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.6.2",
+          "revision": "Ember@2.6.1",
           "loc": {
             "source": null,
             "start": {
@@ -7517,7 +7580,7 @@ define("ttexp/templates/layout/menu", ["exports"], function (exports) {
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.6.2",
+          "revision": "Ember@2.6.1",
           "loc": {
             "source": null,
             "start": {
@@ -7564,7 +7627,7 @@ define("ttexp/templates/layout/menu", ["exports"], function (exports) {
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.6.2",
+            "revision": "Ember@2.6.1",
             "loc": {
               "source": null,
               "start": {
@@ -7599,7 +7662,7 @@ define("ttexp/templates/layout/menu", ["exports"], function (exports) {
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.6.2",
+          "revision": "Ember@2.6.1",
           "loc": {
             "source": null,
             "start": {
@@ -7643,7 +7706,7 @@ define("ttexp/templates/layout/menu", ["exports"], function (exports) {
           "name": "missing-wrapper",
           "problems": ["multiple-nodes"]
         },
-        "revision": "Ember@2.6.2",
+        "revision": "Ember@2.6.1",
         "loc": {
           "source": null,
           "start": {
@@ -7784,7 +7847,7 @@ define("ttexp/templates/login", ["exports"], function (exports) {
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.6.2",
+          "revision": "Ember@2.6.1",
           "loc": {
             "source": null,
             "start": {
@@ -7829,7 +7892,7 @@ define("ttexp/templates/login", ["exports"], function (exports) {
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.6.2",
+            "revision": "Ember@2.6.1",
             "loc": {
               "source": null,
               "start": {
@@ -8293,7 +8356,7 @@ define("ttexp/templates/login", ["exports"], function (exports) {
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.6.2",
+          "revision": "Ember@2.6.1",
           "loc": {
             "source": null,
             "start": {
@@ -8341,7 +8404,7 @@ define("ttexp/templates/login", ["exports"], function (exports) {
           "name": "missing-wrapper",
           "problems": ["multiple-nodes", "wrong-type"]
         },
-        "revision": "Ember@2.6.2",
+        "revision": "Ember@2.6.1",
         "loc": {
           "source": null,
           "start": {
@@ -8480,7 +8543,7 @@ define("ttexp/templates/page-not-found", ["exports"], function (exports) {
           "name": "missing-wrapper",
           "problems": ["multiple-nodes", "wrong-type"]
         },
-        "revision": "Ember@2.6.2",
+        "revision": "Ember@2.6.1",
         "loc": {
           "source": null,
           "start": {
@@ -8529,7 +8592,7 @@ define("ttexp/templates/play", ["exports"], function (exports) {
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.6.2",
+            "revision": "Ember@2.6.1",
             "loc": {
               "source": null,
               "start": {
@@ -8564,7 +8627,7 @@ define("ttexp/templates/play", ["exports"], function (exports) {
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.6.2",
+          "revision": "Ember@2.6.1",
           "loc": {
             "source": null,
             "start": {
@@ -8610,7 +8673,7 @@ define("ttexp/templates/play", ["exports"], function (exports) {
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.6.2",
+            "revision": "Ember@2.6.1",
             "loc": {
               "source": null,
               "start": {
@@ -8669,7 +8732,7 @@ define("ttexp/templates/play", ["exports"], function (exports) {
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.6.2",
+          "revision": "Ember@2.6.1",
           "loc": {
             "source": null,
             "start": {
@@ -8710,15 +8773,15 @@ define("ttexp/templates/play", ["exports"], function (exports) {
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.6.2",
+            "revision": "Ember@2.6.1",
             "loc": {
               "source": null,
               "start": {
-                "line": 70,
+                "line": 75,
                 "column": 3
               },
               "end": {
-                "line": 72,
+                "line": 77,
                 "column": 3
               }
             },
@@ -8743,7 +8806,7 @@ define("ttexp/templates/play", ["exports"], function (exports) {
             morphs[0] = dom.createMorphAt(fragment, 1, 1, contextualElement);
             return morphs;
           },
-          statements: [["content", "model.scenario.playState.prevVideo.uniqueCode", ["loc", [null, [71, 11], [71, 60]]]]],
+          statements: [["content", "model.scenario.playState.prevVideo.uniqueCode", ["loc", [null, [76, 11], [76, 60]]]]],
           locals: [],
           templates: []
         };
@@ -8754,15 +8817,15 @@ define("ttexp/templates/play", ["exports"], function (exports) {
             return {
               meta: {
                 "fragmentReason": false,
-                "revision": "Ember@2.6.2",
+                "revision": "Ember@2.6.1",
                 "loc": {
                   "source": null,
                   "start": {
-                    "line": 78,
+                    "line": 83,
                     "column": 5
                   },
                   "end": {
-                    "line": 80,
+                    "line": 85,
                     "column": 5
                   }
                 },
@@ -8813,7 +8876,7 @@ define("ttexp/templates/play", ["exports"], function (exports) {
                 morphs[5] = dom.createMorphAt(fragment, 9, 9, contextualElement);
                 return morphs;
               },
-              statements: [["attribute", "title", ["concat", [["get", "score.variableName", ["loc", [null, [79, 21], [79, 39]]]]]]], ["content", "score.variableCode", ["loc", [null, [79, 43], [79, 65]]]], ["inline", "div", [["subexpr", "round", [["subexpr", "mult", [["subexpr", "div", [["get", "score.value", ["loc", [null, [79, 98], [79, 109]]]], ["get", "model.scenario.playState.stepsCount", ["loc", [null, [79, 110], [79, 145]]]]], [], ["loc", [null, [79, 93], [79, 146]]]], 100], [], ["loc", [null, [79, 87], [79, 151]]]]], [], ["loc", [null, [79, 80], [79, 152]]]], 100], [], ["loc", [null, [79, 74], [79, 158]]]], ["content", "score.value", ["loc", [null, [79, 166], [79, 181]]]], ["content", "score.minValue", ["loc", [null, [79, 188], [79, 206]]]], ["content", "score.maxValue", ["loc", [null, [79, 213], [79, 231]]]]],
+              statements: [["attribute", "title", ["concat", [["get", "score.variableName", ["loc", [null, [84, 21], [84, 39]]]]]]], ["content", "score.variableCode", ["loc", [null, [84, 43], [84, 65]]]], ["inline", "div", [["subexpr", "round", [["subexpr", "mult", [["subexpr", "div", [["get", "score.value", ["loc", [null, [84, 98], [84, 109]]]], ["get", "model.scenario.playState.stepsCount", ["loc", [null, [84, 110], [84, 145]]]]], [], ["loc", [null, [84, 93], [84, 146]]]], 100], [], ["loc", [null, [84, 87], [84, 151]]]]], [], ["loc", [null, [84, 80], [84, 152]]]], 100], [], ["loc", [null, [84, 74], [84, 158]]]], ["content", "score.value", ["loc", [null, [84, 166], [84, 181]]]], ["content", "score.minValue", ["loc", [null, [84, 188], [84, 206]]]], ["content", "score.maxValue", ["loc", [null, [84, 213], [84, 231]]]]],
               locals: ["score"],
               templates: []
             };
@@ -8821,15 +8884,15 @@ define("ttexp/templates/play", ["exports"], function (exports) {
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.6.2",
+              "revision": "Ember@2.6.1",
               "loc": {
                 "source": null,
                 "start": {
-                  "line": 77,
+                  "line": 82,
                   "column": 4
                 },
                 "end": {
-                  "line": 81,
+                  "line": 86,
                   "column": 4
                 }
               },
@@ -8852,7 +8915,7 @@ define("ttexp/templates/play", ["exports"], function (exports) {
               dom.insertBoundary(fragment, null);
               return morphs;
             },
-            statements: [["block", "each", [["get", "model.scenario.playState.playthrough.scores", ["loc", [null, [78, 13], [78, 56]]]]], [], 0, null, ["loc", [null, [78, 5], [80, 14]]]]],
+            statements: [["block", "each", [["get", "model.scenario.playState.playthrough.scores", ["loc", [null, [83, 13], [83, 56]]]]], [], 0, null, ["loc", [null, [83, 5], [85, 14]]]]],
             locals: [],
             templates: [child0]
           };
@@ -8860,15 +8923,15 @@ define("ttexp/templates/play", ["exports"], function (exports) {
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.6.2",
+            "revision": "Ember@2.6.1",
             "loc": {
               "source": null,
               "start": {
-                "line": 74,
+                "line": 79,
                 "column": 3
               },
               "end": {
-                "line": 82,
+                "line": 87,
                 "column": 3
               }
             },
@@ -8903,7 +8966,7 @@ define("ttexp/templates/play", ["exports"], function (exports) {
             dom.insertBoundary(fragment, null);
             return morphs;
           },
-          statements: [["content", "model.scenario.playState.stepsCount", ["loc", [null, [76, 11], [76, 50]]]], ["block", "if", [["get", "model.scenario.playState.stepsCount", ["loc", [null, [77, 10], [77, 45]]]]], [], 0, null, ["loc", [null, [77, 4], [81, 11]]]]],
+          statements: [["content", "model.scenario.playState.stepsCount", ["loc", [null, [81, 11], [81, 50]]]], ["block", "if", [["get", "model.scenario.playState.stepsCount", ["loc", [null, [82, 10], [82, 45]]]]], [], 0, null, ["loc", [null, [82, 4], [86, 11]]]]],
           locals: [],
           templates: [child0]
         };
@@ -8911,15 +8974,15 @@ define("ttexp/templates/play", ["exports"], function (exports) {
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.6.2",
+          "revision": "Ember@2.6.1",
           "loc": {
             "source": null,
             "start": {
-              "line": 67,
+              "line": 72,
               "column": 1
             },
             "end": {
-              "line": 84,
+              "line": 89,
               "column": 1
             }
           },
@@ -8962,7 +9025,7 @@ define("ttexp/templates/play", ["exports"], function (exports) {
           morphs[2] = dom.createMorphAt(element1, 5, 5);
           return morphs;
         },
-        statements: [["content", "model.scenario.playState.video.uniqueCode", ["loc", [null, [69, 10], [69, 55]]]], ["block", "if", [["get", "model.scenario.playState.prevVideo", ["loc", [null, [70, 9], [70, 43]]]]], [], 0, null, ["loc", [null, [70, 3], [72, 10]]]], ["block", "if", [false], [], 1, null, ["loc", [null, [74, 3], [82, 10]]]]],
+        statements: [["content", "model.scenario.playState.video.uniqueCode", ["loc", [null, [74, 10], [74, 55]]]], ["block", "if", [["get", "model.scenario.playState.prevVideo", ["loc", [null, [75, 9], [75, 43]]]]], [], 0, null, ["loc", [null, [75, 3], [77, 10]]]], ["block", "if", [false], [], 1, null, ["loc", [null, [79, 3], [87, 10]]]]],
         locals: [],
         templates: [child0, child1]
       };
@@ -8973,7 +9036,7 @@ define("ttexp/templates/play", ["exports"], function (exports) {
           "name": "missing-wrapper",
           "problems": ["multiple-nodes", "wrong-type"]
         },
-        "revision": "Ember@2.6.2",
+        "revision": "Ember@2.6.1",
         "loc": {
           "source": null,
           "start": {
@@ -8981,7 +9044,7 @@ define("ttexp/templates/play", ["exports"], function (exports) {
             "column": 0
           },
           "end": {
-            "line": 87,
+            "line": 92,
             "column": 0
           }
         },
@@ -9124,8 +9187,9 @@ define("ttexp/templates/play", ["exports"], function (exports) {
         dom.setAttribute(el3, "id", "button-chat");
         dom.setAttribute(el3, "class", "btn btn-link ttexp-btn ttexp-position-absolute top-left");
         dom.setAttribute(el3, "role", "button");
-        var el4 = dom.createElement("span");
-        dom.setAttribute(el4, "class", "glyphicon glyphicon-comment");
+        var el4 = dom.createElement("i");
+        dom.setAttribute(el4, "class", "fa fa-comment");
+        dom.setAttribute(el4, "aria-hidden", "true");
         dom.appendChild(el3, el4);
         dom.appendChild(el2, el3);
         var el3 = dom.createTextNode("\n		");
@@ -9135,8 +9199,9 @@ define("ttexp/templates/play", ["exports"], function (exports) {
         dom.setAttribute(el3, "class", "btn btn-link ttexp-btn ttexp-position-absolute top-right");
         dom.setAttribute(el3, "role", "button");
         dom.setAttribute(el3, "style", "display:none;");
-        var el4 = dom.createElement("span");
-        dom.setAttribute(el4, "class", "glyphicon glyphicon-volume-up");
+        var el4 = dom.createElement("i");
+        dom.setAttribute(el4, "class", "fa fa-volume-up");
+        dom.setAttribute(el4, "aria-hidden", "true");
         dom.appendChild(el3, el4);
         dom.appendChild(el2, el3);
         var el3 = dom.createTextNode("\n	\n		");
@@ -9163,8 +9228,24 @@ define("ttexp/templates/play", ["exports"], function (exports) {
         var el2 = dom.createElement("a");
         dom.setAttribute(el2, "id", "button-close");
         dom.setAttribute(el2, "class", "btn btn-link ttexp-btn ttexp-position-absolute top-left");
-        var el3 = dom.createElement("i");
-        dom.setAttribute(el3, "class", "fa fa-home");
+        var el3 = dom.createTextNode("\n		");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("span");
+        dom.setAttribute(el3, "class", "fa-stack fa-sm");
+        var el4 = dom.createTextNode("\n		  ");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createElement("i");
+        dom.setAttribute(el4, "class", "fa fa-circle fa-stack-2x fa-background");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n		  ");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createElement("i");
+        dom.setAttribute(el4, "class", "fa fa-close fa-stack-1x");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n		");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode("\n	");
         dom.appendChild(el2, el3);
         dom.appendChild(el1, el2);
         var el2 = dom.createTextNode("\n	");
@@ -9215,7 +9296,7 @@ define("ttexp/templates/play", ["exports"], function (exports) {
         morphs[10] = dom.createMorphAt(fragment, 2, 2, contextualElement);
         return morphs;
       },
-      statements: [["inline", "breaklines", [["get", "model.scenario.description", ["loc", [null, [5, 17], [5, 43]]]]], [], ["loc", [null, [5, 4], [5, 45]]]], ["element", "action", ["startVideo"], [], ["loc", [null, [8, 7], [8, 30]]]], ["attribute", "onended", ["subexpr", "action", ["videoEnded"], [], ["loc", [null, [13, 35], [13, 58]]]]], ["attribute", "onerror", ["subexpr", "action", ["videoEnded"], [], ["loc", [null, [13, 67], [13, 90]]]]], ["attribute", "onended", ["subexpr", "action", ["audioEnded"], [], ["loc", [null, [24, 35], [24, 58]]]]], ["attribute", "onerror", ["subexpr", "action", ["audioEnded"], [], ["loc", [null, [24, 67], [24, 90]]]]], ["element", "action", ["toggleSideChat"], ["on", "click"], ["loc", [null, [37, 105], [37, 143]]]], ["block", "if", [["get", "model.scenario.playState.gameCompleted", ["loc", [null, [41, 9], [41, 47]]]]], [], 0, 1, ["loc", [null, [41, 3], [50, 10]]]], ["element", "action", ["exit"], [], ["loc", [null, [60, 86], [60, 103]]]], ["block", "if", [false], [], 2, null, ["loc", [null, [67, 1], [84, 8]]]], ["content", "outlet", ["loc", [null, [86, 0], [86, 10]]]]],
+      statements: [["inline", "breaklines", [["get", "model.scenario.description", ["loc", [null, [5, 17], [5, 43]]]]], [], ["loc", [null, [5, 4], [5, 45]]]], ["element", "action", ["startVideo"], [], ["loc", [null, [8, 7], [8, 30]]]], ["attribute", "onended", ["subexpr", "action", ["videoEnded"], [], ["loc", [null, [13, 35], [13, 58]]]]], ["attribute", "onerror", ["subexpr", "action", ["videoEnded"], [], ["loc", [null, [13, 67], [13, 90]]]]], ["attribute", "onended", ["subexpr", "action", ["audioEnded"], [], ["loc", [null, [24, 35], [24, 58]]]]], ["attribute", "onerror", ["subexpr", "action", ["audioEnded"], [], ["loc", [null, [24, 67], [24, 90]]]]], ["element", "action", ["toggleSideChat"], ["on", "click"], ["loc", [null, [37, 105], [37, 143]]]], ["block", "if", [["get", "model.scenario.playState.gameCompleted", ["loc", [null, [41, 9], [41, 47]]]]], [], 0, 1, ["loc", [null, [41, 3], [50, 10]]]], ["element", "action", ["exit"], [], ["loc", [null, [60, 86], [60, 103]]]], ["block", "if", [false], [], 2, null, ["loc", [null, [72, 1], [89, 8]]]], ["content", "outlet", ["loc", [null, [91, 0], [91, 10]]]]],
       locals: [],
       templates: [child0, child1, child2]
     };
@@ -9231,7 +9312,7 @@ define("ttexp/templates/scenarios", ["exports"], function (exports) {
               return {
                 meta: {
                   "fragmentReason": false,
-                  "revision": "Ember@2.6.2",
+                  "revision": "Ember@2.6.1",
                   "loc": {
                     "source": null,
                     "start": {
@@ -9279,7 +9360,7 @@ define("ttexp/templates/scenarios", ["exports"], function (exports) {
               return {
                 meta: {
                   "fragmentReason": false,
-                  "revision": "Ember@2.6.2",
+                  "revision": "Ember@2.6.1",
                   "loc": {
                     "source": null,
                     "start": {
@@ -9326,7 +9407,7 @@ define("ttexp/templates/scenarios", ["exports"], function (exports) {
             return {
               meta: {
                 "fragmentReason": false,
-                "revision": "Ember@2.6.2",
+                "revision": "Ember@2.6.1",
                 "loc": {
                   "source": null,
                   "start": {
@@ -9366,7 +9447,7 @@ define("ttexp/templates/scenarios", ["exports"], function (exports) {
             return {
               meta: {
                 "fragmentReason": false,
-                "revision": "Ember@2.6.2",
+                "revision": "Ember@2.6.1",
                 "loc": {
                   "source": null,
                   "start": {
@@ -9406,7 +9487,7 @@ define("ttexp/templates/scenarios", ["exports"], function (exports) {
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.6.2",
+              "revision": "Ember@2.6.1",
               "loc": {
                 "source": null,
                 "start": {
@@ -9445,7 +9526,7 @@ define("ttexp/templates/scenarios", ["exports"], function (exports) {
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.6.2",
+            "revision": "Ember@2.6.1",
             "loc": {
               "source": null,
               "start": {
@@ -9485,7 +9566,7 @@ define("ttexp/templates/scenarios", ["exports"], function (exports) {
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.6.2",
+            "revision": "Ember@2.6.1",
             "loc": {
               "source": null,
               "start": {
@@ -9529,7 +9610,7 @@ define("ttexp/templates/scenarios", ["exports"], function (exports) {
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.6.2",
+            "revision": "Ember@2.6.1",
             "loc": {
               "source": null,
               "start": {
@@ -9577,7 +9658,7 @@ define("ttexp/templates/scenarios", ["exports"], function (exports) {
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.6.2",
+            "revision": "Ember@2.6.1",
             "loc": {
               "source": null,
               "start": {
@@ -9623,7 +9704,7 @@ define("ttexp/templates/scenarios", ["exports"], function (exports) {
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.6.2",
+              "revision": "Ember@2.6.1",
               "loc": {
                 "source": null,
                 "start": {
@@ -9663,7 +9744,7 @@ define("ttexp/templates/scenarios", ["exports"], function (exports) {
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.6.2",
+            "revision": "Ember@2.6.1",
             "loc": {
               "source": null,
               "start": {
@@ -9718,7 +9799,7 @@ define("ttexp/templates/scenarios", ["exports"], function (exports) {
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.6.2",
+              "revision": "Ember@2.6.1",
               "loc": {
                 "source": null,
                 "start": {
@@ -9758,7 +9839,7 @@ define("ttexp/templates/scenarios", ["exports"], function (exports) {
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.6.2",
+            "revision": "Ember@2.6.1",
             "loc": {
               "source": null,
               "start": {
@@ -9814,7 +9895,7 @@ define("ttexp/templates/scenarios", ["exports"], function (exports) {
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.6.2",
+              "revision": "Ember@2.6.1",
               "loc": {
                 "source": null,
                 "start": {
@@ -9860,7 +9941,7 @@ define("ttexp/templates/scenarios", ["exports"], function (exports) {
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.6.2",
+              "revision": "Ember@2.6.1",
               "loc": {
                 "source": null,
                 "start": {
@@ -9901,7 +9982,7 @@ define("ttexp/templates/scenarios", ["exports"], function (exports) {
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.6.2",
+            "revision": "Ember@2.6.1",
             "loc": {
               "source": null,
               "start": {
@@ -9942,7 +10023,7 @@ define("ttexp/templates/scenarios", ["exports"], function (exports) {
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.6.2",
+              "revision": "Ember@2.6.1",
               "loc": {
                 "source": null,
                 "start": {
@@ -9989,7 +10070,7 @@ define("ttexp/templates/scenarios", ["exports"], function (exports) {
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.6.2",
+              "revision": "Ember@2.6.1",
               "loc": {
                 "source": null,
                 "start": {
@@ -10031,7 +10112,7 @@ define("ttexp/templates/scenarios", ["exports"], function (exports) {
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.6.2",
+            "revision": "Ember@2.6.1",
             "loc": {
               "source": null,
               "start": {
@@ -10070,7 +10151,7 @@ define("ttexp/templates/scenarios", ["exports"], function (exports) {
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.6.2",
+          "revision": "Ember@2.6.1",
           "loc": {
             "source": null,
             "start": {
@@ -10161,7 +10242,7 @@ define("ttexp/templates/scenarios", ["exports"], function (exports) {
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.6.2",
+          "revision": "Ember@2.6.1",
           "loc": {
             "source": null,
             "start": {
@@ -10210,7 +10291,7 @@ define("ttexp/templates/scenarios", ["exports"], function (exports) {
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.6.2",
+          "revision": "Ember@2.6.1",
           "loc": {
             "source": null,
             "start": {
@@ -10264,7 +10345,7 @@ define("ttexp/templates/scenarios", ["exports"], function (exports) {
           "name": "missing-wrapper",
           "problems": ["multiple-nodes", "wrong-type"]
         },
-        "revision": "Ember@2.6.2",
+        "revision": "Ember@2.6.1",
         "loc": {
           "source": null,
           "start": {
@@ -10527,7 +10608,7 @@ define("ttexp/templates/scores", ["exports"], function (exports) {
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.6.2",
+          "revision": "Ember@2.6.1",
           "loc": {
             "source": null,
             "start": {
@@ -10535,7 +10616,7 @@ define("ttexp/templates/scores", ["exports"], function (exports) {
               "column": 0
             },
             "end": {
-              "line": 5,
+              "line": 7,
               "column": 0
             }
           },
@@ -10547,8 +10628,22 @@ define("ttexp/templates/scores", ["exports"], function (exports) {
         hasRendered: false,
         buildFragment: function buildFragment(dom) {
           var el0 = dom.createDocumentFragment();
-          var el1 = dom.createElement("i");
-          dom.setAttribute(el1, "class", "fa fa-home");
+          var el1 = dom.createTextNode("	");
+          dom.appendChild(el0, el1);
+          var el1 = dom.createElement("span");
+          dom.setAttribute(el1, "class", "fa-stack fa-sm");
+          var el2 = dom.createTextNode("\n		");
+          dom.appendChild(el1, el2);
+          var el2 = dom.createElement("i");
+          dom.setAttribute(el2, "class", "fa fa-circle fa-stack-2x fa-background");
+          dom.appendChild(el1, el2);
+          var el2 = dom.createTextNode("\n		");
+          dom.appendChild(el1, el2);
+          var el2 = dom.createElement("i");
+          dom.setAttribute(el2, "class", "fa fa-close fa-stack-1x");
+          dom.appendChild(el1, el2);
+          var el2 = dom.createTextNode("\n	");
+          dom.appendChild(el1, el2);
           dom.appendChild(el0, el1);
           var el1 = dom.createTextNode("\n");
           dom.appendChild(el0, el1);
@@ -10567,15 +10662,15 @@ define("ttexp/templates/scores", ["exports"], function (exports) {
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.6.2",
+            "revision": "Ember@2.6.1",
             "loc": {
               "source": null,
               "start": {
-                "line": 15,
+                "line": 17,
                 "column": 8
               },
               "end": {
-                "line": 16,
+                "line": 18,
                 "column": 8
               }
             },
@@ -10601,15 +10696,15 @@ define("ttexp/templates/scores", ["exports"], function (exports) {
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.6.2",
+            "revision": "Ember@2.6.1",
             "loc": {
               "source": null,
               "start": {
-                "line": 16,
+                "line": 18,
                 "column": 8
               },
               "end": {
-                "line": 20,
+                "line": 22,
                 "column": 8
               }
             },
@@ -10646,7 +10741,7 @@ define("ttexp/templates/scores", ["exports"], function (exports) {
             morphs[1] = dom.createMorphAt(element2, 3, 3);
             return morphs;
           },
-          statements: [["content", "score.variableName", ["loc", [null, [18, 9], [18, 31]]]], ["content", "score.percent", ["loc", [null, [18, 37], [18, 54]]]]],
+          statements: [["content", "score.variableName", ["loc", [null, [20, 9], [20, 31]]]], ["content", "score.percent", ["loc", [null, [20, 37], [20, 54]]]]],
           locals: [],
           templates: []
         };
@@ -10654,15 +10749,15 @@ define("ttexp/templates/scores", ["exports"], function (exports) {
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.6.2",
+          "revision": "Ember@2.6.1",
           "loc": {
             "source": null,
             "start": {
-              "line": 14,
+              "line": 16,
               "column": 7
             },
             "end": {
-              "line": 21,
+              "line": 23,
               "column": 7
             }
           },
@@ -10685,7 +10780,7 @@ define("ttexp/templates/scores", ["exports"], function (exports) {
           dom.insertBoundary(fragment, null);
           return morphs;
         },
-        statements: [["block", "if", [["get", "score.variableId", ["loc", [null, [15, 14], [15, 30]]]]], [], 0, 1, ["loc", [null, [15, 8], [20, 15]]]]],
+        statements: [["block", "if", [["get", "score.variableId", ["loc", [null, [17, 14], [17, 30]]]]], [], 0, 1, ["loc", [null, [17, 8], [22, 15]]]]],
         locals: ["score"],
         templates: [child0, child1]
       };
@@ -10694,15 +10789,15 @@ define("ttexp/templates/scores", ["exports"], function (exports) {
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.6.2",
+          "revision": "Ember@2.6.1",
           "loc": {
             "source": null,
             "start": {
-              "line": 27,
+              "line": 29,
               "column": 7
             },
             "end": {
-              "line": 29,
+              "line": 31,
               "column": 7
             }
           },
@@ -10730,15 +10825,15 @@ define("ttexp/templates/scores", ["exports"], function (exports) {
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.6.2",
+          "revision": "Ember@2.6.1",
           "loc": {
             "source": null,
             "start": {
-              "line": 29,
+              "line": 31,
               "column": 7
             },
             "end": {
-              "line": 31,
+              "line": 33,
               "column": 7
             }
           },
@@ -10767,15 +10862,15 @@ define("ttexp/templates/scores", ["exports"], function (exports) {
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.6.2",
+            "revision": "Ember@2.6.1",
             "loc": {
               "source": null,
               "start": {
-                "line": 57,
+                "line": 59,
                 "column": 11
               },
               "end": {
-                "line": 61,
+                "line": 63,
                 "column": 11
               }
             },
@@ -10811,7 +10906,7 @@ define("ttexp/templates/scores", ["exports"], function (exports) {
             morphs[1] = dom.createMorphAt(element1, 0, 0);
             return morphs;
           },
-          statements: [["element", "action", ["showModal", ["get", "score.variableName", ["loc", [null, [59, 58], [59, 76]]]], ["get", "score.variableDescription", ["loc", [null, [59, 77], [59, 102]]]]], [], ["loc", [null, [59, 37], [59, 104]]]], ["content", "score.variableName", ["loc", [null, [59, 105], [59, 127]]]]],
+          statements: [["element", "action", ["showModal", ["get", "score.variableName", ["loc", [null, [61, 58], [61, 76]]]], ["get", "score.variableDescription", ["loc", [null, [61, 77], [61, 102]]]]], [], ["loc", [null, [61, 37], [61, 104]]]], ["content", "score.variableName", ["loc", [null, [61, 105], [61, 127]]]]],
           locals: [],
           templates: []
         };
@@ -10819,15 +10914,15 @@ define("ttexp/templates/scores", ["exports"], function (exports) {
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.6.2",
+          "revision": "Ember@2.6.1",
           "loc": {
             "source": null,
             "start": {
-              "line": 56,
+              "line": 58,
               "column": 10
             },
             "end": {
-              "line": 62,
+              "line": 64,
               "column": 10
             }
           },
@@ -10850,7 +10945,7 @@ define("ttexp/templates/scores", ["exports"], function (exports) {
           dom.insertBoundary(fragment, null);
           return morphs;
         },
-        statements: [["block", "if", [["get", "score.variableId", ["loc", [null, [57, 17], [57, 33]]]]], [], 0, null, ["loc", [null, [57, 11], [61, 18]]]]],
+        statements: [["block", "if", [["get", "score.variableId", ["loc", [null, [59, 17], [59, 33]]]]], [], 0, null, ["loc", [null, [59, 11], [63, 18]]]]],
         locals: ["score"],
         templates: [child0]
       };
@@ -10860,15 +10955,15 @@ define("ttexp/templates/scores", ["exports"], function (exports) {
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.6.2",
+            "revision": "Ember@2.6.1",
             "loc": {
               "source": null,
               "start": {
-                "line": 68,
+                "line": 70,
                 "column": 11
               },
               "end": {
-                "line": 72,
+                "line": 74,
                 "column": 11
               }
             },
@@ -10903,7 +10998,7 @@ define("ttexp/templates/scores", ["exports"], function (exports) {
             morphs[1] = dom.createMorphAt(element0, 0, 0);
             return morphs;
           },
-          statements: [["attribute", "class", ["concat", ["score-vote ", ["get", "score.voteClass", ["loc", [null, [70, 38], [70, 53]]]]]]], ["content", "score.vote", ["loc", [null, [70, 57], [70, 71]]]]],
+          statements: [["attribute", "class", ["concat", ["score-vote ", ["get", "score.voteClass", ["loc", [null, [72, 38], [72, 53]]]]]]], ["content", "score.vote", ["loc", [null, [72, 57], [72, 71]]]]],
           locals: [],
           templates: []
         };
@@ -10911,15 +11006,15 @@ define("ttexp/templates/scores", ["exports"], function (exports) {
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.6.2",
+          "revision": "Ember@2.6.1",
           "loc": {
             "source": null,
             "start": {
-              "line": 67,
+              "line": 69,
               "column": 10
             },
             "end": {
-              "line": 73,
+              "line": 75,
               "column": 10
             }
           },
@@ -10942,7 +11037,7 @@ define("ttexp/templates/scores", ["exports"], function (exports) {
           dom.insertBoundary(fragment, null);
           return morphs;
         },
-        statements: [["block", "if", [["get", "score.variableId", ["loc", [null, [68, 17], [68, 33]]]]], [], 0, null, ["loc", [null, [68, 11], [72, 18]]]]],
+        statements: [["block", "if", [["get", "score.variableId", ["loc", [null, [70, 17], [70, 33]]]]], [], 0, null, ["loc", [null, [70, 11], [74, 18]]]]],
         locals: ["score"],
         templates: [child0]
       };
@@ -10953,7 +11048,7 @@ define("ttexp/templates/scores", ["exports"], function (exports) {
           "name": "missing-wrapper",
           "problems": ["wrong-type", "multiple-nodes"]
         },
-        "revision": "Ember@2.6.2",
+        "revision": "Ember@2.6.1",
         "loc": {
           "source": null,
           "start": {
@@ -10961,7 +11056,7 @@ define("ttexp/templates/scores", ["exports"], function (exports) {
             "column": 0
           },
           "end": {
-            "line": 91,
+            "line": 93,
             "column": 0
           }
         },
@@ -11193,7 +11288,7 @@ define("ttexp/templates/scores", ["exports"], function (exports) {
         morphs[7] = dom.createMorphAt(fragment, 8, 8, contextualElement);
         return morphs;
       },
-      statements: [["block", "link-to", ["scenarios"], ["id", "button-close", "class", "btn btn-link ttexp-btn\r\nttexp-position-absolute top-left"], 0, null, ["loc", [null, [2, 0], [5, 12]]]], ["attribute", "class", ["concat", ["show-hints-", ["get", "model.playthrough.scenario.showHints", ["loc", [null, [7, 47], [7, 83]]]]]]], ["block", "each", [["get", "model.playthrough.scores", ["loc", [null, [14, 15], [14, 39]]]]], [], 1, null, ["loc", [null, [14, 7], [21, 16]]]], ["block", "if", [["get", "model.playthrough.success", ["loc", [null, [27, 13], [27, 38]]]]], [], 2, 3, ["loc", [null, [27, 7], [31, 14]]]], ["content", "model.playthrough.hint", ["loc", [null, [39, 27], [39, 53]]]], ["block", "each", [["get", "model.playthrough.scores", ["loc", [null, [56, 18], [56, 42]]]]], [], 4, null, ["loc", [null, [56, 10], [62, 19]]]], ["block", "each", [["get", "model.playthrough.scores", ["loc", [null, [67, 18], [67, 42]]]]], [], 5, null, ["loc", [null, [67, 10], [73, 19]]]], ["content", "outlet", ["loc", [null, [90, 0], [90, 10]]]]],
+      statements: [["block", "link-to", ["scenarios"], ["id", "button-close", "class", "btn btn-link ttexp-btn ttexp-position-absolute top-left"], 0, null, ["loc", [null, [2, 0], [7, 12]]]], ["attribute", "class", ["concat", ["show-hints-", ["get", "model.playthrough.scenario.showHints", ["loc", [null, [9, 47], [9, 83]]]]]]], ["block", "each", [["get", "model.playthrough.scores", ["loc", [null, [16, 15], [16, 39]]]]], [], 1, null, ["loc", [null, [16, 7], [23, 16]]]], ["block", "if", [["get", "model.playthrough.success", ["loc", [null, [29, 13], [29, 38]]]]], [], 2, 3, ["loc", [null, [29, 7], [33, 14]]]], ["content", "model.playthrough.hint", ["loc", [null, [41, 27], [41, 53]]]], ["block", "each", [["get", "model.playthrough.scores", ["loc", [null, [58, 18], [58, 42]]]]], [], 4, null, ["loc", [null, [58, 10], [64, 19]]]], ["block", "each", [["get", "model.playthrough.scores", ["loc", [null, [69, 18], [69, 42]]]]], [], 5, null, ["loc", [null, [69, 10], [75, 19]]]], ["content", "outlet", ["loc", [null, [92, 0], [92, 10]]]]],
       locals: [],
       templates: [child0, child1, child2, child3, child4, child5]
     };
@@ -11205,7 +11300,7 @@ define("ttexp/templates/statistics", ["exports"], function (exports) {
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.6.2",
+          "revision": "Ember@2.6.1",
           "loc": {
             "source": null,
             "start": {
@@ -11284,7 +11379,7 @@ define("ttexp/templates/statistics", ["exports"], function (exports) {
           "name": "missing-wrapper",
           "problems": ["multiple-nodes", "wrong-type"]
         },
-        "revision": "Ember@2.6.2",
+        "revision": "Ember@2.6.1",
         "loc": {
           "source": null,
           "start": {
@@ -11624,7 +11719,7 @@ catch(err) {
 /* jshint ignore:start */
 
 if (!runningTests) {
-  require("ttexp/app")["default"].create({"serverApiUrl":"http://demo.ttexp.net/api","LOG_ACTIVE_GENERATION":false,"LOG_VIEW_LOOKUPS":false,"name":"ttexp","version":"1.3.0+793267d8"});
+  require("ttexp/app")["default"].create({"serverApiUrl":"http://demo.ttexp.net/api","LOG_ACTIVE_GENERATION":false,"LOG_VIEW_LOOKUPS":false,"name":"ttexp","version":"1.3.0+165d3f93"});
 }
 
 /* jshint ignore:end */
