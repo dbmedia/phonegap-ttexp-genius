@@ -1186,7 +1186,7 @@ define('ttexp/models/action', ['exports', 'ember-data'], function (exports, _emb
     item: _emberData['default'].belongsTo('item')
   });
 });
-define('ttexp/models/item', ['exports', 'ember-data'], function (exports, _emberData) {
+define('ttexp/models/item', ['exports', 'ember-data', 'ember'], function (exports, _emberData, _ember) {
   exports['default'] = _emberData['default'].Model.extend({
     uniqueCode: _emberData['default'].attr('string'),
     scenarioCode: _emberData['default'].attr('string'),
@@ -1195,7 +1195,7 @@ define('ttexp/models/item', ['exports', 'ember-data'], function (exports, _ember
 
     action: _emberData['default'].hasMany('action'),
 
-    fullPath: Ember.computed('uniqueCode', 'scenarioCode', function () {
+    fullPath: _ember['default'].computed('uniqueCode', 'scenarioCode', function () {
       return "audio/" + this.get('scenarioCode').toLowerCase() + '/' + this.get('uniqueCode') + '.mp3';
     })
   });
@@ -1634,8 +1634,8 @@ define("ttexp/routes/play", ["exports", "ember", "ember-simple-auth/mixins/authe
       });
     },
     activate: function activate() {
-      _ember["default"].$(window).unbind('restore');
-      _ember["default"].$(window).on('restore', function () {
+      _ember["default"].$(document).unbind('restore');
+      _ember["default"].$(document).on('restore', function () {
         // Fix IOS bug che rende nero il video se è arrivato alla fine e viene fatto il resume dell'applicazione
         var videoPlayer = _ember["default"].$("#video-player");
         if (videoPlayer && typeof videoPlayer[0] !== "undefined") {
@@ -1653,7 +1653,7 @@ define("ttexp/routes/play", ["exports", "ember", "ember-simple-auth/mixins/authe
       this._super.apply(this, arguments);
     },
     deactivate: function deactivate() {
-      _ember["default"].$(window).unbind('restore');
+      _ember["default"].$(document).unbind('restore');
 
       this._super.apply(this, arguments);
     },
@@ -1785,7 +1785,7 @@ define("ttexp/routes/play", ["exports", "ember", "ember-simple-auth/mixins/authe
           if (!item) {
             // Exit
             self.transitionTo('scenarios');
-          } else if (reason.type == "timeout") {
+          } else if (reason.type === "timeout") {
             window.location.reload();
           }
         });
@@ -1849,7 +1849,7 @@ define("ttexp/routes/play", ["exports", "ember", "ember-simple-auth/mixins/authe
 
         if (totalTime < 5000) {
           _ember["default"].run.later(function () {
-            if (videoPlayer.get(0).readyState == 4) {
+            if (videoPlayer.get(0).readyState === 4) {
               self.send('playVideo');
             } else {
               var newDelay = delay + 5; // delay progressivo cappato a 1000
@@ -1870,7 +1870,7 @@ define("ttexp/routes/play", ["exports", "ember", "ember-simple-auth/mixins/authe
         console.log("playVideo(): status(" + videoPlayer.get(0).readyState + ") paused(" + (videoPlayer.get(0).paused ? 'true' : 'false') + ")");
 
         if (videoPlayer.get(0).paused) {
-          if (videoPlayer.get(0).readyState != 4) {
+          if (videoPlayer.get(0).readyState !== 4) {
             self.send('delayPlayVideoUntilReady', 5);
           } else {
             videoPlayer.get(0).play();
@@ -11719,7 +11719,7 @@ catch(err) {
 /* jshint ignore:start */
 
 if (!runningTests) {
-  require("ttexp/app")["default"].create({"serverApiUrl":"http://demo.ttexp.net/api","LOG_ACTIVE_GENERATION":false,"LOG_VIEW_LOOKUPS":false,"name":"ttexp","version":"1.3.0+165d3f93"});
+  require("ttexp/app")["default"].create({"serverApiUrl":"http://demo.ttexp.net/api","LOG_ACTIVE_GENERATION":false,"LOG_VIEW_LOOKUPS":false,"name":"ttexp","version":"1.3.0+01ed142f"});
 }
 
 /* jshint ignore:end */
