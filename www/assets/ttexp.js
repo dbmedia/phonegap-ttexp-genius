@@ -1634,78 +1634,16 @@ define("ttexp/routes/play", ["exports", "ember", "ember-simple-auth/mixins/authe
       });
     },
     activate: function activate() {
-      _ember["default"].$(document).unbind('restore');
-      _ember["default"].$(document).on('restore', function () {
-        // Fix IOS bug che rende nero il video se è arrivato alla fine e viene fatto il resume dell'applicazione
-        var videoPlayer = _ember["default"].$("#video-player");
-        if (videoPlayer && typeof videoPlayer[0] !== "undefined") {
-          console.log("CHECK VIDEO RESUME");
-          var penultimateFrame = videoPlayer[0].duration - 0.042;
-          if (videoPlayer[0].currentTime > penultimateFrame) {
-            videoPlayer[0].pause();
-            videoPlayer[0].currentTime = penultimateFrame;
-
-            console.log("VIDEO FIXED");
-          }
-        }
-      });
+      document.removeEventListener("resume", fixVideoLastFrame, false);
+      document.addEventListener("resume", fixVideoLastFrame, false);
 
       this._super.apply(this, arguments);
     },
     deactivate: function deactivate() {
-      _ember["default"].$(document).unbind('restore');
+      document.removeEventListener("resume", fixVideoLastFrame, false);
 
       this._super.apply(this, arguments);
     },
-
-    /*
-    // Manda al penultimo frame una volta tornato all'applicazione dopo un lock o un resume
-    document.addEventListener("resume", function() {
-      var videoPlayer = Ember.$("#video-player");
-      if (typeof videoPlayer[0] !== "undefined") {
-        console.log("CHECK VIDEO RESUME");
-        var penultimateFrame = videoPlayer[0].duration - 0.042;
-        if (videoPlayer[0].currentTime >= penultimateFrame) {
-          videoPlayer[0].pause();
-          videoPlayer[0].currentTime = penultimateFrame;
-          
-          console.log("VIDEO FIXED");
-        }
-      }
-    }, false);
-    
-    
-    console.log("XXXXXXXXXXXX:"+$("#video-player")[0].XXXXXXXXXXXX);
-    console.log("audioTracks:"+$("#video-player")[0].audioTracks);
-    console.log("autoplay:"+$("#video-player")[0].autoplay);
-    console.log("buffered:"+$("#video-player")[0].buffered);
-    console.log("controller:"+$("#video-player")[0].controller);
-    console.log("controls:"+$("#video-player")[0].controls);
-    console.log("crossOrigin:"+$("#video-player")[0].crossOrigin);
-    console.log("currentSrc:"+$("#video-player")[0].currentSrc);
-    console.log("currentTime:"+$("#video-player")[0].currentTime);
-    console.log("defaultMuted:"+$("#video-player")[0].defaultMuted);
-    console.log("defaultPlaybackRate:"+$("#video-player")[0].defaultPlaybackRate);
-    console.log("duration:"+$("#video-player")[0].duration);
-    console.log("ended:"+$("#video-player")[0].ended);
-    console.log("error:"+$("#video-player")[0].error);
-    console.log("loop:"+$("#video-player")[0].loop);
-    console.log("mediaGroup:"+$("#video-player")[0].mediaGroup);
-    console.log("muted:"+$("#video-player")[0].muted);
-    console.log("networkState:"+$("#video-player")[0].networkState);
-    console.log("paused:"+$("#video-player")[0].paused);
-    console.log("playbackRate:"+$("#video-player")[0].playbackRate);
-    console.log("played:"+$("#video-player")[0].played);
-    console.log("preload:"+$("#video-player")[0].preload);
-    console.log("readyState:"+$("#video-player")[0].readyState);
-    console.log("seekable:"+$("#video-player")[0].seekable);
-    console.log("seeking:"+$("#video-player")[0].seeking);
-    console.log("src:"+$("#video-player")[0].src);
-    console.log("startDate:"+$("#video-player")[0].startDate);
-    console.log("textTracks:"+$("#video-player")[0].textTracks);
-    console.log("videoTracks:"+$("#video-player")[0].videoTracks);
-    console.log("volume:"+$("#video-player")[0].volume);
-    */
 
     actions: {
       clickItem: function clickItem(item) {
@@ -1933,6 +1871,21 @@ define("ttexp/routes/play", ["exports", "ember", "ember-simple-auth/mixins/authe
       }
     }
   });
+
+  function fixVideoLastFrame() {
+    // Fix IOS bug che rende nero il video se è arrivato alla fine e viene fatto il resume dell'applicazione
+    var videoPlayer = _ember["default"].$("#video-player");
+    if (videoPlayer && typeof videoPlayer[0] !== "undefined") {
+      console.log("CHECK VIDEO RESUME");
+      var penultimateFrame = videoPlayer[0].duration - 0.042;
+      if (videoPlayer[0].currentTime > penultimateFrame) {
+        videoPlayer[0].pause();
+        videoPlayer[0].currentTime = penultimateFrame;
+
+        console.log("VIDEO FIXED");
+      }
+    }
+  };
 });
 
 //import ENV from 'ttexp/config/environment';
