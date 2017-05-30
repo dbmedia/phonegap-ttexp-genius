@@ -608,7 +608,7 @@ html, body {
 .page-statistics .statistics-container {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center; }
+  justify-content: left; }
   .page-statistics .statistics-container .statistics-group-title {
     border-top: 10px solid white;
     text-align: center;
@@ -621,7 +621,7 @@ html, body {
     height: 110px;
     flex: 1;
     min-width: 25%;
-    /* 			max-width: 25%; */
+    max-width: 25%;
     width: 25%;
     border: 3px solid white;
     box-sizing: border-box;
@@ -629,6 +629,8 @@ html, body {
     vertical-align: middle;
     background-color: #C21B17;
     color: #ffffff; }
+    .page-statistics .statistics-container .statistic-box.gray {
+      background-color: #6F7072; }
     .page-statistics .statistics-container .statistic-box .statistic-description {
       box-sizing: border-box;
       position: absolute;
