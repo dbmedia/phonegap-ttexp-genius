@@ -1668,7 +1668,8 @@ define("ttexp/routes/play", ["exports", "ember", "ember-simple-auth/mixins/authe
                 }, function (reason) {
                   reject({
                     'type': 'generic',
-                    'message': reason.errors[0].title
+                    'message': 'problemi di connessione al server, si prega di riprovare'
+                    //                    'message': reason.errors[0].title
                   });
                 });
 
@@ -1687,12 +1688,13 @@ define("ttexp/routes/play", ["exports", "ember", "ember-simple-auth/mixins/authe
             }, function (reason) {
               reject({
                 'type': 'generic',
-                'message': reason.errors[0].title
+                'message': 'problemi di connessione al server, si prega di riprovare'
+                //                'message': reason.errors[0].title
               });
             });
           } else {
-            resolve(false);
-          }
+              resolve(false);
+            }
         });
 
         clickItemPromise.then(function (isEnabled) {
@@ -11319,11 +11321,11 @@ define("ttexp/templates/statistics", ["exports"], function (exports) {
           morphs[2] = dom.createAttrMorph(element0, 'class');
           morphs[3] = dom.createAttrMorph(element0, 'data-statistic-id');
           morphs[4] = dom.createMorphAt(element1, 0, 0);
-          morphs[5] = dom.createMorphAt(element1, 2, 2);
-          morphs[6] = dom.createMorphAt(dom.childAt(element0, [3]), 1, 1);
+          morphs[5] = dom.createUnsafeMorphAt(element1, 2, 2);
+          morphs[6] = dom.createUnsafeMorphAt(dom.childAt(element0, [3]), 1, 1);
           return morphs;
         },
-        statements: [["inline", "printStatisticTitle", [["get", "model.statistics", ["loc", [null, [20, 31], [20, 47]]]], ["get", "index", ["loc", [null, [20, 48], [20, 53]]]]], [], ["loc", [null, [20, 8], [20, 56]]]], ["attribute", "id", ["concat", [["get", "statistic.name", ["loc", [null, [21, 19], [21, 33]]]]]]], ["attribute", "class", ["concat", ["statistic-box ", ["get", "statistic.classes", ["loc", [null, [21, 60], [21, 77]]]]]]], ["attribute", "data-statistic-id", ["get", "statistic.id", ["loc", [null, [21, 101], [21, 113]]]]], ["content", "@index", ["loc", [null, [22, 44], [22, 54]]]], ["content", "statistic.descriptionShort", ["loc", [null, [22, 55], [22, 85]]]], ["content", "statistic.value", ["loc", [null, [24, 10], [24, 29]]]]],
+        statements: [["inline", "printStatisticTitle", [["get", "model.statistics", ["loc", [null, [20, 31], [20, 47]]]], ["get", "index", ["loc", [null, [20, 48], [20, 53]]]]], [], ["loc", [null, [20, 8], [20, 56]]]], ["attribute", "id", ["concat", [["get", "statistic.name", ["loc", [null, [21, 19], [21, 33]]]]]]], ["attribute", "class", ["concat", ["statistic-box ", ["get", "statistic.classes", ["loc", [null, [21, 60], [21, 77]]]]]]], ["attribute", "data-statistic-id", ["get", "statistic.id", ["loc", [null, [21, 101], [21, 113]]]]], ["content", "@index", ["loc", [null, [22, 44], [22, 54]]]], ["content", "statistic.descriptionShort", ["loc", [null, [22, 55], [22, 87]]]], ["content", "statistic.value", ["loc", [null, [24, 10], [24, 31]]]]],
         locals: ["statistic", "index"],
         templates: []
       };
@@ -11674,7 +11676,7 @@ catch(err) {
 /* jshint ignore:start */
 
 if (!runningTests) {
-  require("ttexp/app")["default"].create({"serverApiUrl":"http://demo.ttexp.net/api","LOG_ACTIVE_GENERATION":false,"LOG_VIEW_LOOKUPS":false,"name":"ttexp","version":"1.3.1+51974488"});
+  require("ttexp/app")["default"].create({"serverApiUrl":"http://demo.ttexp.net/api","LOG_ACTIVE_GENERATION":false,"LOG_VIEW_LOOKUPS":false,"name":"ttexp","version":"1.3.1+4747fd96"});
 }
 
 /* jshint ignore:end */

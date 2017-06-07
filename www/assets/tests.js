@@ -425,7 +425,7 @@ define('ttexp/tests/routes/play.jshint', ['exports'], function (exports) {
   QUnit.module('JSHint | routes/play.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(false, 'routes/play.js should pass jshint.\nroutes/play.js: line 142, col 9, \'resolveLocalFileSystemURL\' is not defined.\nroutes/play.js: line 217, col 9, \'resolveLocalFileSystemURL\' is not defined.\nroutes/play.js: line 6, col 19, \'service\' is defined but never used.\n\n3 errors');
+    assert.ok(false, 'routes/play.js should pass jshint.\nroutes/play.js: line 48, col 27, \'reason\' is defined but never used.\nroutes/play.js: line 68, col 23, \'reason\' is defined but never used.\nroutes/play.js: line 144, col 9, \'resolveLocalFileSystemURL\' is not defined.\nroutes/play.js: line 219, col 9, \'resolveLocalFileSystemURL\' is not defined.\nroutes/play.js: line 6, col 19, \'service\' is defined but never used.\n\n5 errors');
   });
 });
 define('ttexp/tests/routes/scenarios.jshint', ['exports'], function (exports) {
