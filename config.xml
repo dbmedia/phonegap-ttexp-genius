@@ -2,7 +2,7 @@
 <widget xmlns       = "http://www.w3.org/ns/widgets"
         xmlns:gap   = "http://phonegap.com/ns/1.0"
         id          = "it.gruppoina.agmonza.genius"
-        versionCode = "104"
+        versionCode = "105"
         version     = "1.3.2" >
     
     <name>GENius</name>
